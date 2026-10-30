@@ -1541,8 +1541,10 @@ details.yppmore .grid4 { margin-top: 8px; }
     for (let v of vids) {
       const lv = v.platform === "youtube" && state.live && state.live.videos && state.live.videos[v.video_id];
       if (lv) v = { ...v, views: lv.views, likes: lv.likes };
-      const a = el(v.video_id ? "a" : "div", "vcard");
-      if (v.video_id) { a.href = v.platform === "tiktok" ? `https://www.tiktok.com/@strangeknowns/video/${encodeURIComponent(v.video_id)}` : `https://youtu.be/${encodeURIComponent(v.video_id)}`; a.target = "_blank"; a.rel = "noopener"; }
+      // TikTok: Buffer's link to the post once it is sent (video_id is the Buffer post id).
+      const href = v.platform === "tiktok" ? (v.link && /^https:\/\//.test(v.link) ? v.link : null) : v.video_id ? `https://youtu.be/${encodeURIComponent(v.video_id)}` : null;
+      const a = el(href ? "a" : "div", "vcard");
+      if (href) { a.href = href; a.target = "_blank"; a.rel = "noopener"; }
       const th = el("div", "thumb"), pic = state.thumbs[v.id];
       th.append(el("span", null, "kein Vorschaubild"));
       if (pic) for (const cls of ["fill", "fit"]) { const img = el("img", cls); img.alt = ""; img.src = pic; th.append(img); }   // own copy, sealed (Felix 30.10.)
