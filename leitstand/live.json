@@ -1,5 +1,5 @@
 {
- "at": "2026-10-30T14:57:05Z",
+ "at": "2026-10-30T15:13:23Z",
  "channel": {
   "subscribers": 2,
   "views": 72,
@@ -7,14 +7,16 @@
  },
  "videos": {
   "8dxLxwGaDRg": {
-   "views": 99,
+   "views": 98,
    "likes": 3,
-   "comments": 0
+   "comments": 0,
+   "published": "2026-10-29T16:00:14Z"
   },
   "aKIOM6dUXvE": {
    "views": 16,
    "likes": 3,
-   "comments": 1
+   "comments": 1,
+   "published": "2026-10-28T10:46:03Z"
   }
  }
 }
