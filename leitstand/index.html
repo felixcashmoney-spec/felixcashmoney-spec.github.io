@@ -558,6 +558,26 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
   }
   function showNoData(text) { $("nodata-text").textContent = text; $("nodata").hidden = false; }
 
+  // ---------- missed posts: the plan against what YouTube shows publicly (Felix 30.10.) ----------
+  // A post counts as missed 30 minutes after its time when it is still "planned" (never uploaded) or,
+  // on YouTube, is not among the public videos of live.json (still private, deleted). Without fresh
+  // live.json only the never-uploaded case is checked.
+  function missedPosts() {
+    const d = state.data, now = berlinParts(new Date()), out = [];
+    const lv = state.live && state.live.at && hoursSince(state.live.at) < 3 ? state.live.videos || {} : null;
+    for (const c of (d && d.calendar) || []) {
+      if (c.day > now.day) continue;
+      for (const x of c.items) {
+        const [h, m] = (x.time || "00:00").split(":").map(Number);
+        if (c.day === now.day && now.hm < h * 60 + m + 30) continue;
+        if (x.status === "planned") out.push({ ...x, day: c.day, why: "nicht hochgeladen" });
+        else if (x.status === "uploaded" && x.platform === "youtube" && x.video_id && lv && !lv[x.video_id])
+          out.push({ ...x, day: c.day, why: "nicht öffentlich" });
+      }
+    }
+    return out;
+  }
+
   // ---------- alerts ----------
   function pageAlerts() {
     const out = [], d = state.data, st = state.status, now = berlinParts(new Date());
@@ -573,6 +593,8 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
     }
     if (state.live && state.live.at && hoursSince(state.live.at) > 3)
       out.push({ level: "gelb", area: "Webseite", text: `YouTube-Zahlen seit ${Math.round(hoursSince(state.live.at))} Stunden nicht abgeglichen (Abgleich alle 15 Min. läuft nicht).` });
+    for (const x of missedPosts())
+      out.push({ level: "rot", area: "Veröffentlichung", text: `${x.platform === "tiktok" ? "TikTok" : "YouTube"}-${x.kind === "long" ? "Video" : "Short"} vom ${fmtDay(x.day)} ${x.time} ${x.why}: ${x.title}`, impact: x.why === "nicht hochgeladen" ? "Der nächste Nachtlauf holt verpasste Termine der letzten 7 Tage nach (neuer Termin)." : "Steht in YouTube Studio noch auf privat oder wurde entfernt: dort prüfen." });
     return out;
   }
   function allAlerts() {
@@ -863,10 +885,11 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
     rows.push({ name: "YouTube-Zahlen (Webseite)", plan: "alle 15 Min., spätestens stündlich gespeichert", s: lh == null ? "none" : lh < 1.25 ? "ok" : lh < 3 ? "warn" : "bad", t: lh == null ? "Keine Zahlen" : lh < 1.25 ? "Pünktlich" : lh < 3 ? "Spät" : "Ausgefallen", beats: syncBeats, last: la });
     // publishing: posts of the last days by state
     const cal = (d && d.calendar) || [], past = cal.filter(c => c.day <= today);
-    const pubBeats = past.map(c => { const items = c.items.filter(x => x.platform === "youtube" || x.platform === "tiktok"); const bad = items.some(x => x.status === "failed"); return [!items.length ? "" : bad ? "bad" : "ok", `${fmtDay(c.day)}: ${items.length} Posts${bad ? ", fehlgeschlagen" : ""}`]; });
-    const failedPub = past.some(c => c.items.some(x => x.status === "failed"));
+    const missed = missedPosts(), missedOn = new Set(missed.map(x => x.day));
+    const pubBeats = past.map(c => { const items = c.items.filter(x => x.platform === "youtube" || x.platform === "tiktok"); const bad = items.some(x => x.status === "failed") || missedOn.has(c.day); return [!items.length ? "" : bad ? "bad" : "ok", `${fmtDay(c.day)}: ${items.length} Posts${bad ? ", fehlgeschlagen oder ausgefallen" : ""}`]; });
+    const failedPub = past.some(c => c.items.some(x => x.status === "failed")) || missed.length > 0;
     const lastVid = ((d && d.videos) || []).map(v => v.publish_at).filter(t => t && new Date(t) <= new Date()).sort().pop();
-    rows.push({ name: "Veröffentlichung YouTube + TikTok", plan: "laut Sendeplan", s: !d ? "none" : failedPub ? "bad" : "ok", t: !d ? "—" : failedPub ? "Fehlgeschlagen" : "Wie geplant", beats: pubBeats, last: lastVid });
+    rows.push({ name: "Veröffentlichung YouTube + TikTok", plan: "laut Sendeplan", s: !d ? "none" : failedPub ? "bad" : "ok", t: !d ? "—" : missed.length ? "Ausgefallen" : failedPub ? "Fehlgeschlagen" : "Wie geplant", beats: pubBeats, last: lastVid });
 
     for (const r of rows) {
       const tr = el("tr");
