@@ -1,8 +1,8 @@
 """Public YouTube numbers of Strange Knowns for the Dashboard page (run by .github/workflows/leitstand.yml).
 
 Three Data API calls (3 quota units): channel statistics and uploads playlist, the public uploads, their
-statistics. Only public numbers, nothing private. Writes the file only when a number changed or the
-last write is older than an hour, so the repo does not get a commit every 15 minutes.
+statistics. Only public numbers, nothing private. Writes the file on every run, so ``at`` is the time of
+the last check (every 5 minutes, Felix 30.10.: live); update.sh decides where it goes.
 
 ``history.json`` next to it keeps the numbers over time (Felix 30.10.: views per hour, a curve per video,
 the week before): one point an hour for the last 72 hours and the last point of each day for 120 days.
@@ -44,14 +44,6 @@ def main(path):
                           for k, v in videos.items()}}
     now = datetime.now(UTC)
     remember(os.path.join(os.path.dirname(path) or ".", "history.json"), now, numbers)
-    try:
-        old = json.load(open(path))
-        fresh = now - datetime.fromisoformat(old["at"].replace("Z", "+00:00")) < timedelta(minutes=55)
-        if fresh and {k: old.get(k) for k in numbers} == numbers:
-            print("unchanged")
-            return
-    except (OSError, ValueError, KeyError):
-        pass
     with open(path, "w") as f:
         json.dump({"at": now.strftime("%Y-%m-%dT%H:%M:%SZ"), **numbers}, f, indent=1)
         f.write("\n")

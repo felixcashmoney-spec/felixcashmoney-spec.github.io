@@ -1,9 +1,9 @@
 # Dashboard (formerly Leitstand of the Strange Knowns automation), https://felixcashmoney-spec.github.io/leitstand/
-# Every 15 minutes: the sealed data of the last night/repair run from the private repo's data branch,
+# Every 5 minutes (Felix 30.10.: live, before every 15): the sealed data of the last night/repair run from the private repo's data branch,
 # and the channel's public YouTube numbers (leitstand/update.sh). Commits only when something changed.
 #
 # GitHub's schedule never fired for this workflow (30.10.: only manual runs), so one run stays up
-# for almost 6 hours, updates every 15 minutes and then starts the next run itself (a dispatch with
+# for almost 6 hours, updates every 5 minutes and then starts the next run itself (a dispatch with
 # the workflow token does start a new run). The schedule stays as a second way in; the concurrency
 # group keeps it to one running chain. If the chain ever breaks: Actions -> Dashboard -> Run workflow.
 name: Dashboard
@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update every 15 minutes for 5 h 45 min
+      - name: Update every 5 minutes for 5 h 45 min
         env:
           TOKEN: ${{ secrets.LEITSTAND_READ_TOKEN }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
@@ -37,8 +37,8 @@ jobs:
         run: |
           end=$(( $(date +%s) + 345 * 60 ))
           while :; do
-            bash leitstand/update.sh || echo "::warning::Abgleich fehlgeschlagen, nächster Versuch in 15 Minuten"
-            next=$(( ($(date +%s) / 900 + 1) * 900 + 240 ))      # :04, :19, :34, :49
+            bash leitstand/update.sh || echo "::warning::Abgleich fehlgeschlagen, nächster Versuch in 5 Minuten"
+            next=$(( ($(date +%s) / 300 + 1) * 300 + 60 ))       # :01, :06, :11, ...
             [ "$next" -ge "$end" ] && break
             sleep $(( next - $(date +%s) ))
           done
