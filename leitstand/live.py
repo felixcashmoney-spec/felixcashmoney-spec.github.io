@@ -1,4 +1,4 @@
-"""Public YouTube numbers of Strange Knowns for the Leitstand page (run by .github/workflows/leitstand.yml).
+"""Public YouTube numbers of Strange Knowns for the Dashboard page (run by .github/workflows/leitstand.yml).
 
 Three Data API calls (3 quota units): channel statistics and uploads playlist, the public uploads, their
 statistics. Only public numbers, nothing private. Writes the file only when a number changed or the

@@ -8,9 +8,9 @@
 <meta name="theme-color" content="#f3f4f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1220" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Leitstand">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233a44c9'/%3E%3Cpath d='M7 22h4v-6H7zm7 0h4V10h-4zm7 0h4v-9h-4z' fill='%23fff'/%3E%3C/svg%3E">
-<title>Strange Knowns Leitstand</title>
+<title>Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -201,7 +201,7 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
   <header class="top">
     <div>
       <div class="eyebrow">Strange Knowns · YouTube und TikTok</div>
-      <h1>Leitstand</h1>
+      <h1>Dashboard</h1>
     </div>
     <div class="meta">
       <span id="overall" class="pill idle">Lädt …</span>
@@ -288,7 +288,7 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
 
   <footer>
     <div>Live: YouTube-Abonnenten, -Aufrufe und -Likes (alle 15 Minuten von YouTube). Alles andere ist der Stand nach dem letzten Nacht- oder Reparaturlauf.</div>
-    <div>Quelle: dieselben Daten wie im Artifact (<span class="mono">ytauto/logs/dashboard.json</span>), nach jedem Nachtlauf und jedem Reparaturlauf verschlüsselt hier abgelegt. Lesbar nur mit dem Schlüssel im Link (Teil nach #), der nie an den Server geht. Credits: Stand der letzten Messung im Nachtlauf. Live-Abruf von Guthaben und Aufgabe: <a href="https://claude.ai/artifact/DManr1VMCHrZNw1RhPSCo9" target="_blank" rel="noopener">Leitstand in claude.ai</a>.</div>
+    <div>Quelle: dieselben Daten wie im Artifact (<span class="mono">ytauto/logs/dashboard.json</span>), nach jedem Nachtlauf und jedem Reparaturlauf verschlüsselt hier abgelegt. Lesbar nur mit dem Schlüssel im Link (Teil nach #), der nie an den Server geht. Credits: Stand der letzten Messung im Nachtlauf. Live-Abruf von Guthaben und Aufgabe: <a href="https://claude.ai/artifact/DManr1VMCHrZNw1RhPSCo9" target="_blank" rel="noopener">Dashboard in claude.ai</a>.</div>
     <div id="foot-gen"></div>
   </footer>
 </div>
@@ -351,7 +351,7 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
   async function loadFiles() {
     loadLive().then(render);
     const key = currentKey();
-    if (!key) { askKey("Für den Leitstand fehlt der Schlüssel. Öffne den Link mit #k=… (steht in Obsidian unter youtube-automation) oder füge ihn hier ein."); render(); return; }
+    if (!key) { askKey("Für das Dashboard fehlt der Schlüssel. Öffne den Link mit #k=… (steht in Obsidian unter youtube-automation) oder füge ihn hier ein."); render(); return; }
     if (!window.crypto || !crypto.subtle || typeof DecompressionStream === "undefined") { showNoData("Dieser Browser kann die Daten nicht entschlüsseln. Bitte einen aktuellen Safari, Chrome oder Firefox nehmen."); return; }
     let box;
     try {
