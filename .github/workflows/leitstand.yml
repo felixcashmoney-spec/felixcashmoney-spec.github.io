@@ -1,7 +1,7 @@
-# Leitstand (dashboard of the Strange Knowns automation), https://felixcashmoney-spec.github.io/leitstand/
+# Dashboard (formerly Leitstand of the Strange Knowns automation), https://felixcashmoney-spec.github.io/leitstand/
 # Every 15 minutes: the sealed data of the last night/repair run from the private repo's data branch,
 # and the channel's public YouTube numbers. Commits only when something changed.
-name: Leitstand
+name: Dashboard
 
 on:
   schedule:
@@ -49,7 +49,7 @@ jobs:
           git add leitstand/data.json leitstand/live.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
           git -c user.name="leitstand-bot" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -q -m "Leitstand $(date -u +%Y-%m-%dT%H:%MZ)"
+            commit -q -m "Dashboard $(date -u +%Y-%m-%dT%H:%MZ)"
           git push -q
           # pushes with the workflow token may not start a Pages build by themselves
           curl -sS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
