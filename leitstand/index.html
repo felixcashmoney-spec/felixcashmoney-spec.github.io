@@ -505,7 +505,7 @@ footer details > div { margin-top: 4px; }
 
   <footer>
     <details><summary>Woher die Daten kommen · <span id="foot-gen"></span></summary>
-      <div>Live: YouTube-Abonnenten, -Aufrufe und -Likes (alle 15 Minuten von YouTube, Verlauf stündlich). Alles andere ist der Stand nach dem letzten Nacht- oder Reparaturlauf.</div>
+      <div>Live: YouTube-Abonnenten, -Aufrufe und -Likes (alle 5 Minuten von YouTube, die Seite fragt alle 3 Minuten nach; Verlauf stündlich). Alles andere ist der Stand nach dem letzten Nacht- oder Reparaturlauf.</div>
       <div>Quelle: dieselben Daten wie im Artifact (<span class="mono">ytauto/logs/dashboard.json</span>), nach jedem Nacht- und Reparaturlauf verschlüsselt hier abgelegt. Lesbar nur mit dem Schlüssel im Link (Teil nach #), der nie an den Server geht. Live-Abruf von Guthaben und Aufgabe: <a href="https://claude.ai/artifact/DManr1VMCHrZNw1RhPSCo9" target="_blank" rel="noopener">Dashboard in claude.ai</a>.</div>
     </details>
   </footer>
@@ -525,7 +525,7 @@ footer details > div { margin-top: 4px; }
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const NS = "http://www.w3.org/2000/svg";
   const sv = (t, a, text) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (text != null) e.textContent = text; return e; };
-  const state = { openAlerts: new Set(), openSteps: new Set(), logs: {}, prodDay: null, data: null, status: null, live: null, hist: null, range: "48h", kpi: "views", cell: null, trigger: null, balance: null };
+  const state = { openAlerts: new Set(), openSteps: new Set(), logs: {}, prodDay: null, data: null, status: null, live: null, hist: null, range: "48h", kpi: "views", cell: null, trigger: null, balance: null, base: null };
 
   // Berlin wall clock, independent of the viewer's own zone.
   function berlinParts(d) {
@@ -566,21 +566,37 @@ footer details > div { margin-top: 4px; }
   }
   function askKey(text) { showNoData(text); $("keyform").hidden = false; }
 
-  // Public YouTube numbers and their history, fetched by the website repo's workflow (not sealed).
-  async function getJson(name) {
-    try { const r = await fetch(name + "?t=" + Date.now(), { cache: "no-store" }); return r.ok ? await r.json() : null; }
+  // Live (Felix 30.10.): the website repo's workflow puts fresh files every 5 minutes onto its branch
+  // "live". They are read by commit through raw.githubusercontent.com, so neither the Pages cache
+  // (10 min.) nor a Pages build is in the way; one GitHub API call per check (60 an hour without login).
+  // Without it (limit reached, offline) the copies next to the page are used, saved there hourly.
+  const LIVE_REPO = "felixcashmoney-spec/felixcashmoney-spec.github.io";
+  async function liveBase() {
+    try {
+      const r = await fetch(`https://api.github.com/repos/${LIVE_REPO}/commits/live`, { headers: { Accept: "application/vnd.github.sha" }, cache: "no-store" });
+      if (r.ok) return `https://raw.githubusercontent.com/${LIVE_REPO}/${(await r.text()).trim()}/leitstand/`;
+    } catch (_) { /* the copies next to the page */ }
+    return "";
+  }
+  const fileUrl = (base, name) => base ? base + name : name + "?t=" + Date.now();
+  // Public YouTube numbers and their history (not sealed).
+  async function getJson(url) {
+    try { const r = await fetch(url, { cache: "no-store" }); return r.ok ? await r.json() : null; }
     catch (_) { return null; }
   }
-  async function loadLive() { [state.live, state.hist] = await Promise.all([getJson("live.json"), getJson("history.json")]); }
+  async function loadLive(base) { [state.live, state.hist] = await Promise.all([getJson(fileUrl(base, "live.json")), getJson(fileUrl(base, "history.json"))]); }
 
-  async function loadFiles() {
-    loadLive().then(render);
+  async function loadFiles(force) {
+    const base = await liveBase();
+    if (!force && base && base === state.base && state.data) { render(); return; }     // nothing new since the last check
+    state.base = base;
+    loadLive(base).then(render);
     const key = currentKey();
     if (!key) { askKey("Für das Dashboard fehlt der Schlüssel. Öffne den Link mit #k=… (steht in Obsidian unter youtube-automation) oder füge ihn hier ein."); render(); return; }
     if (!window.crypto || !crypto.subtle || typeof DecompressionStream === "undefined") { showNoData("Dieser Browser kann die Daten nicht entschlüsseln. Bitte einen aktuellen Safari, Chrome oder Firefox nehmen."); return; }
     let box;
     try {
-      const r = await fetch("data.json?t=" + Date.now(), { cache: "no-store" });
+      const r = await fetch(fileUrl(base, "data.json"), { cache: "no-store" });
       if (r.status === 404) { showNoData("Noch keine Daten hier. Der Nachtlauf legt sie nach seinem nächsten Lauf ab."); render(); return; }
       if (!r.ok) throw new Error("HTTP " + r.status);
       box = await r.json();
@@ -631,8 +647,8 @@ footer details > div { margin-top: 4px; }
         out.push(now.hm > 7 * 60 ? { level: "rot", area: "Nachtlauf", text: "Der Nachtlauf ist heute nicht zu Ende gelaufen (Abschluss fehlt)." }
                                  : { level: "info", area: "Nachtlauf", text: "Der Nachtlauf läuft gerade." });
     }
-    if (state.live && state.live.at && hoursSince(state.live.at) > 3)
-      out.push({ level: "gelb", area: "Webseite", text: `YouTube-Zahlen seit ${Math.round(hoursSince(state.live.at))} Stunden nicht abgeglichen (Abgleich alle 15 Min. läuft nicht).` });
+    if (state.live && state.live.at && hoursSince(state.live.at) > 1.5)
+      out.push({ level: "gelb", area: "Webseite", text: `YouTube-Zahlen seit ${Math.round(hoursSince(state.live.at))} Stunden nicht abgeglichen (Abgleich alle 5 Min. läuft nicht).` });
     for (const x of missedPosts())
       out.push({ level: "rot", area: "Veröffentlichung", text: `${x.platform === "tiktok" ? "TikTok" : "YouTube"}-${x.kind === "long" ? "Video" : "Short"} vom ${fmtDay(x.day)} ${x.time} ${x.why}: ${x.title}`, impact: x.why === "nicht hochgeladen" ? "Der nächste Nachtlauf holt verpasste Termine der letzten 7 Tage nach (neuer Termin)." : "Steht in YouTube Studio noch auf privat oder wurde entfernt: dort prüfen." });
     return out;
@@ -930,7 +946,7 @@ footer details > div { margin-top: 4px; }
     const hourly = (state.hist && state.hist.hourly) || [], la = state.live && state.live.at, lh = la ? hoursSince(la) : null;
     const syncBeats = []; const nowMs = Date.now();
     for (let k = 23; k >= 0; k--) { const a = new Date(nowMs - (k + 1) * 3600000).toISOString(), b = new Date(nowMs - k * 3600000).toISOString(); const hit = hourly.some(p => p.t > a && p.t <= b); syncBeats.push([hit ? "ok" : hourly.length && hourly[0].t <= b ? "bad" : "", `${fmtHour(b)}: ${hit ? "abgeglichen" : "kein Abgleich"}`]); }
-    rows.push({ name: "YouTube-Zahlen (Webseite)", plan: "alle 15 Min., spätestens stündlich gespeichert", s: lh == null ? "none" : lh < 1.25 ? "ok" : lh < 3 ? "warn" : "bad", t: lh == null ? "Keine Zahlen" : lh < 1.25 ? "Pünktlich" : lh < 3 ? "Spät" : "Ausgefallen", beats: syncBeats, last: la });
+    rows.push({ name: "YouTube-Zahlen (Webseite)", plan: "alle 5 Min.", s: lh == null ? "none" : lh < (state.base ? 0.25 : 1.4) ? "ok" : lh < 3 ? "warn" : "bad", t: lh == null ? "Keine Zahlen" : lh < (state.base ? 0.25 : 1.4) ? "Pünktlich" : lh < 3 ? "Spät" : "Ausgefallen", beats: syncBeats, last: la });
     // publishing: posts of the last days by state
     const cal = (d && d.calendar) || [], past = cal.filter(c => c.day <= today);
     const missed = missedPosts(), missedOn = new Set(missed.map(x => x.day));
@@ -1328,16 +1344,16 @@ footer details > div { margin-top: 4px; }
   }
 
   // ---------- wiring ----------
-  $("reload").addEventListener("click", () => loadFiles());
+  $("reload").addEventListener("click", () => loadFiles(true));
   $("g-night-btn").addEventListener("click", openNightAlert);
   document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { state.range = b.dataset.r; renderViews(); }));
   $("keyform").addEventListener("submit", (e) => {
     e.preventDefault();
     const k = keyFromText($("keyin").value);
     if (!k) { $("nodata-text").textContent = "Das ist kein gültiger Schlüssel. Er steht im Link hinter #k= (43 Zeichen)."; return; }
-    storeKey(k); history.replaceState(null, "", "#k=" + k); $("keyin").value = ""; loadFiles();
+    storeKey(k); history.replaceState(null, "", "#k=" + k); $("keyin").value = ""; loadFiles(true);
   });
-  window.addEventListener("hashchange", () => { if (keyFromText(location.hash)) loadFiles(); });
+  window.addEventListener("hashchange", () => { if (keyFromText(location.hash)) loadFiles(true); });
   $("showlog").addEventListener("click", async () => {
     const pre = $("log");
     if (!pre.hidden) { pre.hidden = true; $("showlog").textContent = "Log anzeigen"; return; }
@@ -1353,10 +1369,11 @@ footer details > div { margin-top: 4px; }
   render();
   loadFiles();
   setInterval(render, 60000);   // time-based alerts move on while the page stays open
-  // New data after each night and repair run: fetch again every 10 minutes and when the tab comes back.
+  // Live: check for new files every 3 minutes while the page is open and when the tab comes back
+  // (20 GitHub API calls an hour, a third of the limit without login).
   let fetched = Date.now();
-  const refresh = () => { if (document.visibilityState === "visible" && Date.now() - fetched > 120000) { fetched = Date.now(); loadFiles(); } };
-  setInterval(() => { if (Date.now() - fetched > 600000) refresh(); }, 60000);
+  const refresh = () => { if (document.visibilityState === "visible" && Date.now() - fetched > 60000) { fetched = Date.now(); loadFiles(); } };
+  setInterval(() => { if (Date.now() - fetched > 180000) refresh(); }, 30000);
   document.addEventListener("visibilitychange", refresh);
 })();
 </script>
