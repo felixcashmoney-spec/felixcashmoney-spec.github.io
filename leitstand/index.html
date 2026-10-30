@@ -5,290 +5,468 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<meta name="theme-color" content="#f3f4f7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1220" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#030712" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Dashboard">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233a44c9'/%3E%3Cpath d='M7 22h4v-6H7zm7 0h4V10h-4zm7 0h4v-9h-4z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%236366f1'/%3E%3Cpath d='M7 22h4v-6H7zm7 0h4V10h-4zm7 0h4v-9h-4z' fill='%23fff'/%3E%3C/svg%3E">
 <title>Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a broadcast control desk. Status line first, then the alerts, four gauges, the
-   posting plan as a two-lane program strip, then the night's run sheet, costs and videos. */
+/* Layout (Felix' Wahl 30.10.: Tremor-Optik, dazu Uptime-Kuma-Herzschlag, Glance-Videoreihe,
+   Plausible-Kennzahlreihe): Kopf + Sprungleiste, dann Übersicht (Hinweise, Kennzahlen, Status,
+   Partnerprogramm), Läufe (Fristen, Schritte-Raster, letzte Nacht, Produktion), Sendeplan, Kanal
+   (Aufrufe-Verlauf, Videoreihe, Rangliste), Kosten (Budgetkurve, Tageskosten, je Schritt). */
 :root {
-  --bg: #f3f4f7;
+  --bg: #f9fafb;
   --panel: #ffffff;
-  --ink: #161a2b;
-  --muted: #5b6178;
-  --line: #dcdfe8;
-  --accent: #3a44c9;
-  --accent-soft: #e6e8fb;
-  --ok: #1d7a4c;
-  --ok-soft: #e2f3ea;
-  --warn: #9a6400;
-  --warn-soft: #fbf0d9;
-  --bad: #b42335;
-  --bad-soft: #fbe4e7;
-  --yt: #c4302b;
-  --tt: #0f8f8a;
-  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
-  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --ink: #111827;
+  --muted: #6b7280;
+  --faint: #9ca3af;
+  --line: #e5e7eb;
+  --accent: #6366f1;
+  --accent-ink: #4f46e5;
+  --accent-soft: #eef2ff;
+  --track: #e0e7ff;
+  --ok: #059669;
+  --ok-mark: #10b981;
+  --ok-soft: #ecfdf5;
+  --warn: #b45309;
+  --warn-mark: #f59e0b;
+  --warn-soft: #fffbeb;
+  --bad: #dc2626;
+  --bad-mark: #ef4444;
+  --bad-soft: #fef2f2;
+  --none: #e5e7eb;
+  --yt: #dc2626;
+  --tt: #0d9488;
+  --tip-bg: #111827;
+  --tip-ink: #f9fafb;
+  --font: "Geist", "Segoe UI", system-ui, sans-serif;
+  --font-data: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1220; --panel: #171b2e; --ink: #e8eaf4; --muted: #9aa0ba; --line: #2a3048;
-    --accent: #9aa3ff; --accent-soft: #252b52; --ok: #5ccf94; --ok-soft: #173326;
-    --warn: #f0b94e; --warn-soft: #3a2c12; --bad: #ff7d8c; --bad-soft: #3d1a20;
-    --yt: #ff6b63; --tt: #4fd1c9; color-scheme: dark;
+    --bg: #030712; --panel: #0b101b; --ink: #f9fafb; --muted: #9ca3af; --faint: #6b7280; --line: #1f2937;
+    --accent: #818cf8; --accent-ink: #a5b4fc; --accent-soft: #1e1b4b; --track: #312e81;
+    --ok: #34d399; --ok-mark: #10b981; --ok-soft: #022c22; --warn: #fbbf24; --warn-mark: #f59e0b; --warn-soft: #2a1d05;
+    --bad: #f87171; --bad-mark: #ef4444; --bad-soft: #2a0b0b; --none: #1f2937; --yt: #f87171; --tt: #2dd4bf;
+    --tip-bg: #f9fafb; --tip-ink: #111827; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f1220; --panel: #171b2e; --ink: #e8eaf4; --muted: #9aa0ba; --line: #2a3048;
-  --accent: #9aa3ff; --accent-soft: #252b52; --ok: #5ccf94; --ok-soft: #173326;
-  --warn: #f0b94e; --warn-soft: #3a2c12; --bad: #ff7d8c; --bad-soft: #3d1a20;
-  --yt: #ff6b63; --tt: #4fd1c9; color-scheme: dark;
+  --bg: #030712; --panel: #0b101b; --ink: #f9fafb; --muted: #9ca3af; --faint: #6b7280; --line: #1f2937;
+  --accent: #818cf8; --accent-ink: #a5b4fc; --accent-soft: #1e1b4b; --track: #312e81;
+  --ok: #34d399; --ok-mark: #10b981; --ok-soft: #022c22; --warn: #fbbf24; --warn-mark: #f59e0b; --warn-soft: #2a1d05;
+  --bad: #f87171; --bad-mark: #ef4444; --bad-soft: #2a0b0b; --none: #1f2937; --yt: #f87171; --tt: #2dd4bf;
+  --tip-bg: #f9fafb; --tip-ink: #111827; color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
-.wrap { max-width: 1180px; margin: 0 auto; padding-block: 20px 48px;
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(56px + env(safe-area-inset-top, 0px)); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 1200px; margin: 0 auto; padding-block: 18px 48px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 22px; }
-h1, h2 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.2rem); font-weight: 700; letter-spacing: -0.01em; }
-h2 { font-size: 1.15rem; font-weight: 700; }
-.eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); font-weight: 600; }
-.num, td.n, .mono { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+  display: grid; gap: 28px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; }
+h2 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
+h3 { font-size: .9rem; font-weight: 600; }
+.num, .mono, td.n { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); }
-button { font: inherit; font-size: .85rem; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
-  border-radius: 8px; padding: 6px 12px; cursor: pointer; }
-button:hover { border-color: var(--accent); color: var(--accent); }
-button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-a { color: var(--accent); }
+.small { font-size: .8rem; }
+button { font: inherit; font-size: .82rem; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  border-radius: 6px; padding: 5px 11px; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / .04); }
+button:hover { border-color: var(--accent); color: var(--accent-ink); }
+button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+a { color: var(--accent-ink); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
-header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+header.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; color: #fff; font-weight: 600; font-size: .85rem; flex: none; }
+.brand .sub { font-size: .78rem; color: var(--muted); }
 header.top .meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.pill { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 999px; font-weight: 600; font-size: .85rem; }
-.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-.pill.ok { background: var(--ok-soft); color: var(--ok); }
-.pill.warn { background: var(--warn-soft); color: var(--warn); }
-.pill.bad { background: var(--bad-soft); color: var(--bad); }
-.pill.idle { background: var(--accent-soft); color: var(--accent); }
+nav.jump { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; gap: 4px; overflow-x: auto; margin-top: -14px; padding-block: 6px; scrollbar-width: none; }
+nav.jump a { color: var(--muted); font-size: .85rem; font-weight: 500; padding: 6px 10px; border-radius: 6px; white-space: nowrap; }
+nav.jump a:hover { color: var(--ink); background: var(--panel); text-decoration: none; }
 
-section.block { display: grid; gap: 12px; min-width: 0; }
-.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+.pill { display: inline-flex; align-items: center; gap: 7px; padding: 3px 10px; border-radius: 6px; font-weight: 500; font-size: .8rem; border: 1px solid transparent; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); border-color: color-mix(in srgb, var(--ok) 25%, transparent); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); border-color: color-mix(in srgb, var(--warn) 25%, transparent); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); border-color: color-mix(in srgb, var(--bad) 25%, transparent); }
+.pill.idle { background: var(--accent-soft); color: var(--accent-ink); }
+.delta { display: inline-block; font-family: var(--font-data); font-size: .72rem; font-weight: 500; padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.delta.up { color: var(--ok); background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 25%, transparent); }
+.delta.down { color: var(--bad); background: var(--bad-soft); border-color: color-mix(in srgb, var(--bad) 25%, transparent); }
+.delta.up.cost { color: var(--bad); background: var(--bad-soft); border-color: color-mix(in srgb, var(--bad) 25%, transparent); }
+.delta.down.cost { color: var(--ok); background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 25%, transparent); }
 
+section.area { display: grid; gap: 16px; min-width: 0; }
+section.area > .title { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+section.area > .title h2 { font-size: 1.2rem; }
+.block { display: grid; gap: 10px; min-width: 0; }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; box-shadow: 0 1px 2px rgb(0 0 0 / .03); }
+.grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.two { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 900px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.empty { color: var(--muted); font-size: .85rem; }
+
+/* alerts */
 .alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.alerts li { display: grid; grid-template-columns: 6px minmax(0, 1fr); background: var(--panel); border: 1px solid var(--line);
-  border-radius: 10px; overflow: hidden; }
-.alerts li::before { content: ""; background: var(--muted); }
-.alerts li.rot::before { background: var(--bad); }
-.alerts li.gelb::before { background: var(--warn); }
-.alerts li.gut::before { background: var(--ok); }
+.alerts li { display: grid; grid-template-columns: 4px minmax(0, 1fr); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.alerts li::before { content: ""; background: var(--faint); }
+.alerts li.rot::before { background: var(--bad-mark); }
+.alerts li.gelb::before { background: var(--warn-mark); }
+.alerts li.gut::before { background: var(--ok-mark); }
 .alerts .body { padding: 9px 14px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; min-width: 0; }
-.alerts .area { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; color: var(--muted); min-width: 92px; }
+.alerts .area { font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; color: var(--muted); min-width: 92px; }
 .alerts .txt { min-width: 0; overflow-wrap: anywhere; }
 .alerts details { min-width: 0; }
 .alerts summary { list-style: none; cursor: pointer; padding: 9px 14px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
 .alerts summary::-webkit-details-marker { display: none; }
-.alerts summary .more { margin-left: auto; font-size: .78rem; color: var(--accent); white-space: nowrap; }
+.alerts summary .more { margin-left: auto; font-size: .78rem; color: var(--accent-ink); white-space: nowrap; }
 .alerts details[open] summary .more::after { content: " ▴"; } .alerts details:not([open]) summary .more::after { content: " ▾"; }
 .alerts summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.alerts .done-tag { font-size: .7rem; font-weight: 600; padding: 1px 7px; border-radius: 5px; background: var(--ok-soft); color: var(--ok); }
-.alerts .ask-tag { font-size: .7rem; font-weight: 600; padding: 1px 7px; border-radius: 5px; background: var(--warn-soft); color: var(--warn); }
-.repair { display: grid; gap: 6px; font-size: .86rem; }
-.repair .rhead { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
-.repair ul { margin: 0; padding-left: 18px; display: grid; gap: 2px; overflow-wrap: anywhere; }
-.why { padding: 0 14px 12px; display: grid; gap: 8px; font-size: .88rem; }
+.done-tag, .ask-tag { font-size: .7rem; font-weight: 500; padding: 1px 7px; border-radius: 5px; }
+.done-tag { background: var(--ok-soft); color: var(--ok); } .ask-tag { background: var(--warn-soft); color: var(--warn); }
+.why { padding: 0 14px 12px; display: grid; gap: 8px; font-size: .86rem; }
 .why dl { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; }
-.why dt { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding-top: 2px; }
+.why dt { font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding-top: 2px; }
 .why dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 520px) { .why dl { grid-template-columns: minmax(0, 1fr); } .why dt { padding-top: 6px; } }
-.why pre { max-height: 260px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-family: var(--font-data); font-size: .72rem; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+pre.log, .why pre { max-height: 300px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-family: var(--font-data); font-size: .72rem; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+pre.log { max-height: 420px; }
 .why .links { display: flex; flex-wrap: wrap; gap: 8px; }
-.gauge button.big-btn { all: unset; cursor: pointer; display: grid; gap: 8px; }
-.gauge button.big-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
-.gauge .hint { font-size: .78rem; color: var(--accent); }
+
+/* KPI cards (Tremor) with a Plausible-style switch for the big chart */
+.kpi { display: grid; gap: 4px; align-content: start; }
+.kpi .label { display: flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 500; }
+.kpi .value { font-size: 1.65rem; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.kpi .value small { font-size: .85rem; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+.kpi .from { font-size: .78rem; color: var(--muted); }
+.kpi svg.spark { width: 100%; height: 40px; margin-top: 6px; }
+button.kpi { font: inherit; color: inherit; text-align: left; width: 100%; box-shadow: 0 1px 2px rgb(0 0 0 / .03); }
+button.kpi:hover { color: inherit; }
+.card.pick { cursor: pointer; }
+.card.pick:hover { border-color: var(--accent); }
+.card.pick[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+
+/* status cards */
+.stat { display: grid; gap: 8px; align-content: start; }
+.stat .label { font-size: .85rem; font-weight: 500; color: var(--muted); }
+.stat .big { font-size: 1.35rem; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
+.stat .sub { font-size: .8rem; color: var(--muted); overflow-wrap: anywhere; }
+.stat .live { font-size: .74rem; color: var(--ok); }
+.stat button.big-btn { all: unset; cursor: pointer; display: grid; gap: 6px; }
+.stat button.big-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+.stat .hint { font-size: .76rem; color: var(--accent-ink); }
+.quota { display: grid; gap: 5px; }
+.quota .row { display: flex; justify-content: space-between; gap: 8px; font-size: .82rem; }
+.quota .row span:last-child { font-family: var(--font-data); font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.quota .row b { color: var(--ink); font-weight: 500; }
+.bar { position: relative; height: 6px; border-radius: 3px; background: var(--track); }
+.bar > i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--accent); max-width: 100%; }
+.bar > b { position: absolute; top: -3px; bottom: -3px; width: 2px; border-radius: 1px; background: var(--ink); }
+.bar.warn > i { background: var(--warn-mark); } .bar.bad > i { background: var(--bad-mark); } .bar.ok > i { background: var(--ok-mark); }
+.stack { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--track); gap: 2px; }
+.stack i { display: block; height: 100%; }
+.legend { display: grid; gap: 3px; font-size: .78rem; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; background: var(--c); vertical-align: 0; }
+
+/* stages */
+.stages { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.stages li { font-size: .76rem; padding: 3px 9px; border-radius: 5px; background: var(--panel); color: var(--muted); border: 1px solid var(--line); }
+.stages li.done { color: var(--ok); border-color: transparent; background: var(--ok-soft); }
+.stages li.now { color: #fff; background: var(--accent); border-color: var(--accent); font-weight: 500; }
+.stages li.stop { color: #fff; background: var(--bad-mark); border-color: var(--bad-mark); font-weight: 500; }
+
+/* deadlines with heartbeat (Healthchecks + Uptime Kuma) */
+table.checks { width: 100%; border-collapse: collapse; font-size: .84rem; }
+table.checks th { text-align: left; font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding: 0 10px 8px 0; border-bottom: 1px solid var(--line); }
+table.checks td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+table.checks tr:last-child td { border-bottom: 0; }
+table.checks .name b { font-weight: 500; display: block; }
+table.checks .name span { font-size: .76rem; color: var(--muted); }
+table.checks .when { font-size: .78rem; color: var(--muted); white-space: nowrap; }
+.beats { display: flex; gap: 2px; align-items: center; min-width: 0; }
+.beats i { flex: 0 0 auto; width: 5px; height: 20px; border-radius: 2px; background: var(--none); }
+.beats i.ok { background: var(--ok-mark); } .beats i.bad { background: var(--bad-mark); } .beats i.warn { background: var(--warn-mark); }
+.pct { font-family: var(--font-data); font-size: .72rem; padding: 1px 6px; border-radius: 5px; font-weight: 500; white-space: nowrap; }
+.pct.ok { background: var(--ok-mark); color: #fff; } .pct.warn { background: var(--warn-mark); color: #111; } .pct.bad { background: var(--bad-mark); color: #fff; } .pct.none { background: var(--none); color: var(--muted); }
+@media (max-width: 700px) {
+  table.checks thead { display: none; }
+  table.checks tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  table.checks tr:last-child { border-bottom: 0; }
+  table.checks td { padding: 0; border: 0; }
+  table.checks td.hb { grid-column: 1 / -1; }
+  table.checks td.when { grid-column: 1 / -1; }
+}
+
+/* step grid over nights (Airflow) */
+.sgrid { overflow-x: auto; }
+.sgrid table { border-collapse: separate; border-spacing: 3px; font-size: .76rem; }
+.sgrid th { font-weight: 400; color: var(--muted); font-family: var(--font-data); font-size: .66rem; padding: 0; text-align: center; vertical-align: bottom; }
+.sgrid th.rowh { text-align: right; padding-right: 8px; white-space: nowrap; font-family: var(--font); font-size: .78rem; color: var(--ink); }
+.sgrid td { padding: 0; }
+.sgrid .c { display: block; width: 18px; height: 18px; border-radius: 4px; background: var(--none); border: 0; padding: 0; box-shadow: none; cursor: default; }
+.sgrid .c.ok { background: var(--ok-mark); } .sgrid .c.bad { background: var(--bad-mark); cursor: pointer; } .sgrid .c.warn { background: var(--warn-mark); }
+.sgrid .c.ok, .sgrid .c.warn { cursor: pointer; }
+.sgrid .c.guess { opacity: .45; }
+.sgrid .c[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
+.sgrid .dur { display: flex; align-items: flex-end; height: 34px; justify-content: center; }
+.sgrid .dur i { display: block; width: 12px; border-radius: 2px 2px 0 0; background: var(--accent); opacity: .7; }
+.sgrid .dur i.bad { background: var(--bad-mark); }
+.gridkey { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .76rem; color: var(--muted); }
+.gridkey span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; background: var(--c); }
+
+/* night steps, production runs */
+.steps, .psteps { list-style: none; margin: 0; padding: 0; display: grid; }
+.steps li, .psteps li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 4px 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: .85rem; }
+.steps li:last-child, .psteps li:last-child { border-bottom: 0; }
 .steps li.clickable { cursor: pointer; }
 .steps li .why { grid-column: 1 / -1; padding: 6px 0 4px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok-mark); align-self: center; }
+.dot.bad { background: var(--bad-mark); } .dot.warn { background: var(--warn-mark); }
+.steps code, .psteps code { font-family: var(--font-data); font-size: .72rem; color: var(--muted); overflow-wrap: anywhere; }
+.psteps .what { min-width: 0; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+.psteps .facts { font-family: var(--font-data); font-size: .72rem; color: var(--muted); text-align: right; white-space: nowrap; }
+.psteps .cause { grid-column: 2 / 4; font-size: .8rem; color: var(--bad); background: var(--bad-soft); border-radius: 5px; padding: 4px 8px; overflow-wrap: anywhere; }
+.psteps .cause.warn { color: var(--warn); background: var(--warn-soft); }
+.psteps li.end .what { font-weight: 500; }
+.psteps li.media .what span:first-child::after { content: " · Higgsfield"; color: var(--muted); font-weight: 400; font-size: .76rem; }
+.days { display: flex; flex-wrap: wrap; gap: 6px; }
+.days button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.days button.bad:not([aria-pressed="true"]) { border-color: var(--bad); color: var(--bad); }
+.run { display: grid; gap: 6px; }
+.run + .run { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+.run-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: .84rem; }
+.repair { display: grid; gap: 6px; font-size: .84rem; }
+.repair .rhead { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.repair ul { margin: 0; padding-left: 18px; display: grid; gap: 2px; overflow-wrap: anywhere; }
 
-.gauges { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
-.gauge { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
-.gauge .big { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; line-height: 1.15; }
-.gauge .sub { font-size: .85rem; color: var(--muted); overflow-wrap: anywhere; }
-.bar { position: relative; height: 10px; border-radius: 5px; background: var(--line); overflow: visible; }
-.bar > i { position: absolute; inset: 0 auto 0 0; border-radius: 5px; background: var(--accent); }
-.bar > b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); }
-.bar.warn > i { background: var(--warn); } .bar.bad > i { background: var(--bad); }
-.live { font-size: .72rem; color: var(--muted); }
-.live.on { color: var(--ok); }
-
-.stages { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; margin: 0; padding: 0; }
-.stages li { font-size: .78rem; padding: 4px 9px; border-radius: 6px; background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
-.stages li.done { color: var(--ok); border-color: transparent; background: var(--ok-soft); }
-.stages li.now { color: var(--panel); background: var(--accent); border-color: var(--accent); font-weight: 600; }
-.stages li.stop { color: var(--panel); background: var(--bad); border-color: var(--bad); font-weight: 600; }
-
-.plan { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+/* posting plan */
+.plan { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
 .plan table { border-collapse: collapse; width: 100%; min-width: 1320px; table-layout: fixed; }
 .plan th, .plan td { border-left: 1px solid var(--line); padding: 6px; vertical-align: top; text-align: left; }
-.plan th:first-child, .plan td:first-child { border-left: 0; width: 78px; font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-.plan thead th { font-weight: 600; font-size: .78rem; border-bottom: 1px solid var(--line); }
-.plan thead th .d { display: block; font-family: var(--font-data); font-size: .72rem; color: var(--muted); font-weight: 400; }
+.plan th:first-child, .plan td:first-child { border-left: 0; width: 78px; font-size: .72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.plan thead th { font-weight: 500; font-size: .78rem; border-bottom: 1px solid var(--line); }
+.plan thead th .d { display: block; font-family: var(--font-data); font-size: .7rem; color: var(--muted); font-weight: 400; }
 .plan th.today, .plan td.today { background: var(--accent-soft); }
 .plan td.past { opacity: .55; }
 .plan tr + tr td { border-top: 1px solid var(--line); }
-.slot { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; font-size: .74rem; line-height: 1.3; padding: 4px 6px; border-radius: 6px; margin-bottom: 4px; background: var(--bg); overflow-wrap: break-word; }
+.slot { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; font-size: .74rem; line-height: 1.3; padding: 4px 6px; border-radius: 5px; margin-bottom: 4px; background: var(--bg); overflow-wrap: break-word; }
 .slot .t { font-family: var(--font-data); font-weight: 500; }
 .slot.yt { box-shadow: inset 3px 0 0 var(--yt); } .slot.tt { box-shadow: inset 3px 0 0 var(--tt); }
 .slot.failed { background: var(--bad-soft); }
 .slot.long { font-weight: 600; }
-.gap { display: block; font-size: .72rem; color: var(--bad); font-weight: 600; padding: 4px 6px; border: 1px dashed var(--bad); border-radius: 6px; }
+.gap { display: block; font-size: .72rem; color: var(--bad); font-weight: 500; padding: 4px 6px; border: 1px dashed var(--bad); border-radius: 5px; }
 .gap.soon { color: var(--warn); border-color: var(--warn); }
 
-.two { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 22px; }
-@media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; min-width: 0; }
-.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-.steps li { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 4px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
-.steps li:last-child { border-bottom: 0; }
-.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); align-self: center; }
-.dot.bad { background: var(--bad); } .dot.warn { background: var(--warn); }
-.steps code { font-family: var(--font-data); font-size: .75rem; color: var(--muted); overflow-wrap: anywhere; }
-.nights { display: flex; gap: 4px; flex-wrap: wrap; }
-.nights span { width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center; font-family: var(--font-data); font-size: .68rem; color: var(--panel); background: var(--ok); }
-.nights span.bad { background: var(--bad); } .nights span.warn { background: var(--warn); } .nights span.none { background: var(--line); color: var(--muted); }
-
-.tbl { overflow-x: auto; }
-.tbl table { border-collapse: collapse; width: 100%; font-size: .86rem; }
-.tbl th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--line); }
-.tbl td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-.tbl td.n, .tbl th.n { text-align: right; }
-.tag { display: inline-block; font-size: .7rem; font-weight: 600; padding: 1px 7px; border-radius: 5px; color: var(--panel); }
-.tag.youtube { background: var(--yt); } .tag.tiktok { background: var(--tt); }
+/* charts */
 svg text { fill: var(--muted); font-family: var(--font-data); font-size: 10px; }
 .chart { position: relative; }
-.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: .75rem; padding: 4px 8px; border-radius: 6px; font-family: var(--font-data); white-space: nowrap; }
-pre.log { max-height: 420px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-family: var(--font-data); font-size: .74rem; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
-.days { display: flex; flex-wrap: wrap; gap: 6px; }
-.days button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel); }
-.days button.bad:not([aria-pressed="true"]) { border-color: var(--bad); color: var(--bad); }
-.run { display: grid; gap: 6px; }
-.run + .run { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
-.run-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: .85rem; }
-.run-head b { font-family: var(--font-display); font-size: .95rem; }
-.psteps { list-style: none; margin: 0; padding: 0; display: grid; }
-.psteps li { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 4px 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
-.psteps li:last-child { border-bottom: 0; }
-.psteps .what { min-width: 0; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
-.psteps .what code { font-family: var(--font-data); font-size: .72rem; color: var(--muted); overflow-wrap: anywhere; }
-.psteps .facts { font-family: var(--font-data); font-size: .75rem; color: var(--muted); text-align: right; white-space: nowrap; }
-.psteps .cause { grid-column: 2 / 4; font-size: .82rem; color: var(--bad); background: var(--bad-soft); border-radius: 6px; padding: 4px 8px; overflow-wrap: anywhere; }
-.psteps .cause.warn { color: var(--warn); background: var(--warn-soft); }
-.psteps li.end .what { font-weight: 600; }
-.psteps li.media .what span:first-child::after { content: " · Higgsfield"; color: var(--muted); font-weight: 400; font-size: .78rem; }
-.notice { background: var(--panel); border: 1px dashed var(--line); border-radius: 12px; padding: 18px; }
+.chart svg { display: block; width: 100%; height: auto; }
+.tip { position: absolute; pointer-events: none; background: var(--tip-bg); color: var(--tip-ink); font-size: .74rem; padding: 4px 8px; border-radius: 6px; font-family: var(--font-data); white-space: nowrap; z-index: 2; }
+.tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.tabs button { border: 0; border-radius: 0; box-shadow: none; padding: 4px 10px; }
+.tabs button + button { border-left: 1px solid var(--line); }
+.tabs button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-ink); font-weight: 500; }
+details.changes summary { cursor: pointer; font-size: .8rem; color: var(--muted); }
+details.changes ul { margin: 6px 0 0; padding-left: 18px; font-size: .8rem; display: grid; gap: 2px; max-height: 200px; overflow: auto; }
+
+/* video row (Glance) */
+.vrow { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(200px, 220px); gap: 12px; overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x proximity; }
+.vcard { display: grid; gap: 6px; align-content: start; scroll-snap-align: start; min-width: 0; }
+.thumb { position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 6px; overflow: hidden; background: var(--line); display: grid; place-items: center; color: var(--muted); font-size: .75rem; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.thumb .tag { position: absolute; left: 6px; top: 6px; }
+.thumb .factor { position: absolute; right: 6px; bottom: 6px; }
+.vcard .t { font-size: .84rem; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; color: var(--ink); }
+.vcard .m { font-size: .74rem; color: var(--muted); font-family: var(--font-data); }
+.vcard svg { width: 100%; height: 26px; }
+.tag { display: inline-block; font-size: .68rem; font-weight: 600; padding: 1px 6px; border-radius: 4px; color: #fff; }
+.tag.youtube { background: var(--yt); } .tag.tiktok { background: var(--tt); }
+.factor { font-family: var(--font-data); font-size: .7rem; font-weight: 600; padding: 1px 6px; border-radius: 4px; background: rgb(0 0 0 / .72); color: #fff; }
+.factor.hi { background: var(--ok-mark); } .factor.lo { background: var(--bad-mark); }
+
+/* rank list with bars behind the text (Plausible) */
+.rank { display: grid; gap: 4px; }
+.rank .rh { display: flex; justify-content: space-between; font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding: 0 0 4px; }
+.rank .r { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; font-size: .84rem; }
+.rank .r .lbl { position: relative; padding: 5px 8px; min-width: 0; }
+.rank .r .lbl i { position: absolute; inset: 0 auto 0 0; background: var(--accent-soft); border-radius: 4px; }
+.rank .r .lbl > span { position: relative; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank .r .n { font-family: var(--font-data); font-variant-numeric: tabular-nums; min-width: 4ch; text-align: right; }
+
+.tbl { overflow-x: auto; }
+.tbl table { border-collapse: collapse; width: 100%; font-size: .84rem; }
+.tbl th { text-align: left; font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.tbl td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl td.n, .tbl th.n { text-align: right; }
+
+.notice { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 18px; }
 .notice form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.notice input { flex: 1 1 260px; min-width: 0; font: inherit; font-size: .9rem; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); }
-footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
+.notice input { flex: 1 1 260px; min-width: 0; font: inherit; font-size: .9rem; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
 @media (prefers-reduced-motion: no-preference) { .bar > i { transition: width .5s ease; } }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <div>
-      <div class="eyebrow">Strange Knowns · YouTube und TikTok</div>
-      <h1>Dashboard</h1>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">SK</div>
+      <div><div class="sub">Strange Knowns · YouTube und TikTok</div><h1>Dashboard</h1></div>
     </div>
     <div class="meta">
       <span id="overall" class="pill idle">Lädt …</span>
-      <span class="muted" id="stamp">Daten werden gelesen</span>
+      <span class="muted small" id="stamp">Daten werden gelesen</span>
       <button type="button" id="reload">Neu laden</button>
     </div>
   </header>
 
+  <nav class="jump" aria-label="Bereiche">
+    <a href="#s-overview">Übersicht</a><a href="#s-runs">Läufe</a><a href="#s-plan">Sendeplan</a><a href="#s-channel">Kanal</a><a href="#s-costs">Kosten</a>
+  </nav>
+
   <div id="nodata" class="notice" hidden><div id="nodata-text"></div><form id="keyform" hidden><input id="keyin" type="text" autocomplete="off" spellcheck="false" placeholder="Link mit #k=… oder Schlüssel einfügen" aria-label="Link oder Schlüssel"><button type="submit">Öffnen</button></form></div>
 
-  <section class="block" aria-labelledby="h-alerts">
-    <div class="head"><h2 id="h-alerts">Hinweise</h2><span class="muted" id="alert-count"></span></div>
+  <!-- ===================== Übersicht ===================== -->
+  <section class="area" id="s-overview" aria-labelledby="h-overview">
+    <div class="title"><h2 id="h-overview">Übersicht</h2><span class="muted small" id="alert-count"></span></div>
     <ul class="alerts" id="alerts"><li class="gut"><div class="body"><span class="area">Stand</span><span class="txt">Hinweise erscheinen, sobald die Daten gelesen sind.</span></div></li></ul>
+
+    <div class="grid4" id="kpis" aria-label="Kennzahlen, mit Vergleich zur Vorwoche"></div>
+
+    <div class="grid4">
+      <div class="card stat">
+        <div class="label">Nachtlauf</div>
+        <button type="button" class="big-btn" id="g-night-btn" aria-label="Fehler der Nacht ansehen"><span class="big" id="g-night">—</span><span class="hint" id="g-night-hint" hidden></span></button>
+        <div class="sub" id="g-night-sub">Täglich 2:47 Uhr</div>
+        <div class="live" id="g-night-live"></div>
+      </div>
+      <div class="card stat">
+        <div class="label">Produktion</div>
+        <div class="big" id="g-prod">—</div>
+        <div class="sub" id="g-prod-sub"></div>
+      </div>
+      <div class="card stat">
+        <div class="label">Budget <span id="g-month"></span></div>
+        <div class="big"><span id="g-spent">—</span> € <span class="muted" style="font-size:.85rem;font-weight:400">von <span id="g-limit">100</span> €</span></div>
+        <div class="bar" id="g-budget-bar"><i style="width:0"></i><b style="left:0" title="Prognose Monatsende"></b></div>
+        <div class="sub" id="g-budget-sub"></div>
+      </div>
+      <div class="card stat">
+        <div class="label">Higgsfield-Credits</div>
+        <div class="big"><span id="g-credits">—</span> <span class="muted" style="font-size:.85rem;font-weight:400">frei</span></div>
+        <div class="bar" id="g-credit-bar"><i style="width:0"></i></div>
+        <div class="sub" id="g-credit-sub"></div>
+        <div class="live muted" id="g-credit-live"></div>
+      </div>
+    </div>
+
+    <div class="card block" aria-labelledby="h-ypp">
+      <div class="head"><h3 id="h-ypp">Weg zum Partnerprogramm</h3><span class="muted small" id="ypp-note"></span></div>
+      <div class="grid4" id="ypp"><span class="empty">Kommt mit dem nächsten Nachtlauf.</span></div>
+    </div>
   </section>
 
-  <section class="gauges" aria-label="Kennzahlen">
-    <div class="gauge">
-      <div class="eyebrow">Nachtlauf</div>
-      <button type="button" class="big-btn" id="g-night-btn" aria-label="Fehler der Nacht ansehen"><span class="big" id="g-night">—</span><span class="hint" id="g-night-hint" hidden></span></button>
-      <div class="sub" id="g-night-sub">Täglich 2:47 Uhr</div>
-      <div class="live" id="g-night-live"></div>
+  <!-- ===================== Läufe ===================== -->
+  <section class="area" id="s-runs" aria-labelledby="h-runs">
+    <div class="title"><h2 id="h-runs">Läufe</h2><span class="muted small">Was automatisch läuft, ob es pünktlich war und was in jeder Nacht passiert ist</span></div>
+
+    <div class="card block">
+      <div class="head"><h3>Fristen</h3><span class="muted small">jeder Strich ein Lauf, neuester rechts</span></div>
+      <div class="tbl"><table class="checks"><thead><tr><th>Automatik</th><th>Status</th><th>Verlauf</th><th>Zuletzt</th></tr></thead><tbody id="checks"></tbody></table></div>
     </div>
-    <div class="gauge">
-      <div class="eyebrow">Produktion</div>
-      <div class="big" id="g-prod">—</div>
-      <div class="sub" id="g-prod-sub"></div>
+
+    <div class="card block">
+      <div class="head"><h3>Schritte der Nächte</h3><span class="muted small">Zeile = Schritt, Spalte = Nacht, oben die Dauer der Nacht. Feld antippen für den Log-Auszug.</span></div>
+      <div class="sgrid" id="sgrid"><span class="empty">—</span></div>
+      <div class="gridkey"><span style="--c: var(--ok-mark)">lief durch</span><span style="--c: var(--warn-mark)">übersprungen oder nichts zu tun</span><span style="--c: var(--bad-mark)">fehlgeschlagen</span><span style="--c: var(--none)">nicht gelaufen oder unbekannt</span><span style="--c: var(--ok-mark); opacity:.45">nur aus dem Gesamtergebnis</span></div>
+      <div id="sgrid-detail"></div>
     </div>
-    <div class="gauge">
-      <div class="eyebrow">Budget <span id="g-month"></span></div>
-      <div class="big"><span id="g-spent">—</span> <span class="muted" style="font-size:1rem">von <span id="g-limit">100</span> €</span></div>
-      <div class="bar" id="g-budget-bar"><i style="width:0"></i><b style="left:0" title="Prognose Monatsende"></b></div>
-      <div class="sub" id="g-budget-sub"></div>
+
+    <div class="two">
+      <div class="block">
+        <div class="head"><h3 id="h-night">Letzte Nacht</h3><button type="button" id="showlog">Log anzeigen</button></div>
+        <div class="card"><ul class="steps" id="steps"><li><span class="dot"></span><span>—</span><span></span></li></ul></div>
+        <pre class="log" id="log" hidden></pre>
+      </div>
+      <div class="block">
+        <div class="head"><h3>Reparatur am Morgen</h3><span class="muted small">täglich 6:43 Uhr</span></div>
+        <div class="card repair" id="repair"><span class="muted">—</span></div>
+      </div>
     </div>
-    <div class="gauge">
-      <div class="eyebrow">Higgsfield-Credits</div>
-      <div class="big"><span id="g-credits">—</span> <span class="muted" style="font-size:1rem">frei</span></div>
-      <div class="bar" id="g-credit-bar"><i style="width:0"></i></div>
-      <div class="sub" id="g-credit-sub"></div>
-      <div class="live" id="g-credit-live"></div>
+
+    <div class="block">
+      <div class="head"><h3 id="h-flow">Ablauf der Produktion</h3><span class="muted small" id="flow-week"></span></div>
+      <ol class="stages" id="stages"></ol>
+      <div class="muted small" id="flow-why"></div>
+    </div>
+
+    <div class="block">
+      <div class="head"><h3 id="h-prodsteps">Produktion Schritt für Schritt</h3><span class="muted small">je Nacht: jeder Schritt mit Dauer, Claude-Kosten und Fehlerursache</span></div>
+      <div class="days" id="prod-days" role="group" aria-label="Nacht wählen"></div>
+      <div class="card" id="prod-runs"><span class="muted">—</span></div>
     </div>
   </section>
 
-  <section class="block" aria-labelledby="h-flow">
-    <div class="head"><h2 id="h-flow">Ablauf der Produktion</h2><span class="muted" id="flow-week"></span></div>
-    <ol class="stages" id="stages"></ol>
-    <div class="muted" id="flow-why"></div>
-  </section>
-
-  <section class="block" aria-labelledby="h-prodsteps">
-    <div class="head"><h2 id="h-prodsteps">Produktion Schritt für Schritt</h2><span class="muted">je Nacht: jeder Schritt mit Dauer, Claude-Kosten und Fehlerursache</span></div>
-    <div class="days" id="prod-days" role="group" aria-label="Nacht wählen"></div>
-    <div class="panel" id="prod-runs"><span class="muted">—</span></div>
-  </section>
-
-  <section class="block" aria-labelledby="h-plan">
-    <div class="head"><h2 id="h-plan">Sendeplan</h2><span class="muted">vorgestern bis in zwei Wochen, Uhrzeiten Berlin</span></div>
+  <!-- ===================== Sendeplan ===================== -->
+  <section class="area" id="s-plan" aria-labelledby="h-plan">
+    <div class="title"><h2 id="h-plan">Sendeplan</h2><span class="muted small">vorgestern bis in zwei Wochen, Uhrzeiten Berlin</span></div>
     <div class="plan"><table id="plan"><tbody><tr><td>Plan</td><td>—</td></tr></tbody></table></div>
   </section>
 
-  <div class="two">
-    <section class="block" aria-labelledby="h-night">
-      <div class="head"><h2 id="h-night">Letzte Nacht</h2><button type="button" id="showlog">Log anzeigen</button></div>
-      <div class="panel">
-        <ul class="steps" id="steps"><li><span class="dot"></span><span>—</span><span></span></li></ul>
-      </div>
-      <pre class="log" id="log" hidden></pre>
-      <div class="eyebrow">Die letzten 30 Nächte</div>
-      <div class="nights" id="nights"></div>
-      <div class="eyebrow">Reparatur am Morgen · täglich 6:43 Uhr</div>
-      <div class="panel repair" id="repair"><span class="muted">—</span></div>
-    </section>
-    <section class="block" aria-labelledby="h-cost">
-      <div class="head"><h2 id="h-cost">Claude-Kosten</h2><span class="muted">je Tag, USD, 14 Tage</span></div>
-      <div class="panel chart" id="spend-chart"><svg id="spend" width="100%" viewBox="0 0 400 150" role="img" aria-label="Claude-Kosten je Tag"></svg><div class="tip" id="tip" hidden></div></div>
-      <div class="panel tbl"><table><thead><tr><th>Schritt</th><th class="n">Monat USD</th></tr></thead><tbody id="stages-cost"></tbody></table></div>
-      <div class="muted" id="ideas"></div>
-    </section>
-  </div>
+  <!-- ===================== Kanal ===================== -->
+  <section class="area" id="s-channel" aria-labelledby="h-channel">
+    <div class="title"><h2 id="h-channel">Kanal</h2><span class="muted small" id="chan"></span></div>
 
-  <section class="block" aria-labelledby="h-videos">
-    <div class="head"><h2 id="h-videos">Videos</h2><span class="muted" id="chan"></span></div>
-    <div class="panel tbl"><table><thead><tr><th>Plattform</th><th>Titel</th><th>Termin</th><th class="n">Aufrufe</th><th class="n">Likes</th></tr></thead><tbody id="videos"></tbody></table></div>
+    <div class="card block">
+      <div class="head">
+        <h3 id="h-views">Aufrufe</h3>
+        <div class="tabs" role="group" aria-label="Zeitraum"><button type="button" data-r="48h" aria-pressed="true">48 Stunden</button><button type="button" data-r="30d" aria-pressed="false">30 Tage</button></div>
+      </div>
+      <div class="chart" id="views-chart"><svg id="views" viewBox="0 0 640 190" role="img" aria-label="Aufrufe im Verlauf"></svg><div class="tip" id="views-tip" hidden></div></div>
+      <div class="muted small" id="views-note"></div>
+      <details class="changes" id="changes"><summary>Änderungen am System (Markierungen ▾ im Diagramm)</summary><ul id="changes-list"></ul></details>
+    </div>
+
+    <div class="block">
+      <div class="head"><h3>Neueste Videos</h3><span class="muted small">Faktor = Aufrufe gegen den Normalwert der eigenen Videos gleicher Art</span></div>
+      <div class="vrow" id="vrow"><span class="empty">—</span></div>
+    </div>
+
+    <div class="card rank" id="rank"></div>
+  </section>
+
+  <!-- ===================== Kosten ===================== -->
+  <section class="area" id="s-costs" aria-labelledby="h-costs">
+    <div class="title"><h2 id="h-costs">Kosten</h2><span class="muted small" id="cost-note"></span></div>
+    <div class="two">
+      <div class="card block">
+        <div class="head"><h3>Monatsbudget</h3><span class="muted small">bisher, Prognose gestrichelt, Grenze rot</span></div>
+        <div class="chart" id="month-chart"><svg id="month" viewBox="0 0 520 200" role="img" aria-label="Kosten im Monat bis heute und Prognose"></svg><div class="tip" id="month-tip" hidden></div></div>
+        <div class="stack" id="cost-stack"></div>
+        <div class="legend" id="cost-legend"></div>
+      </div>
+      <div class="card block">
+        <div class="head"><h3>Claude-Kosten je Tag</h3><span class="muted small">USD, 14 Tage</span></div>
+        <div class="chart" id="spend-chart"><svg id="spend" viewBox="0 0 400 160" role="img" aria-label="Claude-Kosten je Tag"></svg><div class="tip" id="tip" hidden></div></div>
+        <div class="rank" id="stages-cost"></div>
+        <div class="muted small" id="ideas"></div>
+      </div>
+    </div>
   </section>
 
   <footer>
-    <div>Live: YouTube-Abonnenten, -Aufrufe und -Likes (alle 15 Minuten von YouTube). Alles andere ist der Stand nach dem letzten Nacht- oder Reparaturlauf.</div>
-    <div>Quelle: dieselben Daten wie im Artifact (<span class="mono">ytauto/logs/dashboard.json</span>), nach jedem Nachtlauf und jedem Reparaturlauf verschlüsselt hier abgelegt. Lesbar nur mit dem Schlüssel im Link (Teil nach #), der nie an den Server geht. Credits: Stand der letzten Messung im Nachtlauf. Live-Abruf von Guthaben und Aufgabe: <a href="https://claude.ai/artifact/DManr1VMCHrZNw1RhPSCo9" target="_blank" rel="noopener">Dashboard in claude.ai</a>.</div>
+    <div>Live: YouTube-Abonnenten, -Aufrufe und -Likes (alle 15 Minuten von YouTube, Verlauf stündlich). Alles andere ist der Stand nach dem letzten Nacht- oder Reparaturlauf.</div>
+    <div>Quelle: dieselben Daten wie im Artifact (<span class="mono">ytauto/logs/dashboard.json</span>), nach jedem Nacht- und Reparaturlauf verschlüsselt hier abgelegt. Lesbar nur mit dem Schlüssel im Link (Teil nach #), der nie an den Server geht. Live-Abruf von Guthaben und Aufgabe: <a href="https://claude.ai/artifact/DManr1VMCHrZNw1RhPSCo9" target="_blank" rel="noopener">Dashboard in claude.ai</a>.</div>
     <div id="foot-gen"></div>
   </footer>
 </div>
@@ -296,7 +474,6 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
 <script>
 (function () {
   "use strict";
-  const TRIGGER = "trig_01GTYuSpyAz76oAXTiHLCKRH";
   const TZ = "Europe/Berlin";
   const WD = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
   const STAGES = [
@@ -306,18 +483,25 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     ["Einplanen", ["publish"]], ["Woche fertig", ["done"]]];
   const $ = (id) => document.getElementById(id);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-  const state = { openAlerts: new Set(), openSteps: new Set(), logs: {}, prodDay: null, data: null, status: null, trigger: null, triggerErr: null, balance: null, balanceErr: null };
+  const NS = "http://www.w3.org/2000/svg";
+  const sv = (t, a, text) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (text != null) e.textContent = text; return e; };
+  const state = { openAlerts: new Set(), openSteps: new Set(), logs: {}, prodDay: null, data: null, status: null, live: null, hist: null, range: "48h", kpi: "views", cell: null, trigger: null, balance: null };
 
   // Berlin wall clock, independent of the viewer's own zone.
   function berlinParts(d) {
     const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(d).map(x => [x.type, x.value]));
-    return { day: `${p.year}-${p.month}-${p.day}`, hm: Number(p.hour) * 60 + Number(p.minute) };
+    return { day: `${p.year}-${p.month}-${p.day}`, hm: Number(p.hour) % 24 * 60 + Number(p.minute) };
   }
   const fmtTime = (iso) => iso ? new Intl.DateTimeFormat("de-DE", { timeZone: TZ, day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(iso)) : "—";
+  const fmtHour = (iso) => new Intl.DateTimeFormat("de-DE", { timeZone: TZ, hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
   const fmtDay = (day) => { const d = new Date(day + "T12:00:00Z"); return `${WD[(d.getUTCDay() + 6) % 7]} ${day.slice(8, 10)}.${day.slice(5, 7)}.`; };
   const eur = (x) => x == null ? "—" : x.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const int = (x) => x == null ? "—" : Math.round(x).toLocaleString("de-DE");
+  const dec = (x, n = 1) => x == null ? "—" : x.toLocaleString("de-DE", { maximumFractionDigits: n });
   const hoursSince = (iso) => (Date.now() - new Date(iso).getTime()) / 3600000;
+  const ago = (iso) => { if (!iso) return "—"; const h = hoursSince(iso); return h < 1 ? `vor ${Math.max(1, Math.round(h * 60))} Min.` : h < 48 ? `vor ${Math.round(h)} h` : `vor ${Math.round(h / 24)} Tagen`; };
+  const dayShift = (day, n) => new Date(new Date(day + "T12:00:00Z").getTime() + n * 86400000).toISOString().slice(0, 10);
+  const median = (xs) => { const s = [...xs].sort((a, b) => a - b), m = s.length >> 1; return s.length ? (s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2) : null; };
 
   // ---------- sealed data next to the page (gzip + AES-256-GCM, key after # in the link) ----------
   const KEY_STORE = "leitstand-key";
@@ -330,7 +514,7 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     const k = keyFromText(location.hash);
     if (k) { storeKey(k); return k; }
     const s = storedKey();
-    if (s && !location.hash) history.replaceState(null, "", "#k=" + s);   // bookmark carries the key again
+    if (s && !keyFromText(location.hash)) history.replaceState(null, "", "#k=" + s);   // bookmark carries the key again
     return s;
   }
   async function unseal(box, keyText) {
@@ -342,11 +526,12 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
   }
   function askKey(text) { showNoData(text); $("keyform").hidden = false; }
 
-  // Public YouTube numbers, fetched every 15 minutes by the website repo's workflow (not sealed).
-  async function loadLive() {
-    try { const r = await fetch("live.json?t=" + Date.now(), { cache: "no-store" }); state.live = r.ok ? await r.json() : null; }
-    catch (_) { state.live = null; }
+  // Public YouTube numbers and their history, fetched by the website repo's workflow (not sealed).
+  async function getJson(name) {
+    try { const r = await fetch(name + "?t=" + Date.now(), { cache: "no-store" }); return r.ok ? await r.json() : null; }
+    catch (_) { return null; }
   }
+  async function loadLive() { [state.live, state.hist] = await Promise.all([getJson("live.json"), getJson("history.json")]); }
 
   async function loadFiles() {
     loadLive().then(render);
@@ -372,9 +557,6 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     render();
   }
   function showNoData(text) { $("nodata-text").textContent = text; $("nodata").hidden = false; }
-  // No connectors outside claude.ai: task status and live balance stay empty, the page works from the
-  // night's data (credits as measured, next run from the fixed schedule 02:47).
-  const mcpText = () => "";
 
   // ---------- alerts ----------
   function pageAlerts() {
@@ -389,15 +571,8 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
         out.push(now.hm > 7 * 60 ? { level: "rot", area: "Nachtlauf", text: "Der Nachtlauf ist heute nicht zu Ende gelaufen (Abschluss fehlt)." }
                                  : { level: "info", area: "Nachtlauf", text: "Der Nachtlauf läuft gerade." });
     }
-    const t = state.trigger;
-    if (t) {
-      if (t.enabled === false) out.push({ level: "rot", area: "Aufgabe", text: "Die geplante Aufgabe „Nachtlauf“ ist ausgeschaltet" + (t.ended_reason ? ` (${t.ended_reason})` : "") + "." });
-      if (t.suspension_reason) out.push({ level: "rot", area: "Aufgabe", text: `Nachtlauf angehalten: ${t.suspension_reason}` });
-      const lr = t.last_run;
-      if (lr && lr.status && !/SUCCEEDED|RUNNING|PENDING/.test(lr.status)) out.push({ level: "rot", area: "Aufgabe", text: `Letzter Start der Aufgabe: ${lr.status.replace("ROUTINE_RUN_STATUS_", "")} (${fmtTime(lr.fired_at)})` });
-    }
-    const b = state.balance;
-    if (b && typeof b.credits === "number" && b.credits < 100) out.push({ level: "gelb", area: "Credits", text: `Higgsfield live: nur noch ${int(b.credits)} Credits.` });
+    if (state.live && state.live.at && hoursSince(state.live.at) > 3)
+      out.push({ level: "gelb", area: "Webseite", text: `YouTube-Zahlen seit ${Math.round(hoursSince(state.live.at))} Stunden nicht abgeglichen (Abgleich alle 15 Min. läuft nicht).` });
     return out;
   }
   function allAlerts() {
@@ -411,12 +586,17 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
 
   // ---------- log excerpts ----------
   async function logOf(day) { return state.logs[day] ?? null; }
+  function logParts(text) { return text ? text.split(/\n(?=### )/).map(x => x.trim()).filter(x => x.startsWith("### ")) : []; }
   function excerpt(text, step) {          // the log part of one night step, the failed runs first
     if (!text || !step) return "";
-    const parts = text.split(/\n(?=### )/).map(x => x.trim()).filter(x => x.startsWith("### "));
-    const mine = parts.filter(x => x.replace(/^### \S+ /, "").startsWith(step + ":"));
+    const mine = logParts(text).filter(x => x.replace(/^### \S+ /, "").startsWith(step + ":"));
     const bad = mine.filter(x => { const m = x.split("\n")[0].match(/-> Exit (-?\d+)$/); return m && m[1] !== "0" && m[1] !== "3"; });
     return (bad.length ? bad : mine).join("\n\n");
+  }
+  function logResults(text) {             // [[step, exit], ...] read from a night's log, last run counting
+    const out = new Map();
+    for (const p of logParts(text)) { const m = p.split("\n")[0].match(/^### \S+ (.+?): .* -> Exit (-?\d+)$/); if (m) out.set(m[1], Number(m[2])); }
+    return [...out];
   }
   function whyBox(rows, day, step, withProd) {
     const box = el("div", "why"), dl = el("dl");
@@ -431,7 +611,7 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     box.append(links);
     if (day && step) {
       const pre = el("pre", null, "Log wird geladen …"); box.append(pre);
-      logOf(day).then(t => { const x = excerpt(t, step); pre.textContent = x || (t == null ? "Kein Log für diese Nacht lesbar." : "Im Log nichts zu diesem Schritt gefunden."); });
+      logOf(day).then(t => { const x = excerpt(t, step); pre.textContent = x || (t == null ? "Kein Log für diese Nacht lesbar (Logs liegen für 7 Nächte vor)." : "Im Log nichts zu diesem Schritt gefunden."); });
     }
     return box;
   }
@@ -474,6 +654,37 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     if (li) li.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
+  // ---------- live history helpers ----------
+  const total = (p) => Object.values(p.v || {}).reduce((a, b) => a + b, 0);
+  function pointAt(list, iso) {           // newest point at or before a moment
+    let best = null; for (const p of list || []) if (p.t <= iso) best = p; return best;
+  }
+  function weekCompare() {                // numbers now, 7 and 14 days ago from the daily history
+    const h = state.hist, live = state.live;
+    if (!h || !(h.daily || []).length) return null;
+    const now = live && live.at ? live.at : h.daily[h.daily.length - 1].t;
+    const iso = (days) => new Date(new Date(now).getTime() - days * 86400000).toISOString();
+    const all = [...(h.daily || []), ...(h.hourly || [])].sort((a, b) => a.t < b.t ? -1 : 1);
+    return { now: all[all.length - 1], w1: pointAt(all, iso(7)), w2: pointAt(all, iso(14)), first: all[0] };
+  }
+  function deltaBadge(now, before, cost) {
+    if (now == null || before == null) return null;
+    if (before === 0) return now === 0 ? el("span", "delta", "±0 %") : el("span", "delta up" + (cost ? " cost" : ""), "neu");
+    const p = (now - before) / Math.abs(before) * 100;
+    const cls = Math.abs(p) < 0.5 ? "delta" : p > 0 ? "delta up" : "delta down";
+    return el("span", cls + (cost ? " cost" : ""), (p > 0 ? "+" : "") + dec(p, 0) + " %");
+  }
+  function spark(values, color) {
+    const svg = sv("svg", { class: "spark", viewBox: "0 0 200 40", preserveAspectRatio: "none", "aria-hidden": "true" });
+    if (!values || values.length < 2) return svg;
+    const max = Math.max(...values), min = Math.min(...values), span = max - min || 1;
+    const pts = values.map((v, i) => [i / (values.length - 1) * 200, 36 - (v - min) / span * 32]);
+    svg.append(sv("path", { d: "M" + pts.map(p => p.join(",")).join("L") + `L200,40L0,40Z`, fill: color, opacity: .12, stroke: "none" }));
+    svg.append(sv("polyline", { points: pts.map(p => p.join(",")).join(" "), fill: "none", stroke: color, "stroke-width": 1.6, "vector-effect": "non-scaling-stroke" }));
+    const [lx, ly] = pts[pts.length - 1]; svg.append(sv("circle", { cx: lx, cy: ly, r: 2.5, fill: color }));
+    return svg;
+  }
+
   // ---------- render ----------
   function render() {
     const d = state.data;
@@ -491,12 +702,47 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     for (const a of alerts) ul.append(alertItem(a));
     $("alert-count").textContent = alerts.length ? `${red} rot · ${yellow} gelb` : "";
 
-    renderNightGauge(); renderProduction(); renderProdSteps(); renderBudget(); renderCredits(); renderPlan(); renderSteps(); renderRepair(); renderSpend(); renderVideos();
-    $("foot-gen").textContent = d ? `Daten-Datei erzeugt ${fmtTime(d.generated_at)} für den ${fmtDay(d.day)}.` : "";
+    const parts = [renderKpis, renderNightGauge, renderProduction, renderBudget, renderCredits, renderYpp, renderChecks, renderGrid, renderSteps, renderRepair, renderProdSteps, renderPlan, renderViews, renderVideoRow, renderRank, renderMonth, renderSpend];
+    for (const f of parts) { try { f(); } catch (e) { console.error(f.name, e); } }
+    $("foot-gen").textContent = d ? `Daten-Datei erzeugt ${fmtTime(d.generated_at)} für den ${fmtDay(d.day)}.` + (state.live ? ` YouTube-Zahlen ${fmtTime(state.live.at)}.` : "") : "";
+  }
+
+  // ---------- KPIs with the week before (F7), a click picks the big chart (Plausible) ----------
+  function renderKpis() {
+    const box = $("kpis"); box.replaceChildren();
+    const d = state.data, live = state.live, wk = weekCompare();
+    const chan = (live && live.channel) || (d && d.channel && d.channel.stats) || null;
+    const daily = ((state.hist && state.hist.daily) || []).slice(-14);
+    const card = (key, label, value, unit, delta, from, series, color) => {
+      const b = el(key ? "button" : "div", "card kpi" + (key ? " pick" : ""));
+      if (key) { b.type = "button"; b.title = "Im Diagramm unter „Kanal“ zeigen"; b.setAttribute("aria-pressed", String(state.kpi === key)); b.addEventListener("click", () => { state.kpi = key; renderKpis(); renderViews(); $("s-channel").scrollIntoView({ behavior: "smooth", block: "start" }); }); }
+      const l = el("div", "label"); l.append(el("span", null, label)); if (delta) l.append(delta);
+      const v = el("div", "value", value); if (unit) v.append(el("small", null, " " + unit));
+      b.append(l, v, el("div", "from", from || "")); if (series) b.append(spark(series, color));
+      box.append(b);
+    };
+    const subsNow = chan ? chan.subscribers : null;
+    card("subs", "Abonnenten", int(subsNow), "", wk && wk.w1 ? deltaBadge(subsNow, wk.w1.s) : null,
+      wk && wk.w1 ? `vor einer Woche ${int(wk.w1.s)}` : wk ? `Vergleich ab ${fmtDay(dayShift(wk.first.t.slice(0, 10), 7))}` : "Verlauf startet mit dem nächsten Abgleich",
+      daily.map(p => p.s), "var(--accent)");
+    let gained = null, before = null;
+    if (wk && wk.w1) { gained = total(wk.now) - total(wk.w1); if (wk.w2) before = total(wk.w1) - total(wk.w2); }
+    card("views", "Aufrufe, 7 Tage", gained == null ? int(chan ? chan.views : null) : int(gained), gained == null ? "gesamt" : "", deltaBadge(gained, before),
+      before != null ? `Vorwoche ${int(before)}` : wk ? `gesamt ${int(total(wk.now))}, Vergleich ab ${fmtDay(dayShift(wk.first.t.slice(0, 10), 14))}` : "",
+      daily.map(total).map((v, i, a) => i ? v - a[i - 1] : null).slice(1), "var(--accent)");
+    const sd = (d && d.spend_days) || [];
+    const last7 = sd.slice(-7).reduce((a, r) => a + r.usd, 0), prev7 = sd.length >= 14 ? sd.slice(-14, -7).reduce((a, r) => a + r.usd, 0) : null;
+    card(null, "Claude-Kosten, 7 Tage", d ? eur(last7) : "—", "$", deltaBadge(last7, prev7, true), prev7 != null ? `Vorwoche ${eur(prev7)} $` : "", sd.map(r => r.usd), "var(--warn-mark)");
+    const hist = ((d && d.history) || []).filter(h => typeof h.credits === "number");
+    const cNow = hist[0], cWeek = hist.find(h => h.day <= dayShift(cNow ? cNow.day : "", -7)), cTwo = hist.find(h => h.day <= dayShift(cNow ? cNow.day : "", -14));
+    const used = cNow && cWeek && cWeek.credits >= cNow.credits ? cWeek.credits - cNow.credits : null;
+    const usedBefore = cWeek && cTwo && cTwo.credits >= cWeek.credits ? cTwo.credits - cWeek.credits : null;
+    card(null, "Credits verbraucht, 7 Tage", used == null ? "—" : int(used), "", deltaBadge(used, usedBefore, true),
+      used == null ? "Verlauf der Credits sammelt sich ab heute Nacht" : usedBefore != null ? `Vorwoche ${int(usedBefore)}` : "", hist.slice(0, 14).reverse().map(h => h.credits), "var(--tt)");
   }
 
   function renderNightGauge() {
-    const st = state.status, t = state.trigger;
+    const st = state.status;
     if (st) {
       const failed = (st.steps || []).filter(s => s.exit !== 0 && s.exit !== 3).length;
       const finished = (st.steps || []).some(s => s.name === "Budget");
@@ -508,16 +754,9 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
       $("g-night-hint").textContent = night.length && !open ? "Inzwischen erledigt, hält nichts auf · Details ansehen" : "Was ist passiert und wie schlimm? Antippen";
       $("g-night-sub").textContent = `Nacht vom ${fmtDay(st.day)}` + (st.started_at ? `, ${fmtTime(st.started_at)} bis ${st.finished_at ? fmtTime(st.finished_at).slice(-5) : "?"}` : "") + `, ${(st.steps || []).length} Schritte`;
     }
-    const live = $("g-night-live");
-    if (!t) {                             // the night runs on a fixed schedule; no connector needed for it
-      const now = berlinParts(new Date()), RUN = 2 * 60 + 47;
-      const next = now.hm < RUN ? "heute" : "morgen";
-      const fin = st && (st.steps || []).some(s => s.name === "Budget");
-      live.className = "live on";
-      live.textContent = `Nächster Lauf ${next} 02:47` + (st ? ` · letzter Lauf ${fmtDay(st.day)} ${fin ? "zu Ende gelaufen" : "nicht zu Ende gelaufen"}` : "")
-        + (state.triggerErr ? ` · Live-Status ${mcpText(state.triggerErr, "Claude Code Remote")}` : state.liveNote ? " · " + state.liveNote : "");
-    }
-    else { live.className = "live on"; live.textContent = "Live: " + (t.enabled ? "Aufgabe an" : "Aufgabe AUS") + (t.next_run_at ? ` · nächster Lauf ${fmtTime(t.next_run_at)}` : "") + (t.last_run && t.last_run.status ? ` · letzter Start ${/SUCCEEDED/.test(t.last_run.status) ? "ok" : t.last_run.status.replace("ROUTINE_RUN_STATUS_", "")}` : ""); }
+    const now = berlinParts(new Date()), RUN = 2 * 60 + 47;
+    const fin = st && (st.steps || []).some(s => s.name === "Budget");
+    $("g-night-live").textContent = `Nächster Lauf ${now.hm < RUN ? "heute" : "morgen"} 02:47` + (st ? ` · letzter ${fmtDay(st.day)} ${fin ? "zu Ende gelaufen" : "nicht zu Ende gelaufen"}` : "");
   }
 
   function renderProduction() {
@@ -539,6 +778,171 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     $("flow-why").textContent = n.why || "";
     const ideas = d.ideas || {};
     $("ideas").textContent = `Ideen für Langvideos: ${ideas.new || 0} offen, ${ideas.approved || 0} in Arbeit, ${ideas.published || 0} veröffentlicht, ${ideas.rejected || 0} verworfen.` + (d.batches && d.batches.n ? ` ${d.batches.n} Claude-Anfragen warten auf die Batch-API.` : "");
+  }
+
+  function renderBudget() {
+    const b = state.data && state.data.budget; if (!b) return;
+    $("g-month").textContent = b.month ? b.month.slice(5) + "/" + b.month.slice(0, 4) : "";
+    $("g-spent").textContent = eur(b.spent_eur); $("g-limit").textContent = int(b.limit_eur);
+    const bar = $("g-budget-bar"), pct = Math.min(100, b.spent_eur / b.limit_eur * 100), fc = Math.min(100, b.forecast_eur / b.limit_eur * 100);
+    bar.className = "bar" + (b.forecast_eur > b.limit_eur ? " bad" : fc > 90 ? " warn" : "");
+    bar.querySelector("i").style.width = pct + "%"; bar.querySelector("b").style.left = `calc(${fc}% - 1px)`;
+    $("g-budget-sub").textContent = `Prognose Monatsende ${eur(b.forecast_eur)} €` + (b.stop && b.stop.length ? " · gestoppt" : "");
+  }
+
+  function renderCredits() {
+    const b = state.data && state.data.budget;
+    const total_ = (b && b.credits_total) || 1000;
+    const left = b ? b.credits_left : null;
+    $("g-credits").textContent = int(left);
+    const bar = $("g-credit-bar"); const pct = left == null ? 0 : Math.max(0, Math.min(100, left / total_ * 100));
+    bar.className = "bar" + (pct < 10 ? " bad" : pct < 25 ? " warn" : ""); bar.querySelector("i").style.width = pct + "%";
+    if (b) $("g-credit-sub").textContent = `Abo ${int(total_)} je Monat · je Langvideo bis ${int(b.week_credits_share)} · Stufe ${b.level}` + (b.longs ? ` · ${b.longs} Langvideo${b.longs > 1 ? "s" : ""}/Woche` : "");
+    if (b) $("g-credit-live").textContent = `Stand der Nacht (${b.credits_at === "jetzt" ? "beim Schreiben gemessen" : b.credits_measured ? "gemessen" : "geschätzt"})`;
+  }
+
+  // ---------- F8: the way to the Partner Program (numbers of the weekly report) ----------
+  function quota(label, have, need, unit, note) {
+    const q = el("div", "quota"), r = el("div", "row");
+    const pct = need ? Math.min(100, (have || 0) / need * 100) : 0;
+    const l = el("span"); l.append(el("b", null, label)); r.append(l, el("span", null, `${dec(have)} / ${int(need)}${unit ? " " + unit : ""}`));
+    const bar = el("div", "bar" + (pct >= 100 ? " ok" : "")); const i = el("i"); i.style.width = pct + "%"; bar.append(i);
+    q.append(r, bar); if (note) q.append(el("div", "muted small", note));
+    return q;
+  }
+  function renderYpp() {
+    const y = state.data && state.data.ypp, box = $("ypp");
+    if (!y) return;
+    box.replaceChildren();
+    const subs = (state.live && state.live.channel && state.live.channel.subscribers) ?? y.subs;
+    const fan = y.fan || {};
+    const small = el("div", "block");
+    small.append(el("div", "muted small", fan.reached ? "Kleine Stufe: erreicht, Antrag im Studio stellen" : "Kleine Stufe (Mitgliedschaften, Super Thanks)"));
+    small.append(quota("Abonnenten", subs, fan.subs_needed),
+      quota("Wiedergabestunden Langvideos", y.hours, fan.hours_needed, "h", fan.hours_date ? `bei jetzigem Tempo am ${fmtDay(fan.hours_date)}` : ""),
+      quota("oder Shorts-Aufrufe, 90 Tage", fan.shorts_90, fan.shorts_needed));
+    const big = el("div", "block");
+    big.append(el("div", "muted small", `Partnerprogramm mit Werbegeld` + (y.rule_from ? ` (Regel ab ${fmtDay(y.rule_from)})` : "")));
+    big.append(quota("Abonnenten", subs, y.subs_needed),
+      quota("Wiedergabestunden Langvideos, 365 Tage", y.hours, y.hours_needed, "h", y.reached ? `bei jetzigem Tempo (${dec(y.hours_per_week)} h/Woche) am ${fmtDay(y.reached)}` : `Tempo ${dec(y.hours_per_week)} h je Woche`));
+    box.append(small, big);
+    $("ypp-note").textContent = "Stunden aus YouTube Analytics (Stand der Nacht), Abos live";
+  }
+
+  // ---------- F2: deadlines of every automation with heartbeat bars ----------
+  function renderChecks() {
+    const tb = $("checks"); tb.replaceChildren();
+    const d = state.data, st = state.status, now = berlinParts(new Date()), today = now.day;
+    const rows = [];
+    // night: one beat per night of the last 30 days
+    const hist = Object.fromEntries(((d && d.history) || []).map(h => [h.day, h]));
+    const firstNight = Object.keys(hist).sort()[0] || today;
+    const nightBeats = []; for (let k = 29; k >= 0; k--) { const day = dayShift(today, -k), h = hist[day]; if (day < firstNight) continue; nightBeats.push([!h ? (k === 0 && now.hm < 7 * 60 ? "" : "bad") : h.failed || (h.problems || []).length ? "warn" : h.finished ? "ok" : "bad", `${fmtDay(day)}: ` + (!h ? "kein Bericht" : `${h.steps} Schritte, ${h.failed} fehlgeschlagen`)]); }
+    let ns = "ok", nt = "Pünktlich";
+    const tonight = st && st.day === today, fin = st && (st.steps || []).some(s => s.name === "Budget");
+    if (!tonight && now.hm > 5 * 60 + 30) { ns = "bad"; nt = "Ausgefallen"; }
+    else if (!tonight) { ns = "none"; nt = "Wartet auf 02:47"; }
+    else if (!fin && now.hm > 7 * 60) { ns = "bad"; nt = "Nicht fertig"; }
+    else if (!fin) { ns = "warn"; nt = "Läuft"; }
+    else if ((st.problems || []).length) { ns = "warn"; nt = "Fertig, mit Fehlern"; }
+    rows.push({ name: "Nachtlauf", plan: "täglich 02:47, fertig bis 07:00", s: ns, t: nt, beats: nightBeats, last: st && (st.finished_at || st.started_at) });
+    // repair
+    const reps = (d && d.repair) || [], repByDay = Object.fromEntries(reps.map(r => [r.day, r]));
+    const firstRep = Object.keys(repByDay).sort()[0] || today;
+    const repBeats = []; for (let k = 13; k >= 0; k--) { const day = dayShift(today, -k), r = repByDay[day]; if (day < firstRep) continue; repBeats.push([r ? (r.finished_at ? "ok" : "warn") : "", `${fmtDay(day)}: ` + (r ? (r.finished_at ? "gelaufen" : "nicht abgeschlossen") : "kein Lauf bekannt")]); }
+    const rt = repByDay[today];
+    if (!reps.length) rows.push({ name: "Reparatur am Morgen", plan: "täglich 06:43, fertig bis 08:00", s: "none", t: "Noch kein Lauf bekannt", beats: null, last: null });
+    else rows.push({ name: "Reparatur am Morgen", plan: "täglich 06:43, fertig bis 08:00", s: rt ? (rt.finished_at ? "ok" : now.hm > 8 * 60 ? "bad" : "warn") : now.hm > 8 * 60 ? "bad" : "none", t: rt ? (rt.finished_at ? "Pünktlich" : now.hm > 8 * 60 ? "Nicht fertig" : "Läuft") : now.hm > 8 * 60 ? "Ausgefallen" : "Wartet auf 06:43", beats: repBeats, last: rt ? (rt.finished_at || rt.started_at) : (reps[0] && (reps[0].finished_at || reps[0].started_at)) });
+    // sealed data of the night on this page
+    const gen = d && d.generated_at, gh = gen ? hoursSince(gen) : null;
+    rows.push({ name: "Daten fürs Dashboard", plan: "nach jedem Nacht- und Reparaturlauf, spätestens alle 28 h", s: gh == null ? "none" : gh < 28 ? "ok" : gh < 36 ? "warn" : "bad", t: gh == null ? "Keine Daten" : gh < 28 ? "Pünktlich" : gh < 36 ? "Spät" : "Ausgefallen", beats: null, last: gen });
+    // live sync: one beat per hour of the last 24 hours
+    const hourly = (state.hist && state.hist.hourly) || [], la = state.live && state.live.at, lh = la ? hoursSince(la) : null;
+    const syncBeats = []; const nowMs = Date.now();
+    for (let k = 23; k >= 0; k--) { const a = new Date(nowMs - (k + 1) * 3600000).toISOString(), b = new Date(nowMs - k * 3600000).toISOString(); const hit = hourly.some(p => p.t > a && p.t <= b); syncBeats.push([hit ? "ok" : hourly.length && hourly[0].t <= b ? "bad" : "", `${fmtHour(b)}: ${hit ? "abgeglichen" : "kein Abgleich"}`]); }
+    rows.push({ name: "YouTube-Zahlen (Webseite)", plan: "alle 15 Min., spätestens stündlich gespeichert", s: lh == null ? "none" : lh < 1.25 ? "ok" : lh < 3 ? "warn" : "bad", t: lh == null ? "Keine Zahlen" : lh < 1.25 ? "Pünktlich" : lh < 3 ? "Spät" : "Ausgefallen", beats: syncBeats, last: la });
+    // publishing: posts of the last days by state
+    const cal = (d && d.calendar) || [], past = cal.filter(c => c.day <= today);
+    const pubBeats = past.map(c => { const items = c.items.filter(x => x.platform === "youtube" || x.platform === "tiktok"); const bad = items.some(x => x.status === "failed"); return [!items.length ? "" : bad ? "bad" : "ok", `${fmtDay(c.day)}: ${items.length} Posts${bad ? ", fehlgeschlagen" : ""}`]; });
+    const failedPub = past.some(c => c.items.some(x => x.status === "failed"));
+    const lastVid = ((d && d.videos) || []).map(v => v.publish_at).filter(t => t && new Date(t) <= new Date()).sort().pop();
+    rows.push({ name: "Veröffentlichung YouTube + TikTok", plan: "laut Sendeplan", s: !d ? "none" : failedPub ? "bad" : "ok", t: !d ? "—" : failedPub ? "Fehlgeschlagen" : "Wie geplant", beats: pubBeats, last: lastVid });
+
+    for (const r of rows) {
+      const tr = el("tr");
+      const n = el("td", "name"); n.append(el("b", null, r.name), el("span", null, r.plan));
+      const s = el("td"); s.append(el("span", "pill " + (r.s === "none" ? "idle" : r.s), r.t));
+      const hb = el("td", "hb");
+      if (r.beats && r.beats.length) {
+        const wrap = el("div", "beats"), known = r.beats.filter(b => b[0]), good = known.filter(b => b[0] === "ok").length;
+        if (known.length) { const p = Math.round(good / known.length * 100); const pc = el("span", "pct " + (p === 100 ? "ok" : p >= 80 ? "warn" : "bad"), p + " %"); pc.title = `${good} von ${known.length} Läufen ohne Fehler`; hb.append(pc); hb.append(document.createTextNode(" ")); }
+        for (const [c, t] of r.beats) { const i = el("i", c); i.title = t; wrap.append(i); }
+        hb.append(wrap); hb.style.display = "flex"; hb.style.gap = "8px"; hb.style.alignItems = "center";
+      } else hb.append(el("span", "muted small", "—"));
+      const w = el("td", "when", r.last ? `${ago(r.last)} · ${fmtTime(r.last)}` : "—");
+      tr.append(n, s, hb, w); tb.append(tr);
+    }
+  }
+
+  // ---------- F1: step grid over the nights (Airflow) ----------
+  function nightResults(day, h) {
+    if (h && h.results) return { res: h.results, guess: false };
+    const fromLog = logResults(state.logs[day]);
+    if (fromLog.length) return { res: fromLog, guess: false };
+    if (h) {                              // only the summary: the failed steps are known, the rest finished or not
+      const bad = (h.problems || []).map(p => p.split(":")[0]);
+      return { res: bad.map(b => [b, 1]), guess: true, finished: h.finished };
+    }
+    return null;
+  }
+  function renderGrid() {
+    const d = state.data, box = $("sgrid"); if (!d) return;
+    const hist = Object.fromEntries((d.history || []).map(h => [h.day, h]));
+    const today = berlinParts(new Date()).day;
+    const known = Object.keys(hist).concat(Object.keys(state.logs || {})).sort();
+    const span = Math.min(30, Math.max(7, known.length ? Math.round((new Date(today) - new Date(known[0])) / 86400000) + 1 : 7));
+    const days = []; for (let k = span - 1; k >= 0; k--) days.push(dayShift(today, -k));
+    const nights = days.map(day => ({ day, h: hist[day], r: nightResults(day, hist[day]) }));
+    const order = [];
+    const st = state.status; for (const s of (st && st.steps) || []) if (!order.includes(s.name)) order.push(s.name);
+    for (const n of nights) for (const [name] of (n.r && n.r.res) || []) if (!order.includes(name)) order.push(name);
+    if (!order.length) { box.replaceChildren(el("span", "empty", "Noch keine Nacht mit Schritten aufgezeichnet.")); return; }
+    const mins = nights.map(n => n.h && n.h.started_at && n.h.finished_at ? (new Date(n.h.finished_at) - new Date(n.h.started_at)) / 60000 : null);
+    const maxMin = Math.max(30, ...mins.filter(x => x != null));
+    const t = el("table"), head = el("thead"), dur = el("tr"), hd = el("tr");
+    dur.append(el("th", "rowh muted", "Dauer")); hd.append(el("th", "rowh", ""));
+    nights.forEach((n, i) => {
+      const th = el("th"), w = el("div", "dur");
+      if (mins[i] != null) { const b = el("i", n.h && n.h.failed ? "bad" : ""); b.style.height = Math.max(3, mins[i] / maxMin * 34) + "px"; b.title = `${fmtDay(n.day)}: ${Math.round(mins[i])} Min.`; w.append(b); }
+      th.append(w); dur.append(th);
+      hd.append(el("th", null, n.day.slice(8, 10)));
+    });
+    head.append(dur, hd); t.append(head);
+    const body = el("tbody");
+    for (const name of order) {
+      const tr = el("tr"); tr.append(el("th", "rowh", name));
+      for (const n of nights) {
+        const td = el("td"), map = n.r ? Object.fromEntries(n.r.res) : {};
+        let cls = "c", tip = `${fmtDay(n.day)} · ${name}: `;
+        if (name in map) { const x = map[name]; cls += x === 0 ? " ok" : x === 3 || x === 4 ? " warn" : " bad"; tip += `Exit ${x}`; }
+        else if (n.r && n.r.guess && n.r.finished) { cls += " ok guess"; tip += "lief vermutlich durch (nur Gesamtergebnis bekannt)"; }
+        else tip += n.r ? "nicht gelaufen" : "kein Bericht";
+        const c = el("button", cls); c.type = "button"; c.title = tip; c.setAttribute("aria-label", tip);
+        const key = n.day + "|" + name; c.setAttribute("aria-pressed", String(state.cell === key));
+        if (/ok|warn|bad/.test(cls)) c.addEventListener("click", () => { state.cell = state.cell === key ? null : key; renderGrid(); });
+        else c.disabled = true;
+        td.append(c); tr.append(td);
+      }
+      body.append(tr);
+    }
+    t.append(body); box.replaceChildren(t);
+    const det = $("sgrid-detail"); det.replaceChildren();
+    if (state.cell) {
+      const [day, name] = state.cell.split("|");
+      det.append(el("div", "small", `${name} in der Nacht vom ${fmtDay(day)}`));
+      const pre = el("pre", "log", "Log wird geladen …"); det.append(pre);
+      logOf(day).then(x => { pre.textContent = excerpt(x, name) || (x == null ? "Kein Log für diese Nacht lesbar (Logs liegen für 7 Nächte vor)." : "Im Log nichts zu diesem Schritt gefunden."); });
+    }
   }
 
   const dur = (s) => s == null ? "" : s < 60 ? `${Math.round(s)} s` : s < 3600 ? `${Math.floor(s / 60)} min ${String(Math.round(s % 60)).padStart(2, "0")} s` : `${Math.floor(s / 3600)} h ${Math.round((s % 3600) / 60)} min`;
@@ -609,30 +1013,6 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     }
   }
 
-  function renderBudget() {
-    const b = state.data && state.data.budget; if (!b) return;
-    $("g-month").textContent = b.month ? b.month.slice(5) + "/" + b.month.slice(0, 4) : "";
-    $("g-spent").textContent = eur(b.spent_eur); $("g-limit").textContent = int(b.limit_eur);
-    const bar = $("g-budget-bar"), pct = Math.min(100, b.spent_eur / b.limit_eur * 100), fc = Math.min(100, b.forecast_eur / b.limit_eur * 100);
-    bar.className = "bar" + (b.forecast_eur > b.limit_eur ? " bad" : fc > 90 ? " warn" : "");
-    bar.querySelector("i").style.width = pct + "%"; bar.querySelector("b").style.left = `calc(${fc}% - 1px)`;
-    $("g-budget-sub").textContent = `Abos ${eur(b.fixed_eur)} € · Claude ${eur(b.api_eur)} € (${eur(b.api_usd)} $ von ${int(b.api_limit_usd)} $) · Prognose ${eur(b.forecast_eur)} €` + (b.stop && b.stop.length ? " · gestoppt" : "");
-  }
-
-  function renderCredits() {
-    const b = state.data && state.data.budget, live = state.balance;
-    const total = (b && b.credits_total) || 1000;
-    const left = live && typeof live.credits === "number" ? live.credits : b ? b.credits_left : null;
-    $("g-credits").textContent = int(left);
-    const bar = $("g-credit-bar"); const pct = left == null ? 0 : Math.max(0, Math.min(100, left / total * 100));
-    bar.className = "bar" + (pct < 10 ? " bad" : pct < 25 ? " warn" : ""); bar.querySelector("i").style.width = pct + "%";
-    if (b) $("g-credit-sub").textContent = `Abo ${int(total)} je Monat · je Langvideo bis ${int(b.week_credits_share)} · Stufe ${b.level}` + (b.longs ? ` · ${b.longs} Langvideo${b.longs > 1 ? "s" : ""}/Woche` : "");
-    const l = $("g-credit-live");
-    if (live) { l.className = "live on"; l.textContent = `Live von Higgsfield (${live.subscription_plan_type || "Abo"})` + (state.balanceAt ? `, ${new Date(state.balanceAt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}` : ""); }
-    else if (state.balanceErr) { l.className = "live"; l.textContent = "Live-Stand " + mcpText(state.balanceErr, "Higgsfield") + ", gezeigt wird der Stand der Nacht"; }
-    else if (b) l.textContent = `Stand der Nacht (${b.credits_at === "jetzt" ? "beim Schreiben gemessen" : b.credits_measured ? "gemessen" : "geschätzt"})`;
-  }
-
   function renderPlan() {
     const d = state.data; if (!d || !d.calendar) return;
     const today = berlinParts(new Date()).day;
@@ -669,7 +1049,7 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
       const li = el("li"); const bad = s.exit !== 0 && s.exit !== 3;
       li.append(el("span", "dot" + (bad ? " bad" : s.exit === 3 ? " warn" : "")));
       const mid = el("span"); mid.append(el("span", null, s.name + " "), el("code", null, s.command)); li.append(mid);
-      li.append(el("span", "mono muted", "Exit " + s.exit + (bad ? " ▾" : "")));
+      li.append(el("span", "mono muted small", "Exit " + s.exit + (bad ? " ▾" : "")));
       if (bad) {
         const key = st.day + "|" + k, a = ((d && d.alerts) || []).find(x => x.area === "Nachtlauf" && x.step === s.name) || {};
         li.className = "clickable"; li.tabIndex = 0; li.setAttribute("role", "button"); li.setAttribute("aria-expanded", String(state.openSteps.has(key)));
@@ -681,16 +1061,6 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
       ul.append(li);
     });
     if (st && st.production) { const li = el("li"); li.append(el("span", "dot warn"), el("span", null, "Produktion: " + st.production.replace(/^== /, "")), el("span")); ul.append(li); }
-    const nights = $("nights"); nights.replaceChildren();
-    const hist = (d && d.history) || [];
-    const byDay = Object.fromEntries(hist.map(h => [h.day, h]));
-    const end = new Date(berlinParts(new Date()).day + "T12:00:00Z");
-    for (let k = 29; k >= 0; k--) {
-      const day = new Date(end.getTime() - k * 86400000).toISOString().slice(0, 10); const h = byDay[day];
-      const s = el("span", !h ? "none" : h.failed || (h.problems && h.problems.length) ? "bad" : h.finished ? "" : "warn", day.slice(8, 10));
-      s.title = !h ? `${fmtDay(day)}: kein Bericht` : `${fmtDay(day)}: ${h.steps} Schritte, ${h.failed} fehlgeschlagen${h.problems && h.problems.length ? " · " + h.problems.join(" · ") : ""}`;
-      nights.append(s);
-    }
   }
 
   function renderRepair() {
@@ -699,7 +1069,7 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     if (!runs.length) { box.append(el("span", "muted", "Noch kein Reparaturlauf. Er startet jeden Morgen um 6:43 Uhr, behebt Code-Fehler der Nacht selbst und meldet Logins, Budget und Konten an dich.")); return; }
     for (const r of runs.slice(0, 3)) {
       const head = el("div", "rhead");
-      head.append(el("b", null, fmtDay(r.day)), el("span", "mono muted", r.finished_at ? `${fmtTime(r.started_at).slice(-5)} bis ${fmtTime(r.finished_at).slice(-5)}` : `ab ${fmtTime(r.started_at).slice(-5)}, nicht abgeschlossen`));
+      head.append(el("b", null, fmtDay(r.day)), el("span", "mono muted small", r.finished_at ? `${fmtTime(r.started_at).slice(-5)} bis ${fmtTime(r.finished_at).slice(-5)}` : `ab ${fmtTime(r.started_at).slice(-5)}, nicht abgeschlossen`));
       box.append(head);
       const ul = el("ul");
       for (const x of r.lines || []) ul.append(el("li", null, x.replace(/^- /, "")));
@@ -708,59 +1078,188 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     }
   }
 
+  // ---------- charts ----------
+  function hoverTip(box, tip, target, text) {
+    const show = () => { tip.hidden = false; tip.textContent = text; const b = box.getBoundingClientRect(), r = target.getBoundingClientRect(); tip.style.left = Math.min(Math.max(0, r.left - b.left - 40), Math.max(0, b.width - 190)) + "px"; tip.style.top = Math.max(0, r.top - b.top - 30) + "px"; };
+    target.addEventListener("mouseenter", show); target.addEventListener("click", show);
+    target.addEventListener("mouseleave", () => { tip.hidden = true; });
+  }
+  function niceTop(max) { const steps = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000]; const raw = Math.max(1, max) / 4; const s = steps.find(x => x >= raw) || raw; return { top: Math.ceil(Math.max(1, max) / s) * s, step: s }; }
+  function axis(svg, W, H, L, B, T, top, step, fmt) {
+    for (let v = 0; v <= top + 1e-9; v += step) {
+      const y = H - B - (v / top) * (H - B - T);
+      svg.append(sv("line", { x1: L, x2: W, y1: y, y2: y, stroke: "var(--line)", "stroke-width": 1 }));
+      svg.append(sv("text", { x: L - 4, y: y + 3, "text-anchor": "end" }, fmt ? fmt(v) : (v % 1 ? v.toFixed(1) : String(v))));
+    }
+  }
+  // F5: merged pull requests by Berlin day
+  function changesByDay() {
+    const out = {};
+    for (const c of (state.data && state.data.changes) || []) { const day = berlinParts(new Date(c.at)).day; (out[day] = out[day] || []).push(c); }
+    return out;
+  }
+
+  // Aufrufe: 48 hours per hour, or 30 days per day, with markers for changes (F4, F5).
+  function renderViews() {
+    const svg = $("views"); svg.replaceChildren();
+    const h = state.hist, tip = $("views-tip"), box = $("views-chart");
+    document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.r === state.range)));
+    const subs = state.kpi === "subs";
+    $("h-views").textContent = subs ? "Abonnenten" : "Aufrufe";
+    const W = 640, H = 190, L = 38, B = 22, T = 10;
+    let bars = [];
+    if (h && state.range === "48h") {
+      const pts = (h.hourly || []).filter(p => hoursSince(p.t) <= 49);
+      for (let i = 1; i < pts.length; i++) bars.push({ label: fmtHour(pts[i].t), key: berlinParts(new Date(pts[i].t)).day, v: subs ? pts[i].s - pts[i - 1].s : total(pts[i]) - total(pts[i - 1]), tip: `${fmtTime(pts[i].t)}: ` });
+    } else if (h) {
+      const pts = (h.daily || []).slice(-31);
+      for (let i = 1; i < pts.length; i++) bars.push({ label: pts[i].t.slice(8, 10) + ".", key: pts[i].t.slice(0, 10), v: subs ? pts[i].s - pts[i - 1].s : total(pts[i]) - total(pts[i - 1]), tip: `${fmtDay(pts[i].t.slice(0, 10))}: ` });
+    }
+    bars = bars.map(b => ({ ...b, v: Math.max(0, b.v) }));
+    const unit = subs ? "neue Abos" : "Aufrufe";
+    if (bars.length < 2) {
+      svg.append(sv("text", { x: W / 2, y: H / 2, "text-anchor": "middle" }, h ? "Der Verlauf sammelt sich gerade (ein Punkt je Stunde)." : "Noch kein Verlauf: kommt mit dem nächsten Abgleich der Webseite."));
+      $("views-note").textContent = h && (h.hourly || []).length ? `Erster Messpunkt ${fmtTime(h.hourly[0].t)}.` : "";
+    } else {
+      const { top, step } = niceTop(Math.max(...bars.map(b => b.v)));
+      axis(svg, W, H, L, B, T, top, step);
+      const bw = (W - L) / bars.length, marks = changesByDay(), marked = new Set();
+      bars.forEach((b, i) => {
+        const hh = b.v / top * (H - B - T), x = L + i * bw + bw * 0.15, y = H - B - hh;
+        const r = sv("rect", { x, y, width: Math.max(1, bw * 0.7), height: Math.max(hh, b.v > 0 ? 1 : 0), rx: 2, fill: "var(--accent)", opacity: i === bars.length - 1 ? 1 : .75 });
+        svg.append(r); hoverTip(box, tip, r, b.tip + `${int(b.v)} ${unit}`);
+        const every = Math.ceil(bars.length / 8);
+        if (i % every === 0) svg.append(sv("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, b.label));
+        if (marks[b.key] && !marked.has(b.key)) {           // first bar of a day with merged PRs
+          marked.add(b.key); const mx = L + i * bw + bw / 2, list = marks[b.key];
+          const g = sv("g", {}); g.append(sv("line", { x1: mx, x2: mx, y1: T, y2: H - B, stroke: "var(--warn-mark)", "stroke-width": 1, "stroke-dasharray": "3 3" }), sv("path", { d: `M${mx - 5},${T - 2}L${mx + 5},${T - 2}L${mx},${T + 5}Z`, fill: "var(--warn-mark)" }));
+          g.append(sv("title", {}, list.map(c => (c.pr ? `#${c.pr} ` : "") + c.title).join("\n"))); svg.append(g);
+          hoverTip(box, tip, g, `${fmtDay(b.key)}: ${list.length} Änderung${list.length > 1 ? "en" : ""}`);
+        }
+      });
+      const sum = bars.reduce((a, b) => a + b.v, 0);
+      $("views-note").textContent = `${int(sum)} ${unit} ${state.range === "48h" ? "in den letzten 48 Stunden (je Stunde)" : "in den letzten 30 Tagen (je Tag)"}. Nur öffentliche Videos, Zahlen von YouTube mit kurzer Verzögerung.`;
+    }
+    const ch = (state.data && state.data.changes) || [], list = $("changes-list"); list.replaceChildren();
+    for (const c of ch.slice(0, 40)) { const li = el("li"); li.append(el("span", "mono muted", fmtTime(c.at) + " "), document.createTextNode((c.pr ? `#${c.pr} ` : "") + c.title)); list.append(li); }
+    $("changes").hidden = !ch.length;
+  }
+
+  // Glance-style row of the newest videos with thumbnail, age, factor against the normal (F3) and curve (F4).
+  function videoCurve(id) {
+    const h = state.hist; if (!h) return [];
+    return [...(h.daily || []).slice(-14)].map(p => (p.v || {})[id]).filter(x => x != null);
+  }
+  function renderVideoRow() {
+    const d = state.data, row = $("vrow"); if (!d) return;
+    row.replaceChildren();
+    const out = (v) => !v.publish_at || new Date(v.publish_at) <= new Date();      // published first, then the planned ones
+    const vids = [...(d.videos || []).filter(out), ...(d.videos || []).filter(v => !out(v)).reverse()].slice(0, 12);
+    if (!vids.length) { row.append(el("span", "empty", "Noch keine Videos.")); return; }
+    for (let v of vids) {
+      const lv = v.platform === "youtube" && state.live && state.live.videos && state.live.videos[v.video_id];
+      if (lv) v = { ...v, views: lv.views, likes: lv.likes };
+      const a = el(v.video_id ? "a" : "div", "vcard");
+      if (v.video_id) { a.href = v.platform === "tiktok" ? `https://www.tiktok.com/@strangeknowns/video/${encodeURIComponent(v.video_id)}` : `https://youtu.be/${encodeURIComponent(v.video_id)}`; a.target = "_blank"; a.rel = "noopener"; }
+      const th = el("div", "thumb");
+      th.append(el("span", null, v.platform === "youtube" ? "kein Vorschaubild" : "TikTok"));
+      if (v.platform === "youtube" && v.video_id) { const img = el("img"); img.alt = ""; img.loading = "lazy"; img.src = `https://i.ytimg.com/vi/${encodeURIComponent(v.video_id)}/mqdefault.jpg`; img.addEventListener("error", () => img.remove()); img.addEventListener("load", () => { if (img.naturalWidth <= 120) img.remove(); }); th.append(img); }
+      th.append(el("span", "tag " + v.platform, v.platform === "youtube" ? (v.kind === "long" ? "YT Lang" : "YT Short") : "TikTok"));
+      const n = v.normal;
+      if (n && n.factor != null) { const f = el("span", "factor" + (n.factor >= 1.5 ? " hi" : n.factor < 0.67 ? " lo" : ""), dec(n.factor) + "×"); f.title = `${int(n.views)} Aufrufe nach ${n.days} Tag${n.days > 1 ? "en" : ""}, normal ${int(n.median)} (Median von ${n.peers} Videos)`; th.append(f); }
+      a.append(th, el("div", "t", v.title));
+      const due = v.publish_at && new Date(v.publish_at) > new Date();
+      a.append(el("div", "m", (due ? `geplant ${fmtTime(v.publish_at)}` : ago(v.publish_at)) + ` · ${int(v.views)} Aufrufe · ${int(v.likes)} Likes`));
+      a.append(el("div", "m", n ? (n.factor != null ? `nach ${n.days} Tag${n.days > 1 ? "en" : ""}: ${int(n.views)}, normal ${int(n.median)}` : "Normalwert 0") : v.platform === "youtube" ? "Normalwert ab 3 Videos gleicher Art" : "TikTok: ohne Normalwert"));
+      const curve = v.platform === "youtube" ? videoCurve(v.video_id) : [];
+      if (curve.length > 1) a.append(spark(curve, "var(--accent)"));
+      row.append(a);
+    }
+  }
+
+  // Plausible-style rank list: videos by views, bar behind the title.
+  function renderRank() {
+    const d = state.data, box = $("rank"); if (!d) return;
+    box.replaceChildren();
+    const vids = (d.videos || []).map(v => { const lv = v.platform === "youtube" && state.live && state.live.videos && state.live.videos[v.video_id]; return lv ? { ...v, views: lv.views } : v; })
+      .filter(v => v.views != null).sort((a, b) => b.views - a.views).slice(0, 10);
+    const rh = el("div", "rh"); rh.append(el("span", null, "Videos nach Aufrufen"), el("span", null, "Aufrufe")); box.append(rh);
+    if (!vids.length) { box.append(el("span", "empty", "Noch keine Zahlen.")); }
+    const max = Math.max(1, ...vids.map(v => v.views));
+    for (const v of vids) {
+      const r = el("div", "r"), l = el("div", "lbl"), bar = el("i"); bar.style.width = (v.views / max * 100) + "%";
+      const t = el("span"); t.append(el("span", "tag " + v.platform, v.platform === "youtube" ? (v.kind === "long" ? "Lang" : "Short") : "TikTok")); t.append(document.createTextNode(" " + v.title));
+      l.append(bar, t); r.append(l, el("span", "n", int(v.views))); box.append(r);
+    }
+    const live = state.live && state.live.channel, cs = live || (d.channel && d.channel.stats);
+    $("chan").textContent = cs ? `${int(cs.subscribers)} Abonnenten · ${int(cs.views)} Aufrufe gesamt · ` + (live ? `YouTube live, ${fmtTime(state.live.at)}` : "Stand der Nacht") : "Kanalzahlen kommen mit dem ersten Abruf der Statistik";
+  }
+
+  // F6: the month's spending as a curve against the limit, forecast dashed.
+  function renderMonth() {
+    const d = state.data, b = d && d.budget, svg = $("month"); if (!b) return;
+    svg.replaceChildren();
+    const rate = b.api_usd ? b.api_eur / b.api_usd : 0.92;
+    const days = d.month_days || [];
+    const y0 = Number(d.day.slice(0, 4)), m0 = Number(d.day.slice(5, 7)), dim = new Date(Date.UTC(y0, m0, 0)).getUTCDate();
+    let acc = b.fixed_eur || 0; const pts = days.map(r => { acc += r.usd * rate; return { day: Number(r.day.slice(8, 10)), v: acc, usd: r.usd, iso: r.day }; });
+    const W = 520, H = 200, L = 36, B = 22, T = 10;
+    const { top, step } = niceTop(Math.max(b.limit_eur, b.forecast_eur || 0, acc) * 1.05);
+    axis(svg, W, H, L, B, T, top, step, v => int(v));
+    const X = (day) => L + (day - 1) / Math.max(1, dim - 1) * (W - L - 6), Y = (v) => H - B - v / top * (H - B - T);
+    for (const k of [1, 8, 15, 22, dim]) svg.append(sv("text", { x: X(k), y: H - 6, "text-anchor": "middle" }, `${k}.`));
+    svg.append(sv("line", { x1: L, x2: W, y1: Y(b.limit_eur), y2: Y(b.limit_eur), stroke: "var(--bad-mark)", "stroke-width": 1.5 }));
+    svg.append(sv("text", { x: W - 4, y: Y(b.limit_eur) - 4, "text-anchor": "end", style: "fill: var(--bad)" }, `Grenze ${int(b.limit_eur)} €`));
+    if (pts.length) {
+      const line = pts.map(p => `${X(p.day)},${Y(p.v)}`).join(" ");
+      svg.append(sv("path", { d: `M${X(pts[0].day)},${Y(0)}L` + line.replace(/ /g, "L") + `L${X(pts[pts.length - 1].day)},${Y(0)}Z`, fill: "var(--accent)", opacity: .1 }));
+      svg.append(sv("polyline", { points: line, fill: "none", stroke: "var(--accent)", "stroke-width": 2 }));
+      const last = pts[pts.length - 1];
+      if (b.forecast_eur != null) svg.append(sv("line", { x1: X(last.day), y1: Y(last.v), x2: X(dim), y2: Y(b.forecast_eur), stroke: "var(--accent)", "stroke-width": 2, "stroke-dasharray": "5 4", opacity: .8 }));
+      svg.append(sv("circle", { cx: X(last.day), cy: Y(last.v), r: 3.5, fill: "var(--accent)" }));
+      const box = $("month-chart"), tip = $("month-tip");
+      for (const p of pts) { const c = sv("circle", { cx: X(p.day), cy: Y(p.v), r: 7, fill: "transparent" }); svg.append(c); hoverTip(box, tip, c, `${fmtDay(p.iso)}: ${eur(p.v)} € bisher (Claude ${p.usd.toFixed(2)} $)`); }
+    }
+    const marks = changesByDay();
+    for (const [day, list] of Object.entries(marks)) if (day.slice(0, 7) === d.day.slice(0, 7)) {
+      const x = X(Number(day.slice(8, 10))), g = sv("g", {});
+      g.append(sv("path", { d: `M${x - 4},${T - 2}L${x + 4},${T - 2}L${x},${T + 4}Z`, fill: "var(--warn-mark)" }), sv("title", {}, list.map(c => (c.pr ? `#${c.pr} ` : "") + c.title).join("\n")));
+      svg.append(g);
+    }
+    const parts = [["Abos", b.fixed_eur, "var(--accent)"], ["Claude", b.api_eur, "var(--warn-mark)"], ["frei", Math.max(0, b.limit_eur - b.spent_eur), "var(--track)"]];
+    const stack = $("cost-stack"), leg = $("cost-legend"); stack.replaceChildren(); leg.replaceChildren();
+    for (const [n, v, c] of parts) { const i = el("i"); i.style.width = (v / Math.max(b.limit_eur, b.spent_eur) * 100) + "%"; i.style.background = c; stack.append(i); const s = el("span", null, `${n} ${eur(v)} €` + (n === "Claude" ? ` (${eur(b.api_usd)} $ von ${int(b.api_limit_usd)} $)` : "")); s.style.setProperty("--c", c); leg.append(s); }
+    $("cost-note").textContent = `${b.month ? b.month.slice(5) + "/" + b.month.slice(0, 4) : ""} · bisher ${eur(b.spent_eur)} € · Prognose ${eur(b.forecast_eur)} € von ${int(b.limit_eur)} €`;
+  }
+
   function renderSpend() {
     const d = state.data; if (!d) return;
     const rows = d.spend_days || [], svg = $("spend"); svg.replaceChildren();
-    const W = 400, H = 150, L = 30, B = 20, T = 8, max = Math.max(1, ...rows.map(r => r.usd));
+    const W = 400, H = 160, L = 30, B = 20, T = 10, max = Math.max(1, ...rows.map(r => r.usd));
     const step = max > 4 ? 2 : max > 2 ? 1 : 0.5, top = Math.ceil(max / step) * step;
-    const ns = "http://www.w3.org/2000/svg", mk = (t, a) => { const e = document.createElementNS(ns, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
-    for (let v = 0; v <= top + 1e-9; v += step) {
-      const y = H - B - (v / top) * (H - B - T);
-      svg.append(mk("line", { x1: L, x2: W, y1: y, y2: y, stroke: "var(--line)", "stroke-width": 1 }));
-      const tx = mk("text", { x: L - 4, y: y + 3, "text-anchor": "end" }); tx.textContent = v.toFixed(v % 1 ? 1 : 0); svg.append(tx);
-    }
-    const bw = (W - L) / Math.max(1, rows.length), tip = $("tip");
+    axis(svg, W, H, L, B, T, top, step);
+    const bw = (W - L) / Math.max(1, rows.length), tip = $("tip"), box = $("spend-chart"), marks = changesByDay();
     rows.forEach((r, i) => {
       const h = (r.usd / top) * (H - B - T), x = L + i * bw + bw * 0.18, y = H - B - h;
-      const rect = mk("rect", { x, y, width: bw * 0.64, height: Math.max(h, r.usd > 0 ? 1 : 0), rx: 2, fill: i === rows.length - 1 ? "var(--accent)" : "var(--muted)", opacity: i === rows.length - 1 ? 1 : 0.55 });
-      rect.addEventListener("mouseenter", () => { tip.hidden = false; tip.textContent = `${fmtDay(r.day)}: ${r.usd.toFixed(2)} $ · ${r.calls} Aufrufe`; const box = $("spend-chart").getBoundingClientRect(), rb = rect.getBoundingClientRect(); const left = Math.min(Math.max(0, rb.left - box.left - 40), box.width - 170); tip.style.left = left + "px"; tip.style.top = Math.max(0, rb.top - box.top - 30) + "px"; });
-      rect.addEventListener("mouseleave", () => { tip.hidden = true; });
+      const rect = sv("rect", { x, y, width: bw * 0.64, height: Math.max(h, r.usd > 0 ? 1 : 0), rx: 2, fill: "var(--warn-mark)", opacity: i === rows.length - 1 ? 1 : 0.6 });
+      hoverTip(box, tip, rect, `${fmtDay(r.day)}: ${r.usd.toFixed(2)} $ · ${r.calls} Aufrufe`);
       svg.append(rect);
-      if (i % 2 === rows.length % 2 || rows.length < 8) { const tx = mk("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }); tx.textContent = r.day.slice(8, 10) + "."; svg.append(tx); }
+      if (marks[r.day]) { const mx = L + i * bw + bw / 2, g = sv("g", {}); g.append(sv("path", { d: `M${mx - 4},${T - 4}L${mx + 4},${T - 4}L${mx},${T + 2}Z`, fill: "var(--accent)" }), sv("title", {}, marks[r.day].map(c => (c.pr ? `#${c.pr} ` : "") + c.title).join("\n"))); svg.append(g); }
+      if (i % 2 === rows.length % 2 || rows.length < 8) svg.append(sv("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, r.day.slice(8, 10) + "."));
     });
     const tb = $("stages-cost"); tb.replaceChildren();
     const by = (d.budget && d.budget.by_stage) || {};
     const names = { script: "Skript", review: "Prüfung", spinoffs: "Ableger", storyboard: "Storyboard", ideas: "Ideen", pick: "Auswahl", thumbs: "Thumbnails", metadata: "Texte", hints: "Hinweise", stats: "Auswertung", translate: "Übersetzung" };
-    for (const [k, v] of Object.entries(by)) { const tr = el("tr"); tr.append(el("td", null, names[k] || k), el("td", "n", v.toFixed(2))); tb.append(tr); }
-    if (!Object.keys(by).length) { const tr = el("tr"); tr.append(el("td", "muted", "Diesen Monat noch nichts"), el("td")); tb.append(tr); }
-  }
-
-  function renderVideos() {
-    const d = state.data; if (!d) return;
-    const tb = $("videos"); tb.replaceChildren();
-    for (let v of d.videos || []) {
-      const tr = el("tr"); const tag = el("span", "tag " + v.platform, v.platform === "youtube" ? (v.kind === "long" ? "YT Lang" : "YT Short") : "TikTok");
-      const td0 = el("td"); td0.append(tag);
-      const td1 = el("td");
-      const lv = v.platform === "youtube" && state.live && state.live.videos && state.live.videos[v.video_id];
-      if (lv) v = { ...v, views: lv.views, likes: lv.likes };
-      if (v.video_id) {
-        const a = el("a", null, v.title); a.target = "_blank"; a.rel = "noopener";
-        a.href = v.platform === "tiktok" ? `https://www.tiktok.com/@strangeknowns/video/${encodeURIComponent(v.video_id)}` : `https://youtu.be/${encodeURIComponent(v.video_id)}`;
-        td1.append(a);
-      } else td1.textContent = v.title;
-      const due = v.publish_at && new Date(v.publish_at) > new Date();
-      tr.append(td0, td1, el("td", "mono", fmtTime(v.publish_at) + (due ? " geplant" : "")), el("td", "n", int(v.views)), el("td", "n", int(v.likes)));
-      tb.append(tr);
-    }
-    if (!(d.videos || []).length) { const tr = el("tr"); const td = el("td", "muted", "Noch keine Videos"); td.colSpan = 5; tr.append(td); tb.append(tr); }
-    const live = state.live && state.live.channel, cs = live || (d.channel && d.channel.stats);
-    $("chan").textContent = cs ? `${int(cs.subscribers)} Abonnenten · ${int(cs.views)} Aufrufe gesamt · ` + (live ? `YouTube live, ${fmtTime(state.live.at)}` : "Stand der Nacht") : "Kanalzahlen kommen mit dem ersten Abruf der Statistik";
+    const rh = el("div", "rh"); rh.append(el("span", null, "Schritt, diesen Monat"), el("span", null, "USD")); tb.append(rh);
+    const entries = Object.entries(by).sort((a, b) => b[1] - a[1]), mx = Math.max(0.01, ...entries.map(e => e[1]));
+    for (const [k, v] of entries) { const r = el("div", "r"), l = el("div", "lbl"), bar = el("i"); bar.style.width = (v / mx * 100) + "%"; l.append(bar, el("span", null, names[k] || k)); r.append(l, el("span", "n", v.toFixed(2))); tb.append(r); }
+    if (!entries.length) tb.append(el("span", "empty", "Diesen Monat noch nichts"));
   }
 
   // ---------- wiring ----------
   $("reload").addEventListener("click", () => loadFiles());
   $("g-night-btn").addEventListener("click", openNightAlert);
+  document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { state.range = b.dataset.r; renderViews(); }));
   $("keyform").addEventListener("submit", (e) => {
     e.preventDefault();
     const k = keyFromText($("keyin").value);
@@ -775,6 +1274,8 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
     pre.hidden = false; $("showlog").textContent = "Log ausblenden";
     const text = await logOf(state.status.day); pre.textContent = text == null ? "Kein Log für diese Nacht." : text;
   });
+  // the jump bar must not drop the key from the address (bookmarks keep #k=)
+  document.querySelectorAll("nav.jump a").forEach(a => a.addEventListener("click", (e) => { e.preventDefault(); const t = document.querySelector(a.getAttribute("href")); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); }));
 
   render();
   loadFiles();
@@ -788,6 +1289,3 @@ footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
 </script>
 </body>
 </html>
-
-
-</body></html>

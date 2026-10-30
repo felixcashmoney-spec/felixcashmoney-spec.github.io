@@ -46,7 +46,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          git add leitstand/data.json leitstand/live.json 2>/dev/null || true
+          git add leitstand/data.json leitstand/live.json leitstand/history.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
           git -c user.name="leitstand-bot" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit -q -m "Dashboard $(date -u +%Y-%m-%dT%H:%MZ)"
