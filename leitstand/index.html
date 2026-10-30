@@ -15,9 +15,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
 <style>
 /* Layout (Felix' Wahl 30.10.: Tremor-Optik, dazu Uptime-Kuma-Herzschlag, Glance-Videoreihe,
-   Plausible-Kennzahlreihe): Kopf + Sprungleiste, dann Übersicht (Hinweise, Kennzahlen, Status,
+   Plausible-Kennzahlreihe): Kopf + Tabs, je Tab ein Bereich: Übersicht (Hinweise, Kennzahlen, Status,
    Partnerprogramm), Läufe (Fristen, Schritte-Raster, letzte Nacht, Produktion), Sendeplan, Kanal
-   (Aufrufe-Verlauf, Videoreihe, Rangliste), Kosten (Budgetkurve, Tageskosten, je Schritt). */
+   (Aufrufe-Verlauf, Videoreihe, Rangliste), Kosten (Budgetkurve, Tageskosten, je Schritt).
+   Felix 30.10.: auf großen Bildschirmen füllt jeder Tab genau das Fenster, ohne zu scrollen. */
 :root {
   --bg: #f9fafb;
   --panel: #ffffff;
@@ -68,9 +69,9 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
 .wrap { max-width: 1200px; margin: 0 auto; padding-block: 18px 48px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 28px; }
+  display: grid; gap: 16px; }
 h1, h2, h3 { margin: 0; text-wrap: balance; }
-h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; }
+h1 { font-size: 1.3rem; font-weight: 600; letter-spacing: -0.02em; }
 h2 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
 h3 { font-size: .9rem; font-weight: 600; }
 .num, .mono, td.n { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
@@ -85,13 +86,14 @@ a:hover { text-decoration: underline; }
 
 header.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
 .brand { display: flex; align-items: center; gap: 12px; }
-.logo { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; color: #fff; font-weight: 600; font-size: .85rem; flex: none; }
+.logo { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; color: #fff; font-weight: 600; font-size: .85rem; flex: none; }
 .brand .sub { font-size: .78rem; color: var(--muted); }
 header.top .meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 nav.jump { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
-  display: flex; gap: 4px; overflow-x: auto; margin-top: -14px; padding-block: 6px; scrollbar-width: none; }
-nav.jump a { color: var(--muted); font-size: .85rem; font-weight: 500; padding: 6px 10px; border-radius: 6px; white-space: nowrap; }
-nav.jump a:hover { color: var(--ink); background: var(--panel); text-decoration: none; }
+  display: flex; gap: 22px; overflow-x: auto; margin-top: -8px; scrollbar-width: none; }
+nav.jump a { color: var(--muted); font-size: .875rem; font-weight: 500; padding: 8px 2px; margin-bottom: -1px; border-bottom: 2px solid transparent; white-space: nowrap; }
+nav.jump a:hover { color: var(--ink); border-bottom-color: var(--faint); text-decoration: none; }
+nav.jump a[aria-current="page"] { color: var(--accent-ink); border-bottom-color: var(--accent); }
 
 .pill { display: inline-flex; align-items: center; gap: 7px; padding: 3px 10px; border-radius: 6px; font-weight: 500; font-size: .8rem; border: 1px solid transparent; }
 .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
@@ -105,12 +107,13 @@ nav.jump a:hover { color: var(--ink); background: var(--panel); text-decoration:
 .delta.up.cost { color: var(--bad); background: var(--bad-soft); border-color: color-mix(in srgb, var(--bad) 25%, transparent); }
 .delta.down.cost { color: var(--ok); background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 25%, transparent); }
 
-section.area { display: grid; gap: 16px; min-width: 0; }
-section.area > .title { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
-section.area > .title h2 { font-size: 1.2rem; }
+section.area { display: grid; gap: 12px; min-width: 0; }
+section.area:not(.on) { display: none; }
+section.area > .title { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+section.area > .title h2 { font-size: 1.05rem; }
 .block { display: grid; gap: 10px; min-width: 0; }
 .head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; box-shadow: 0 1px 2px rgb(0 0 0 / .03); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; min-width: 0; box-shadow: 0 1px 2px rgb(0 0 0 / .03); }
 .grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
 .two { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
 @media (max-width: 900px) { .two { grid-template-columns: minmax(0, 1fr); } }
@@ -146,10 +149,10 @@ pre.log { max-height: 420px; }
 /* KPI cards (Tremor) with a Plausible-style switch for the big chart */
 .kpi { display: grid; gap: 4px; align-content: start; }
 .kpi .label { display: flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 500; }
-.kpi .value { font-size: 1.65rem; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.kpi .value { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.2; }
 .kpi .value small { font-size: .85rem; font-weight: 400; color: var(--muted); letter-spacing: 0; }
 .kpi .from { font-size: .78rem; color: var(--muted); }
-.kpi svg.spark { width: 100%; height: 40px; margin-top: 6px; }
+.kpi svg.spark { width: 100%; height: 34px; margin-top: 4px; }
 button.kpi { font: inherit; color: inherit; text-align: left; width: 100%; box-shadow: 0 1px 2px rgb(0 0 0 / .03); }
 button.kpi:hover { color: inherit; }
 .card.pick { cursor: pointer; }
@@ -312,7 +315,43 @@ details.changes ul { margin: 6px 0 0; padding-left: 18px; font-size: .8rem; disp
 .notice { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 18px; }
 .notice form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .notice input { flex: 1 1 260px; min-width: 0; font: inherit; font-size: .9rem; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
-footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
+footer { font-size: .78rem; color: var(--muted); }
+footer summary { cursor: pointer; }
+footer details > div { margin-top: 4px; }
+
+/* One screen per tab (Felix 30.10.): from 1000 × 620 the open tab fills the window, and only long
+   lists scroll inside their own card. Smaller screens keep the normal page scroll. */
+.pane { display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
+@media (min-width: 1000px) and (min-height: 620px) {
+  .wrap { display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding-block: 12px; gap: 12px; max-width: 1600px; }
+  .wrap > * { flex: none; }
+  section.area.on { flex: 1 1 0; min-height: 0; overflow: auto; align-content: start; }
+  .pane > .scroll { flex: 0 1 auto; min-height: 0; overflow: auto; }
+  .pane > .grow { flex: 1 1 0; min-height: 0; }
+  #alerts { max-height: 24vh; overflow: auto; }
+  .card.block { align-content: start; }
+  #s-runs.on { overflow: hidden; align-content: stretch; grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto auto minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-areas: "t t t" "flow flow flow" "checks checks grid" "night repair prod"; }
+  table.checks td { padding-block: 5px; }
+  #p-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+  #s-runs .two { display: contents; }
+  #s-runs > .title { grid-area: t; } #p-flow { grid-area: flow; } #p-checks { grid-area: checks; } #p-grid { grid-area: grid; }
+  #p-night { grid-area: night; } #p-repair { grid-area: repair; } #p-prod { grid-area: prod; }
+  #p-night > .card, #p-repair > .card, #p-prod > .card { flex: 1 1 0; }
+  pre.log { max-height: none; }
+  #s-plan.on { overflow: hidden; align-content: stretch; grid-template-rows: auto minmax(0, 1fr); }
+  #s-plan .plan { overflow: auto; }
+  #s-plan .plan table { height: 100%; }
+  #s-plan .slot { -webkit-line-clamp: 7; }
+  #s-channel.on { overflow: hidden; align-content: stretch; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "t t" "views rank" "vids vids"; }
+  #s-channel > .title { grid-area: t; } #p-views { grid-area: views; } #rank { grid-area: rank; overflow: auto; align-content: start; } #p-vids { grid-area: vids; }
+  #views-chart svg { height: 100%; }
+  #s-costs.on { overflow: hidden; align-content: stretch; grid-template-rows: auto minmax(0, 1fr); }
+  #s-costs .two { min-height: 0; }
+  #s-costs .two > .card { overflow: auto; }
+}
 @media (prefers-reduced-motion: no-preference) { .bar > i { transition: width .5s ease; } }
 </style>
 </head>
@@ -337,7 +376,7 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
   <div id="nodata" class="notice" hidden><div id="nodata-text"></div><form id="keyform" hidden><input id="keyin" type="text" autocomplete="off" spellcheck="false" placeholder="Link mit #k=… oder Schlüssel einfügen" aria-label="Link oder Schlüssel"><button type="submit">Öffnen</button></form></div>
 
   <!-- ===================== Übersicht ===================== -->
-  <section class="area" id="s-overview" aria-labelledby="h-overview">
+  <section class="area on" id="s-overview" aria-labelledby="h-overview">
     <div class="title"><h2 id="h-overview">Übersicht</h2><span class="muted small" id="alert-count"></span></div>
     <ul class="alerts" id="alerts"><li class="gut"><div class="body"><span class="area">Stand</span><span class="txt">Hinweise erscheinen, sobald die Daten gelesen sind.</span></div></li></ul>
 
@@ -380,40 +419,40 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
   <section class="area" id="s-runs" aria-labelledby="h-runs">
     <div class="title"><h2 id="h-runs">Läufe</h2><span class="muted small">Was automatisch läuft, ob es pünktlich war und was in jeder Nacht passiert ist</span></div>
 
-    <div class="card block">
+    <div class="card block pane" id="p-checks">
       <div class="head"><h3>Fristen</h3><span class="muted small">jeder Strich ein Lauf, neuester rechts</span></div>
-      <div class="tbl"><table class="checks"><thead><tr><th>Automatik</th><th>Status</th><th>Verlauf</th><th>Zuletzt</th></tr></thead><tbody id="checks"></tbody></table></div>
+      <div class="tbl scroll"><table class="checks"><thead><tr><th>Automatik</th><th>Status</th><th>Verlauf</th><th>Zuletzt</th></tr></thead><tbody id="checks"></tbody></table></div>
     </div>
 
-    <div class="card block">
+    <div class="card block pane" id="p-grid">
       <div class="head"><h3>Schritte der Nächte</h3><span class="muted small">Zeile = Schritt, Spalte = Nacht, oben die Dauer der Nacht. Feld antippen für den Log-Auszug.</span></div>
-      <div class="sgrid" id="sgrid"><span class="empty">—</span></div>
+      <div class="sgrid scroll" id="sgrid"><span class="empty">—</span></div>
       <div class="gridkey"><span style="--c: var(--ok-mark)">lief durch</span><span style="--c: var(--warn-mark)">übersprungen oder nichts zu tun</span><span style="--c: var(--bad-mark)">fehlgeschlagen</span><span style="--c: var(--none)">nicht gelaufen oder unbekannt</span><span style="--c: var(--ok-mark); opacity:.45">nur aus dem Gesamtergebnis</span></div>
-      <div id="sgrid-detail"></div>
+      <div class="scroll" id="sgrid-detail"></div>
     </div>
 
     <div class="two">
-      <div class="block">
+      <div class="block pane" id="p-night">
         <div class="head"><h3 id="h-night">Letzte Nacht</h3><button type="button" id="showlog">Log anzeigen</button></div>
-        <div class="card"><ul class="steps" id="steps"><li><span class="dot"></span><span>—</span><span></span></li></ul></div>
-        <pre class="log" id="log" hidden></pre>
+        <div class="card scroll"><ul class="steps" id="steps"><li><span class="dot"></span><span>—</span><span></span></li></ul></div>
+        <pre class="log scroll" id="log" hidden></pre>
       </div>
-      <div class="block">
+      <div class="block pane" id="p-repair">
         <div class="head"><h3>Reparatur am Morgen</h3><span class="muted small">täglich 6:43 Uhr</span></div>
-        <div class="card repair" id="repair"><span class="muted">—</span></div>
+        <div class="card repair scroll" id="repair"><span class="muted">—</span></div>
       </div>
     </div>
 
-    <div class="block">
+    <div class="block" id="p-flow">
       <div class="head"><h3 id="h-flow">Ablauf der Produktion</h3><span class="muted small" id="flow-week"></span></div>
       <ol class="stages" id="stages"></ol>
       <div class="muted small" id="flow-why"></div>
     </div>
 
-    <div class="block">
+    <div class="block pane" id="p-prod">
       <div class="head"><h3 id="h-prodsteps">Produktion Schritt für Schritt</h3><span class="muted small">je Nacht: jeder Schritt mit Dauer, Claude-Kosten und Fehlerursache</span></div>
       <div class="days" id="prod-days" role="group" aria-label="Nacht wählen"></div>
-      <div class="card" id="prod-runs"><span class="muted">—</span></div>
+      <div class="card scroll" id="prod-runs"><span class="muted">—</span></div>
     </div>
   </section>
 
@@ -427,17 +466,17 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
   <section class="area" id="s-channel" aria-labelledby="h-channel">
     <div class="title"><h2 id="h-channel">Kanal</h2><span class="muted small" id="chan"></span></div>
 
-    <div class="card block">
+    <div class="card block pane" id="p-views">
       <div class="head">
         <h3 id="h-views">Aufrufe</h3>
         <div class="tabs" role="group" aria-label="Zeitraum"><button type="button" data-r="48h" aria-pressed="true">48 Stunden</button><button type="button" data-r="30d" aria-pressed="false">30 Tage</button></div>
       </div>
-      <div class="chart" id="views-chart"><svg id="views" viewBox="0 0 640 190" role="img" aria-label="Aufrufe im Verlauf"></svg><div class="tip" id="views-tip" hidden></div></div>
+      <div class="chart grow" id="views-chart"><svg id="views" viewBox="0 0 640 190" role="img" aria-label="Aufrufe im Verlauf"></svg><div class="tip" id="views-tip" hidden></div></div>
       <div class="muted small" id="views-note"></div>
       <details class="changes" id="changes"><summary>Änderungen am System (Markierungen ▾ im Diagramm)</summary><ul id="changes-list"></ul></details>
     </div>
 
-    <div class="block">
+    <div class="block" id="p-vids">
       <div class="head"><h3>Neueste Videos</h3><span class="muted small">Faktor = Aufrufe gegen den Normalwert der eigenen Videos gleicher Art</span></div>
       <div class="vrow" id="vrow"><span class="empty">—</span></div>
     </div>
@@ -465,9 +504,10 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
   </section>
 
   <footer>
-    <div>Live: YouTube-Abonnenten, -Aufrufe und -Likes (alle 15 Minuten von YouTube, Verlauf stündlich). Alles andere ist der Stand nach dem letzten Nacht- oder Reparaturlauf.</div>
-    <div>Quelle: dieselben Daten wie im Artifact (<span class="mono">ytauto/logs/dashboard.json</span>), nach jedem Nacht- und Reparaturlauf verschlüsselt hier abgelegt. Lesbar nur mit dem Schlüssel im Link (Teil nach #), der nie an den Server geht. Live-Abruf von Guthaben und Aufgabe: <a href="https://claude.ai/artifact/DManr1VMCHrZNw1RhPSCo9" target="_blank" rel="noopener">Dashboard in claude.ai</a>.</div>
-    <div id="foot-gen"></div>
+    <details><summary>Woher die Daten kommen · <span id="foot-gen"></span></summary>
+      <div>Live: YouTube-Abonnenten, -Aufrufe und -Likes (alle 15 Minuten von YouTube, Verlauf stündlich). Alles andere ist der Stand nach dem letzten Nacht- oder Reparaturlauf.</div>
+      <div>Quelle: dieselben Daten wie im Artifact (<span class="mono">ytauto/logs/dashboard.json</span>), nach jedem Nacht- und Reparaturlauf verschlüsselt hier abgelegt. Lesbar nur mit dem Schlüssel im Link (Teil nach #), der nie an den Server geht. Live-Abruf von Guthaben und Aufgabe: <a href="https://claude.ai/artifact/DManr1VMCHrZNw1RhPSCo9" target="_blank" rel="noopener">Dashboard in claude.ai</a>.</div>
+    </details>
   </footer>
 </div>
 
@@ -627,7 +667,7 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
     const links = el("div", "links");
     if (withProd) {
       const b = el("button", null, "Einzelschritte der Produktion"); b.type = "button";
-      b.addEventListener("click", (e) => { e.preventDefault(); state.prodDay = day; renderProdSteps(); $("h-prodsteps").scrollIntoView({ behavior: "smooth", block: "start" }); });
+      b.addEventListener("click", (e) => { e.preventDefault(); state.prodDay = day; renderProdSteps(); showTab("s-runs"); $("h-prodsteps").scrollIntoView({ behavior: "smooth", block: "start" }); });
       links.append(b);
     }
     box.append(links);
@@ -674,6 +714,14 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
     state.openAlerts.add(a.area + "|" + a.text); render();
     const li = [...$("alerts").children].find(x => x.dataset.key === a.area + "|" + a.text);
     if (li) li.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  const TAB_STORE = "leitstand-tab";
+  function showTab(id) {
+    if (!id || !/^s-/.test(id) || !$(id)) id = "s-overview";
+    document.querySelectorAll("section.area").forEach(s => s.classList.toggle("on", s.id === id));
+    document.querySelectorAll("nav.jump a").forEach(a => { if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    try { localStorage.setItem(TAB_STORE, id); } catch (_) { /* private mode: starts on Übersicht */ }
   }
 
   // ---------- live history helpers ----------
@@ -737,7 +785,7 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
     const daily = ((state.hist && state.hist.daily) || []).slice(-14);
     const card = (key, label, value, unit, delta, from, series, color) => {
       const b = el(key ? "button" : "div", "card kpi" + (key ? " pick" : ""));
-      if (key) { b.type = "button"; b.title = "Im Diagramm unter „Kanal“ zeigen"; b.setAttribute("aria-pressed", String(state.kpi === key)); b.addEventListener("click", () => { state.kpi = key; renderKpis(); renderViews(); $("s-channel").scrollIntoView({ behavior: "smooth", block: "start" }); }); }
+      if (key) { b.type = "button"; b.title = "Im Diagramm unter „Kanal“ zeigen"; b.setAttribute("aria-pressed", String(state.kpi === key)); b.addEventListener("click", () => { state.kpi = key; renderKpis(); renderViews(); showTab("s-channel"); }); }
       const l = el("div", "label"); l.append(el("span", null, label)); if (delta) l.append(delta);
       const v = el("div", "value", value); if (unit) v.append(el("small", null, " " + unit));
       b.append(l, v, el("div", "from", from || "")); if (series) b.append(spark(series, color));
@@ -1297,8 +1345,10 @@ footer { font-size: .78rem; color: var(--muted); display: grid; gap: 4px; }
     pre.hidden = false; $("showlog").textContent = "Log ausblenden";
     const text = await logOf(state.status.day); pre.textContent = text == null ? "Kein Log für diese Nacht." : text;
   });
-  // the jump bar must not drop the key from the address (bookmarks keep #k=)
-  document.querySelectorAll("nav.jump a").forEach(a => a.addEventListener("click", (e) => { e.preventDefault(); const t = document.querySelector(a.getAttribute("href")); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); }));
+  // Tabs (Felix 30.10.): one area at a time, remembered in the browser. They must not drop the key
+  // from the address (bookmarks keep #k=), so the choice does not go into the hash.
+  document.querySelectorAll("nav.jump a").forEach(a => a.addEventListener("click", (e) => { e.preventDefault(); showTab(a.getAttribute("href").slice(1)); }));
+  try { showTab(localStorage.getItem(TAB_STORE)); } catch (_) { showTab(null); }
 
   render();
   loadFiles();
