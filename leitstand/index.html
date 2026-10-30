@@ -288,14 +288,18 @@ details.changes ul { margin: 6px 0 0; padding-left: 18px; font-size: .8rem; disp
 .thumb { position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 6px; overflow: hidden; background: var(--line); display: grid; place-items: center; color: var(--muted); font-size: .75rem; }
 .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .thumb .tag { position: absolute; left: 6px; top: 6px; }
-.thumb .factor { position: absolute; right: 6px; bottom: 6px; }
+.thumb img.fill { filter: blur(16px) brightness(.55); transform: scale(1.15); }
+.thumb img.fit { object-fit: contain; }
 .vcard .t { font-size: .84rem; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; color: var(--ink); }
-.vcard .m { font-size: .74rem; color: var(--muted); font-family: var(--font-data); }
+.vstats { display: flex; align-items: center; gap: 10px; font-size: .74rem; color: var(--muted); white-space: nowrap; min-width: 0; }
+.vstats > span { display: inline-flex; align-items: center; gap: 4px; }
+.vstats b { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-weight: 500; color: var(--ink); }
+.vcard .vstats svg { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.vstats .plan { color: var(--accent-ink); }
+.vstats .delta { margin-left: auto; cursor: default; }
 .vcard svg { width: 100%; height: 26px; }
 .tag { display: inline-block; font-size: .68rem; font-weight: 600; padding: 1px 6px; border-radius: 4px; color: #fff; }
 .tag.youtube { background: var(--yt); } .tag.tiktok { background: var(--tt); }
-.factor { font-family: var(--font-data); font-size: .7rem; font-weight: 600; padding: 1px 6px; border-radius: 4px; background: rgb(0 0 0 / .72); color: #fff; }
-.factor.hi { background: var(--ok-mark); } .factor.lo { background: var(--bad-mark); }
 
 /* rank list with bars behind the text (Plausible) */
 .rank { display: grid; gap: 4px; }
@@ -525,7 +529,7 @@ footer details > div { margin-top: 4px; }
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const NS = "http://www.w3.org/2000/svg";
   const sv = (t, a, text) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (text != null) e.textContent = text; return e; };
-  const state = { openAlerts: new Set(), openSteps: new Set(), logs: {}, prodDay: null, data: null, status: null, live: null, hist: null, range: "48h", kpi: "views", cell: null, trigger: null, balance: null, base: null };
+  const state = { openAlerts: new Set(), openSteps: new Set(), logs: {}, thumbs: {}, prodDay: null, data: null, status: null, live: null, hist: null, range: "48h", kpi: "views", cell: null, trigger: null, balance: null, base: null };
 
   // Berlin wall clock, independent of the viewer's own zone.
   function berlinParts(d) {
@@ -603,7 +607,7 @@ footer details > div { margin-top: 4px; }
     } catch (e) { showNoData("Die Daten ließen sich nicht laden (" + (e.message || "Netzfehler") + "). Später neu laden."); render(); return; }
     try {
       const content = await unseal(box, key);
-      state.data = content.data || null; state.logs = content.logs || {};
+      state.data = content.data || null; state.logs = content.logs || {}; state.thumbs = content.thumbs || {};
       state.status = (state.data && state.data.night) || null;
       $("nodata").hidden = true; $("keyform").hidden = true;
     } catch (e) {
@@ -1237,6 +1241,9 @@ footer details > div { margin-top: 4px; }
     const h = state.hist; if (!h) return [];
     return [...(h.daily || []).slice(-14)].map(p => (p.v || {})[id]).filter(x => x != null);
   }
+  const ICONS = { clock: "M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0", cal: "M8 3v4M16 3v4M4 10h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1",
+    eye: "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6", heart: "M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z" };
+  const ico = (name) => { const s = sv("svg", { viewBox: "0 0 24 24", "aria-hidden": "true" }); s.append(sv("path", { d: ICONS[name] })); return s; };
   function renderVideoRow() {
     const d = state.data, row = $("vrow"); if (!d) return;
     row.replaceChildren();
@@ -1248,16 +1255,23 @@ footer details > div { margin-top: 4px; }
       if (lv) v = { ...v, views: lv.views, likes: lv.likes };
       const a = el(v.video_id ? "a" : "div", "vcard");
       if (v.video_id) { a.href = v.platform === "tiktok" ? `https://www.tiktok.com/@strangeknowns/video/${encodeURIComponent(v.video_id)}` : `https://youtu.be/${encodeURIComponent(v.video_id)}`; a.target = "_blank"; a.rel = "noopener"; }
-      const th = el("div", "thumb");
-      th.append(el("span", null, v.platform === "youtube" ? "kein Vorschaubild" : "TikTok"));
-      if (v.platform === "youtube" && v.video_id) { const img = el("img"); img.alt = ""; img.loading = "lazy"; img.src = `https://i.ytimg.com/vi/${encodeURIComponent(v.video_id)}/mqdefault.jpg`; img.addEventListener("error", () => img.remove()); img.addEventListener("load", () => { if (img.naturalWidth <= 120) img.remove(); }); th.append(img); }
+      const th = el("div", "thumb"), pic = state.thumbs[v.id];
+      th.append(el("span", null, "kein Vorschaubild"));
+      if (pic) for (const cls of ["fill", "fit"]) { const img = el("img", cls); img.alt = ""; img.src = pic; th.append(img); }   // own copy, sealed (Felix 30.10.)
+      else if (v.platform === "youtube" && v.video_id) { const img = el("img"); img.alt = ""; img.loading = "lazy"; img.src = `https://i.ytimg.com/vi/${encodeURIComponent(v.video_id)}/mqdefault.jpg`; img.addEventListener("error", () => img.remove()); img.addEventListener("load", () => { if (img.naturalWidth <= 120) img.remove(); }); th.append(img); }
       th.append(el("span", "tag " + v.platform, v.platform === "youtube" ? (v.kind === "long" ? "YT Lang" : "YT Short") : "TikTok"));
-      const n = v.normal;
-      if (n && n.factor != null) { const f = el("span", "factor" + (n.factor >= 1.5 ? " hi" : n.factor < 0.67 ? " lo" : ""), dec(n.factor) + "×"); f.title = `${int(n.views)} Aufrufe nach ${n.days} Tag${n.days > 1 ? "en" : ""}, normal ${int(n.median)} (Median von ${n.peers} Videos)`; th.append(f); }
       a.append(th, el("div", "t", v.title));
-      const due = v.publish_at && new Date(v.publish_at) > new Date();
-      a.append(el("div", "m", (due ? `geplant ${fmtTime(v.publish_at)}` : ago(v.publish_at)) + ` · ${int(v.views)} Aufrufe · ${int(v.likes)} Likes`));
-      a.append(el("div", "m", n ? (n.factor != null ? `nach ${n.days} Tag${n.days > 1 ? "en" : ""}: ${int(n.views)}, normal ${int(n.median)}` : "Normalwert 0") : v.platform === "youtube" ? "Normalwert ab 3 Videos gleicher Art" : "TikTok: ohne Normalwert"));
+      // Key figures in one line (Felix 30.10.): time, views, likes, factor as a badge; details as tooltips.
+      const due = v.publish_at && new Date(v.publish_at) > new Date(), n = v.normal, st = el("div", "vstats");
+      const item = (icon, text, title, cls) => { const s = el("span", cls); s.title = title; s.append(ico(icon), text); st.append(s); };
+      item(due ? "cal" : "clock", due ? fmtTime(v.publish_at) : ago(v.publish_at), due ? `geplant für ${fmtTime(v.publish_at)}` : `online seit ${fmtTime(v.publish_at)}`, due ? "plan" : null);
+      if (!due) { item("eye", el("b", null, int(v.views)), "Aufrufe"); item("heart", el("b", null, int(v.likes)), "Likes"); }
+      const f = n && n.factor != null;
+      const badge = el("span", "delta" + (f && n.factor >= 1.5 ? " up" : f && n.factor < 0.67 ? " down" : ""), f ? dec(n.factor) + "×" : "–×");
+      badge.title = f ? `Faktor: ${int(n.views)} Aufrufe nach ${n.days} Tag${n.days > 1 ? "en" : ""}, normal ${int(n.median)} (Median von ${n.peers} Videos)`
+        : n ? "Faktor: Normalwert ist 0" : v.platform === "youtube" ? "Faktor kommt ab 3 Videos gleicher Art" : "TikTok: ohne Faktor";
+      st.append(badge);
+      a.append(st);
       const curve = v.platform === "youtube" ? videoCurve(v.video_id) : [];
       if (curve.length > 1) a.append(spark(curve, "var(--accent)"));
       row.append(a);
