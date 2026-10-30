@@ -1,6 +1,11 @@
 # Dashboard (formerly Leitstand of the Strange Knowns automation), https://felixcashmoney-spec.github.io/leitstand/
 # Every 15 minutes: the sealed data of the last night/repair run from the private repo's data branch,
-# and the channel's public YouTube numbers. Commits only when something changed.
+# and the channel's public YouTube numbers (leitstand/update.sh). Commits only when something changed.
+#
+# GitHub's schedule never fired for this workflow (30.10.: only manual runs), so one run stays up
+# for almost 6 hours, updates every 15 minutes and then starts the next run itself (a dispatch with
+# the workflow token does start a new run). The schedule stays as a second way in; the concurrency
+# group keeps it to one running chain. If the chain ever breaks: Actions -> Dashboard -> Run workflow.
 name: Dashboard
 
 on:
@@ -11,6 +16,7 @@ on:
 permissions:
   contents: write
   pages: write
+  actions: write
 
 concurrency:
   group: leitstand
@@ -19,38 +25,26 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 355
     steps:
       - uses: actions/checkout@v4
 
-      - name: Data of the night (sealed, the key is only in Felix' link)
+      - name: Update every 15 minutes for 5 h 45 min
         env:
           TOKEN: ${{ secrets.LEITSTAND_READ_TOKEN }}
-        run: |
-          if [ -z "$TOKEN" ]; then echo "::warning::Secret LEITSTAND_READ_TOKEN fehlt"; exit 0; fi
-          url="https://api.github.com/repos/felixcashmoney-spec/Youtube-Automation/contents/leitstand/data.json?ref=claude/ytauto-data"
-          if ! curl -sSf -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github.raw" "$url" -o "$RUNNER_TEMP/data.json"; then
-            echo "::warning::data.json nicht geholt"; exit 0
-          fi
-          python3 -c "import json,sys; b=json.load(open(sys.argv[1])); assert b['v'] == 1 and b['iv'] and b['ct']" "$RUNNER_TEMP/data.json"
-          cp "$RUNNER_TEMP/data.json" leitstand/data.json
-
-      - name: YouTube numbers (public, live)
-        env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-        run: |
-          if [ -z "$YOUTUBE_API_KEY" ]; then echo "::warning::Secret YOUTUBE_API_KEY fehlt"; exit 0; fi
-          python3 leitstand/live.py leitstand/live.json || echo "::warning::YouTube-Zahlen nicht geholt"
-
-      - name: Commit and build the page
-        env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          git add leitstand/data.json leitstand/live.json leitstand/history.json 2>/dev/null || true
-          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
-          git -c user.name="leitstand-bot" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -q -m "Dashboard $(date -u +%Y-%m-%dT%H:%MZ)"
-          git push -q
-          # pushes with the workflow token may not start a Pages build by themselves
-          curl -sS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pages/builds" -o /dev/null -w "Pages build: %{http_code}\n" || true
+          end=$(( $(date +%s) + 345 * 60 ))
+          while :; do
+            bash leitstand/update.sh || echo "::warning::Abgleich fehlgeschlagen, nächster Versuch in 15 Minuten"
+            next=$(( ($(date +%s) / 900 + 1) * 900 + 240 ))      # :04, :19, :34, :49
+            [ "$next" -ge "$end" ] && break
+            sleep $(( next - $(date +%s) ))
+          done
+
+      - name: Start the next run
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run leitstand.yml --ref main -R "$GITHUB_REPOSITORY"
