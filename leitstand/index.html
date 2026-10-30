@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#f3f4f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1220" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Leitstand">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233a44c9'/%3E%3Cpath d='M7 22h4v-6H7zm7 0h4V10h-4zm7 0h4v-9h-4z' fill='%23fff'/%3E%3C/svg%3E">
+<title>Strange Knowns Leitstand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a broadcast control desk. Status line first, then the alerts, four gauges, the
+   posting plan as a two-lane program strip, then the night's run sheet, costs and videos. */
+:root {
+  --bg: #f3f4f7;
+  --panel: #ffffff;
+  --ink: #161a2b;
+  --muted: #5b6178;
+  --line: #dcdfe8;
+  --accent: #3a44c9;
+  --accent-soft: #e6e8fb;
+  --ok: #1d7a4c;
+  --ok-soft: #e2f3ea;
+  --warn: #9a6400;
+  --warn-soft: #fbf0d9;
+  --bad: #b42335;
+  --bad-soft: #fbe4e7;
+  --yt: #c4302b;
+  --tt: #0f8f8a;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1220; --panel: #171b2e; --ink: #e8eaf4; --muted: #9aa0ba; --line: #2a3048;
+    --accent: #9aa3ff; --accent-soft: #252b52; --ok: #5ccf94; --ok-soft: #173326;
+    --warn: #f0b94e; --warn-soft: #3a2c12; --bad: #ff7d8c; --bad-soft: #3d1a20;
+    --yt: #ff6b63; --tt: #4fd1c9; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1220; --panel: #171b2e; --ink: #e8eaf4; --muted: #9aa0ba; --line: #2a3048;
+  --accent: #9aa3ff; --accent-soft: #252b52; --ok: #5ccf94; --ok-soft: #173326;
+  --warn: #f0b94e; --warn-soft: #3a2c12; --bad: #ff7d8c; --bad-soft: #3d1a20;
+  --yt: #ff6b63; --tt: #4fd1c9; color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px; }
+h1, h2 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.2rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.15rem; font-weight: 700; }
+.eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); font-weight: 600; }
+.num, td.n, .mono { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+button { font: inherit; font-size: .85rem; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+button:hover { border-color: var(--accent); color: var(--accent); }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+a { color: var(--accent); }
+
+header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+header.top .meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.pill { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 999px; font-weight: 600; font-size: .85rem; }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.idle { background: var(--accent-soft); color: var(--accent); }
+
+section.block { display: grid; gap: 12px; min-width: 0; }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+
+.alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.alerts li { display: grid; grid-template-columns: 6px minmax(0, 1fr); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; overflow: hidden; }
+.alerts li::before { content: ""; background: var(--muted); }
+.alerts li.rot::before { background: var(--bad); }
+.alerts li.gelb::before { background: var(--warn); }
+.alerts li.gut::before { background: var(--ok); }
+.alerts .body { padding: 9px 14px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; min-width: 0; }
+.alerts .area { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; color: var(--muted); min-width: 92px; }
+.alerts .txt { min-width: 0; overflow-wrap: anywhere; }
+.alerts details { min-width: 0; }
+.alerts summary { list-style: none; cursor: pointer; padding: 9px 14px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.alerts summary::-webkit-details-marker { display: none; }
+.alerts summary .more { margin-left: auto; font-size: .78rem; color: var(--accent); white-space: nowrap; }
+.alerts details[open] summary .more::after { content: " ▴"; } .alerts details:not([open]) summary .more::after { content: " ▾"; }
+.alerts summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.alerts .done-tag { font-size: .7rem; font-weight: 600; padding: 1px 7px; border-radius: 5px; background: var(--ok-soft); color: var(--ok); }
+.alerts .ask-tag { font-size: .7rem; font-weight: 600; padding: 1px 7px; border-radius: 5px; background: var(--warn-soft); color: var(--warn); }
+.repair { display: grid; gap: 6px; font-size: .86rem; }
+.repair .rhead { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.repair ul { margin: 0; padding-left: 18px; display: grid; gap: 2px; overflow-wrap: anywhere; }
+.why { padding: 0 14px 12px; display: grid; gap: 8px; font-size: .88rem; }
+.why dl { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; }
+.why dt { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding-top: 2px; }
+.why dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .why dl { grid-template-columns: minmax(0, 1fr); } .why dt { padding-top: 6px; } }
+.why pre { max-height: 260px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-family: var(--font-data); font-size: .72rem; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+.why .links { display: flex; flex-wrap: wrap; gap: 8px; }
+.gauge button.big-btn { all: unset; cursor: pointer; display: grid; gap: 8px; }
+.gauge button.big-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+.gauge .hint { font-size: .78rem; color: var(--accent); }
+.steps li.clickable { cursor: pointer; }
+.steps li .why { grid-column: 1 / -1; padding: 6px 0 4px; }
+
+.gauges { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.gauge { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.gauge .big { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; line-height: 1.15; }
+.gauge .sub { font-size: .85rem; color: var(--muted); overflow-wrap: anywhere; }
+.bar { position: relative; height: 10px; border-radius: 5px; background: var(--line); overflow: visible; }
+.bar > i { position: absolute; inset: 0 auto 0 0; border-radius: 5px; background: var(--accent); }
+.bar > b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); }
+.bar.warn > i { background: var(--warn); } .bar.bad > i { background: var(--bad); }
+.live { font-size: .72rem; color: var(--muted); }
+.live.on { color: var(--ok); }
+
+.stages { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.stages li { font-size: .78rem; padding: 4px 9px; border-radius: 6px; background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+.stages li.done { color: var(--ok); border-color: transparent; background: var(--ok-soft); }
+.stages li.now { color: var(--panel); background: var(--accent); border-color: var(--accent); font-weight: 600; }
+.stages li.stop { color: var(--panel); background: var(--bad); border-color: var(--bad); font-weight: 600; }
+
+.plan { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.plan table { border-collapse: collapse; width: 100%; min-width: 1320px; table-layout: fixed; }
+.plan th, .plan td { border-left: 1px solid var(--line); padding: 6px; vertical-align: top; text-align: left; }
+.plan th:first-child, .plan td:first-child { border-left: 0; width: 78px; font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.plan thead th { font-weight: 600; font-size: .78rem; border-bottom: 1px solid var(--line); }
+.plan thead th .d { display: block; font-family: var(--font-data); font-size: .72rem; color: var(--muted); font-weight: 400; }
+.plan th.today, .plan td.today { background: var(--accent-soft); }
+.plan td.past { opacity: .55; }
+.plan tr + tr td { border-top: 1px solid var(--line); }
+.slot { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; font-size: .74rem; line-height: 1.3; padding: 4px 6px; border-radius: 6px; margin-bottom: 4px; background: var(--bg); overflow-wrap: break-word; }
+.slot .t { font-family: var(--font-data); font-weight: 500; }
+.slot.yt { box-shadow: inset 3px 0 0 var(--yt); } .slot.tt { box-shadow: inset 3px 0 0 var(--tt); }
+.slot.failed { background: var(--bad-soft); }
+.slot.long { font-weight: 600; }
+.gap { display: block; font-size: .72rem; color: var(--bad); font-weight: 600; padding: 4px 6px; border: 1px dashed var(--bad); border-radius: 6px; }
+.gap.soon { color: var(--warn); border-color: var(--warn); }
+
+.two { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 22px; }
+@media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.steps li { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 4px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+.steps li:last-child { border-bottom: 0; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); align-self: center; }
+.dot.bad { background: var(--bad); } .dot.warn { background: var(--warn); }
+.steps code { font-family: var(--font-data); font-size: .75rem; color: var(--muted); overflow-wrap: anywhere; }
+.nights { display: flex; gap: 4px; flex-wrap: wrap; }
+.nights span { width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center; font-family: var(--font-data); font-size: .68rem; color: var(--panel); background: var(--ok); }
+.nights span.bad { background: var(--bad); } .nights span.warn { background: var(--warn); } .nights span.none { background: var(--line); color: var(--muted); }
+
+.tbl { overflow-x: auto; }
+.tbl table { border-collapse: collapse; width: 100%; font-size: .86rem; }
+.tbl th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.tbl td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl td.n, .tbl th.n { text-align: right; }
+.tag { display: inline-block; font-size: .7rem; font-weight: 600; padding: 1px 7px; border-radius: 5px; color: var(--panel); }
+.tag.youtube { background: var(--yt); } .tag.tiktok { background: var(--tt); }
+svg text { fill: var(--muted); font-family: var(--font-data); font-size: 10px; }
+.chart { position: relative; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: .75rem; padding: 4px 8px; border-radius: 6px; font-family: var(--font-data); white-space: nowrap; }
+pre.log { max-height: 420px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-family: var(--font-data); font-size: .74rem; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+.days { display: flex; flex-wrap: wrap; gap: 6px; }
+.days button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.days button.bad:not([aria-pressed="true"]) { border-color: var(--bad); color: var(--bad); }
+.run { display: grid; gap: 6px; }
+.run + .run { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+.run-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: .85rem; }
+.run-head b { font-family: var(--font-display); font-size: .95rem; }
+.psteps { list-style: none; margin: 0; padding: 0; display: grid; }
+.psteps li { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 4px 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+.psteps li:last-child { border-bottom: 0; }
+.psteps .what { min-width: 0; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+.psteps .what code { font-family: var(--font-data); font-size: .72rem; color: var(--muted); overflow-wrap: anywhere; }
+.psteps .facts { font-family: var(--font-data); font-size: .75rem; color: var(--muted); text-align: right; white-space: nowrap; }
+.psteps .cause { grid-column: 2 / 4; font-size: .82rem; color: var(--bad); background: var(--bad-soft); border-radius: 6px; padding: 4px 8px; overflow-wrap: anywhere; }
+.psteps .cause.warn { color: var(--warn); background: var(--warn-soft); }
+.psteps li.end .what { font-weight: 600; }
+.psteps li.media .what span:first-child::after { content: " · Higgsfield"; color: var(--muted); font-weight: 400; font-size: .78rem; }
+.notice { background: var(--panel); border: 1px dashed var(--line); border-radius: 12px; padding: 18px; }
+.notice form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.notice input { flex: 1 1 260px; min-width: 0; font: inherit; font-size: .9rem; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); }
+footer { font-size: .8rem; color: var(--muted); display: grid; gap: 4px; }
+@media (prefers-reduced-motion: no-preference) { .bar > i { transition: width .5s ease; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Strange Knowns · YouTube und TikTok</div>
+      <h1>Leitstand</h1>
+    </div>
+    <div class="meta">
+      <span id="overall" class="pill idle">Lädt …</span>
+      <span class="muted" id="stamp">Daten werden gelesen</span>
+      <button type="button" id="reload">Neu laden</button>
+    </div>
+  </header>
+
+  <div id="nodata" class="notice" hidden><div id="nodata-text"></div><form id="keyform" hidden><input id="keyin" type="text" autocomplete="off" spellcheck="false" placeholder="Link mit #k=… oder Schlüssel einfügen" aria-label="Link oder Schlüssel"><button type="submit">Öffnen</button></form></div>
+
+  <section class="block" aria-labelledby="h-alerts">
+    <div class="head"><h2 id="h-alerts">Hinweise</h2><span class="muted" id="alert-count"></span></div>
+    <ul class="alerts" id="alerts"><li class="gut"><div class="body"><span class="area">Stand</span><span class="txt">Hinweise erscheinen, sobald die Daten gelesen sind.</span></div></li></ul>
+  </section>
+
+  <section class="gauges" aria-label="Kennzahlen">
+    <div class="gauge">
+      <div class="eyebrow">Nachtlauf</div>
+      <button type="button" class="big-btn" id="g-night-btn" aria-label="Fehler der Nacht ansehen"><span class="big" id="g-night">—</span><span class="hint" id="g-night-hint" hidden></span></button>
+      <div class="sub" id="g-night-sub">Täglich 2:47 Uhr</div>
+      <div class="live" id="g-night-live"></div>
+    </div>
+    <div class="gauge">
+      <div class="eyebrow">Produktion</div>
+      <div class="big" id="g-prod">—</div>
+      <div class="sub" id="g-prod-sub"></div>
+    </div>
+    <div class="gauge">
+      <div class="eyebrow">Budget <span id="g-month"></span></div>
+      <div class="big"><span id="g-spent">—</span> <span class="muted" style="font-size:1rem">von <span id="g-limit">100</span> €</span></div>
+      <div class="bar" id="g-budget-bar"><i style="width:0"></i><b style="left:0" title="Prognose Monatsende"></b></div>
+      <div class="sub" id="g-budget-sub"></div>
+    </div>
+    <div class="gauge">
+      <div class="eyebrow">Higgsfield-Credits</div>
+      <div class="big"><span id="g-credits">—</span> <span class="muted" style="font-size:1rem">frei</span></div>
+      <div class="bar" id="g-credit-bar"><i style="width:0"></i></div>
+      <div class="sub" id="g-credit-sub"></div>
+      <div class="live" id="g-credit-live"></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-flow">
+    <div class="head"><h2 id="h-flow">Ablauf der Produktion</h2><span class="muted" id="flow-week"></span></div>
+    <ol class="stages" id="stages"></ol>
+    <div class="muted" id="flow-why"></div>
+  </section>
+
+  <section class="block" aria-labelledby="h-prodsteps">
+    <div class="head"><h2 id="h-prodsteps">Produktion Schritt für Schritt</h2><span class="muted">je Nacht: jeder Schritt mit Dauer, Claude-Kosten und Fehlerursache</span></div>
+    <div class="days" id="prod-days" role="group" aria-label="Nacht wählen"></div>
+    <div class="panel" id="prod-runs"><span class="muted">—</span></div>
+  </section>
+
+  <section class="block" aria-labelledby="h-plan">
+    <div class="head"><h2 id="h-plan">Sendeplan</h2><span class="muted">vorgestern bis in zwei Wochen, Uhrzeiten Berlin</span></div>
+    <div class="plan"><table id="plan"><tbody><tr><td>Plan</td><td>—</td></tr></tbody></table></div>
+  </section>
+
+  <div class="two">
+    <section class="block" aria-labelledby="h-night">
+      <div class="head"><h2 id="h-night">Letzte Nacht</h2><button type="button" id="showlog">Log anzeigen</button></div>
+      <div class="panel">
+        <ul class="steps" id="steps"><li><span class="dot"></span><span>—</span><span></span></li></ul>
+      </div>
+      <pre class="log" id="log" hidden></pre>
+      <div class="eyebrow">Die letzten 30 Nächte</div>
+      <div class="nights" id="nights"></div>
+      <div class="eyebrow">Reparatur am Morgen · täglich 6:43 Uhr</div>
+      <div class="panel repair" id="repair"><span class="muted">—</span></div>
+    </section>
+    <section class="block" aria-labelledby="h-cost">
+      <div class="head"><h2 id="h-cost">Claude-Kosten</h2><span class="muted">je Tag, USD, 14 Tage</span></div>
+      <div class="panel chart" id="spend-chart"><svg id="spend" width="100%" viewBox="0 0 400 150" role="img" aria-label="Claude-Kosten je Tag"></svg><div class="tip" id="tip" hidden></div></div>
+      <div class="panel tbl"><table><thead><tr><th>Schritt</th><th class="n">Monat USD</th></tr></thead><tbody id="stages-cost"></tbody></table></div>
+      <div class="muted" id="ideas"></div>
+    </section>
+  </div>
+
+  <section class="block" aria-labelledby="h-videos">
+    <div class="head"><h2 id="h-videos">Videos</h2><span class="muted" id="chan"></span></div>
+    <div class="panel tbl"><table><thead><tr><th>Plattform</th><th>Titel</th><th>Termin</th><th class="n">Aufrufe</th><th class="n">Likes</th></tr></thead><tbody id="videos"></tbody></table></div>
+  </section>
+
+  <footer>
+    <div>Live: YouTube-Abonnenten, -Aufrufe und -Likes (alle 15 Minuten von YouTube). Alles andere ist der Stand nach dem letzten Nacht- oder Reparaturlauf.</div>
+    <div>Quelle: dieselben Daten wie im Artifact (<span class="mono">ytauto/logs/dashboard.json</span>), nach jedem Nachtlauf und jedem Reparaturlauf verschlüsselt hier abgelegt. Lesbar nur mit dem Schlüssel im Link (Teil nach #), der nie an den Server geht. Credits: Stand der letzten Messung im Nachtlauf. Live-Abruf von Guthaben und Aufgabe: <a href="https://claude.ai/artifact/DManr1VMCHrZNw1RhPSCo9" target="_blank" rel="noopener">Leitstand in claude.ai</a>.</div>
+    <div id="foot-gen"></div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const TRIGGER = "trig_01GTYuSpyAz76oAXTiHLCKRH";
+  const TZ = "Europe/Berlin";
+  const WD = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+  const STAGES = [
+    ["Recherche", ["research"]], ["Auswahl", ["pick", "reject"]], ["Skript", ["script"]],
+    ["Ableger", ["spinoffs"]], ["Storyboard", ["storyboard", "media_plan"]], ["Medien", ["media"]],
+    ["Thumbnail", ["thumbs_plan", "thumbs_make"]], ["Schnitt", ["render"]], ["Prüfung", ["review"]],
+    ["Einplanen", ["publish"]], ["Woche fertig", ["done"]]];
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const state = { openAlerts: new Set(), openSteps: new Set(), logs: {}, prodDay: null, data: null, status: null, trigger: null, triggerErr: null, balance: null, balanceErr: null };
+
+  // Berlin wall clock, independent of the viewer's own zone.
+  function berlinParts(d) {
+    const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(d).map(x => [x.type, x.value]));
+    return { day: `${p.year}-${p.month}-${p.day}`, hm: Number(p.hour) * 60 + Number(p.minute) };
+  }
+  const fmtTime = (iso) => iso ? new Intl.DateTimeFormat("de-DE", { timeZone: TZ, day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(iso)) : "—";
+  const fmtDay = (day) => { const d = new Date(day + "T12:00:00Z"); return `${WD[(d.getUTCDay() + 6) % 7]} ${day.slice(8, 10)}.${day.slice(5, 7)}.`; };
+  const eur = (x) => x == null ? "—" : x.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const int = (x) => x == null ? "—" : Math.round(x).toLocaleString("de-DE");
+  const hoursSince = (iso) => (Date.now() - new Date(iso).getTime()) / 3600000;
+
+  // ---------- sealed data next to the page (gzip + AES-256-GCM, key after # in the link) ----------
+  const KEY_STORE = "leitstand-key";
+  const unb64 = (s) => { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return Uint8Array.from(atob(s), c => c.charCodeAt(0)); };
+  function keyFromText(t) { const m = String(t || "").match(/(?:#|^|&)k=([A-Za-z0-9_-]{43})/) || String(t || "").trim().match(/^([A-Za-z0-9_-]{43})$/); return m ? m[1] : null; }
+  function storedKey() { try { return localStorage.getItem(KEY_STORE); } catch (_) { return null; } }
+  function storeKey(k) { try { localStorage.setItem(KEY_STORE, k); } catch (_) { /* private mode: the link keeps working */ } }
+  function forgetKey() { try { localStorage.removeItem(KEY_STORE); } catch (_) { /* nothing stored */ } }
+  function currentKey() {
+    const k = keyFromText(location.hash);
+    if (k) { storeKey(k); return k; }
+    const s = storedKey();
+    if (s && !location.hash) history.replaceState(null, "", "#k=" + s);   // bookmark carries the key again
+    return s;
+  }
+  async function unseal(box, keyText) {
+    if (!box || box.v !== 1) throw new Error("format");
+    const key = await crypto.subtle.importKey("raw", unb64(keyText), "AES-GCM", false, ["decrypt"]);
+    const raw = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(box.iv) }, key, unb64(box.ct));
+    const text = await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    return JSON.parse(text);
+  }
+  function askKey(text) { showNoData(text); $("keyform").hidden = false; }
+
+  // Public YouTube numbers, fetched every 15 minutes by the website repo's workflow (not sealed).
+  async function loadLive() {
+    try { const r = await fetch("live.json?t=" + Date.now(), { cache: "no-store" }); state.live = r.ok ? await r.json() : null; }
+    catch (_) { state.live = null; }
+  }
+
+  async function loadFiles() {
+    loadLive().then(render);
+    const key = currentKey();
+    if (!key) { askKey("Für den Leitstand fehlt der Schlüssel. Öffne den Link mit #k=… (steht in Obsidian unter youtube-automation) oder füge ihn hier ein."); render(); return; }
+    if (!window.crypto || !crypto.subtle || typeof DecompressionStream === "undefined") { showNoData("Dieser Browser kann die Daten nicht entschlüsseln. Bitte einen aktuellen Safari, Chrome oder Firefox nehmen."); return; }
+    let box;
+    try {
+      const r = await fetch("data.json?t=" + Date.now(), { cache: "no-store" });
+      if (r.status === 404) { showNoData("Noch keine Daten hier. Der Nachtlauf legt sie nach seinem nächsten Lauf ab."); render(); return; }
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      box = await r.json();
+    } catch (e) { showNoData("Die Daten ließen sich nicht laden (" + (e.message || "Netzfehler") + "). Später neu laden."); render(); return; }
+    try {
+      const content = await unseal(box, key);
+      state.data = content.data || null; state.logs = content.logs || {};
+      state.status = (state.data && state.data.night) || null;
+      $("nodata").hidden = true; $("keyform").hidden = true;
+    } catch (e) {
+      if (e && e.name === "OperationError") { forgetKey(); askKey("Der Schlüssel passt nicht (falscher oder alter Link). Bitte den aktuellen Link öffnen oder einfügen."); }
+      else showNoData("Die Daten ließen sich nicht lesen (" + ((e && e.message) || "Fehler") + ").");
+    }
+    render();
+  }
+  function showNoData(text) { $("nodata-text").textContent = text; $("nodata").hidden = false; }
+  // No connectors outside claude.ai: task status and live balance stay empty, the page works from the
+  // night's data (credits as measured, next run from the fixed schedule 02:47).
+  const mcpText = () => "";
+
+  // ---------- alerts ----------
+  function pageAlerts() {
+    const out = [], d = state.data, st = state.status, now = berlinParts(new Date());
+    if (d && d.generated_at && hoursSince(d.generated_at) > 28)
+      out.push({ level: "rot", area: "Nachtlauf", text: `Seit ${Math.round(hoursSince(d.generated_at))} Stunden kein neuer Stand. Ist der Nachtlauf gelaufen?` });
+    if (st && st.day) {
+      const finished = (st.steps || []).some(s => s.name === "Budget");
+      if (st.day !== now.day && now.hm > 5 * 60 + 30)
+        out.push({ level: "rot", area: "Nachtlauf", text: `Heute Nacht kein Bericht (letzter vom ${fmtDay(st.day)}).` });
+      else if (st.day === now.day && !finished)
+        out.push(now.hm > 7 * 60 ? { level: "rot", area: "Nachtlauf", text: "Der Nachtlauf ist heute nicht zu Ende gelaufen (Abschluss fehlt)." }
+                                 : { level: "info", area: "Nachtlauf", text: "Der Nachtlauf läuft gerade." });
+    }
+    const t = state.trigger;
+    if (t) {
+      if (t.enabled === false) out.push({ level: "rot", area: "Aufgabe", text: "Die geplante Aufgabe „Nachtlauf“ ist ausgeschaltet" + (t.ended_reason ? ` (${t.ended_reason})` : "") + "." });
+      if (t.suspension_reason) out.push({ level: "rot", area: "Aufgabe", text: `Nachtlauf angehalten: ${t.suspension_reason}` });
+      const lr = t.last_run;
+      if (lr && lr.status && !/SUCCEEDED|RUNNING|PENDING/.test(lr.status)) out.push({ level: "rot", area: "Aufgabe", text: `Letzter Start der Aufgabe: ${lr.status.replace("ROUTINE_RUN_STATUS_", "")} (${fmtTime(lr.fired_at)})` });
+    }
+    const b = state.balance;
+    if (b && typeof b.credits === "number" && b.credits < 100) out.push({ level: "gelb", area: "Credits", text: `Higgsfield live: nur noch ${int(b.credits)} Credits.` });
+    return out;
+  }
+  function allAlerts() {
+    const fromNight = (state.data && state.data.alerts) || [];
+    const live = pageAlerts();
+    // the file's "not from today" note is superseded by the live time check
+    const merged = [...live, ...fromNight.filter(a => !(a.area === "Nachtlauf" && /^Letzter Bericht/.test(a.text) && live.some(x => x.area === "Nachtlauf")))];
+    const order = { rot: 0, gelb: 1, info: 2 };
+    return merged.sort((a, b) => (order[a.level] ?? 3) - (order[b.level] ?? 3));
+  }
+
+  // ---------- log excerpts ----------
+  async function logOf(day) { return state.logs[day] ?? null; }
+  function excerpt(text, step) {          // the log part of one night step, the failed runs first
+    if (!text || !step) return "";
+    const parts = text.split(/\n(?=### )/).map(x => x.trim()).filter(x => x.startsWith("### "));
+    const mine = parts.filter(x => x.replace(/^### \S+ /, "").startsWith(step + ":"));
+    const bad = mine.filter(x => { const m = x.split("\n")[0].match(/-> Exit (-?\d+)$/); return m && m[1] !== "0" && m[1] !== "3"; });
+    return (bad.length ? bad : mine).join("\n\n");
+  }
+  function whyBox(rows, day, step, withProd) {
+    const box = el("div", "why"), dl = el("dl");
+    for (const [k, v] of rows) if (v) { dl.append(el("dt", null, k), el("dd", null, v)); }
+    box.append(dl);
+    const links = el("div", "links");
+    if (withProd) {
+      const b = el("button", null, "Einzelschritte der Produktion"); b.type = "button";
+      b.addEventListener("click", (e) => { e.preventDefault(); state.prodDay = day; renderProdSteps(); $("h-prodsteps").scrollIntoView({ behavior: "smooth", block: "start" }); });
+      links.append(b);
+    }
+    box.append(links);
+    if (day && step) {
+      const pre = el("pre", null, "Log wird geladen …"); box.append(pre);
+      logOf(day).then(t => { const x = excerpt(t, step); pre.textContent = x || (t == null ? "Kein Log für diese Nacht lesbar." : "Im Log nichts zu diesem Schritt gefunden."); });
+    }
+    return box;
+  }
+  // What the morning repair run did with an alert (docs/REPARATUR.md, Felix 30.10.).
+  const FIXED = ["behoben", "erneut-ok", "schon-behoben"];
+  function repairTag(a) {
+    const r = a.repair; if (!r) return null;
+    if (FIXED.includes(r.result)) return el("span", "done-tag", "automatisch repariert" + (r.pr ? ` · PR #${r.pr}` : ""));
+    if (r.result === "gemeldet" || r.result === "eskaliert") return el("span", "ask-tag", "braucht dich");
+    return el("span", "ask-tag", "Reparatur " + r.result);
+  }
+  function repairText(a) {
+    const r = a.repair; if (!r) return "";
+    const what = { "behoben": "Code repariert, Schritt lief danach durch", "erneut-ok": "Erneut ausgeführt, lief durch", "schon-behoben": "War schon repariert", "gemeldet": "Kein Code-Fehler, das musst du tun", "eskaliert": "Kommt trotz zwei Reparaturen wieder, das entscheidest du", "fehlgeschlagen": "Reparatur versucht, der Schritt scheitert weiter", "uebersprungen": "Übersprungen" }[r.result] || r.result;
+    return `${what}: ${r.text}` + (r.pr ? ` (PR #${r.pr})` : "");
+  }
+  function alertItem(a) {
+    const li = el("li", a.level);
+    if (!a.impact && !a.detail && !a.repair) { const b = el("div", "body"); b.append(el("span", "area", a.area), el("span", "txt", a.text)); li.append(b); return li; }
+    const key = a.area + "|" + a.text, d = el("details"), sm = el("summary");
+    sm.append(el("span", "area", a.area), el("span", "txt", a.text));
+    const rt = repairTag(a);
+    if (rt) sm.append(rt);
+    else if (a.resolved) sm.append(el("span", "done-tag", "inzwischen erledigt"));
+    sm.append(el("span", "more", "Details"));
+    d.append(sm);
+    d.open = state.openAlerts.has(key);
+    let filled = false;
+    const fill = () => { if (filled || !d.open) return; filled = true; d.append(whyBox([["Was genau", a.detail], ["Wie schlimm", a.impact], ["Reparatur", repairText(a)]], a.day, a.step, a.step === "Produktion")); };
+    d.addEventListener("toggle", () => { if (d.open) state.openAlerts.add(key); else state.openAlerts.delete(key); fill(); });
+    fill();
+    li.dataset.key = key; li.append(d);
+    return li;
+  }
+  function openNightAlert() {
+    const a = allAlerts().find(x => x.area === "Nachtlauf" && x.step);
+    if (!a) return;
+    state.openAlerts.add(a.area + "|" + a.text); render();
+    const li = [...$("alerts").children].find(x => x.dataset.key === a.area + "|" + a.text);
+    if (li) li.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // ---------- render ----------
+  function render() {
+    const d = state.data;
+    const alerts = allAlerts();
+    const red = alerts.filter(a => a.level === "rot").length, yellow = alerts.filter(a => a.level === "gelb").length;
+    const ov = $("overall");
+    if (!d && !state.status) { ov.className = "pill idle"; ov.textContent = "Keine Daten"; }
+    else if (red) { ov.className = "pill bad"; ov.textContent = red === 1 ? "1 Störung" : `${red} Störungen`; }
+    else if (yellow) { ov.className = "pill warn"; ov.textContent = "Läuft, mit Hinweisen"; }
+    else { ov.className = "pill ok"; ov.textContent = "Alles läuft"; }
+    $("stamp").textContent = d ? `Stand ${fmtTime(d.generated_at)}` : "";
+
+    const ul = $("alerts"); ul.replaceChildren();
+    if (!alerts.length) { const li = el("li", "gut"); const b = el("div", "body"); b.append(el("span", "area", "Alles gut"), el("span", "txt", "Keine Störung und nichts, was Aufmerksamkeit braucht.")); li.append(b); ul.append(li); }
+    for (const a of alerts) ul.append(alertItem(a));
+    $("alert-count").textContent = alerts.length ? `${red} rot · ${yellow} gelb` : "";
+
+    renderNightGauge(); renderProduction(); renderProdSteps(); renderBudget(); renderCredits(); renderPlan(); renderSteps(); renderRepair(); renderSpend(); renderVideos();
+    $("foot-gen").textContent = d ? `Daten-Datei erzeugt ${fmtTime(d.generated_at)} für den ${fmtDay(d.day)}.` : "";
+  }
+
+  function renderNightGauge() {
+    const st = state.status, t = state.trigger;
+    if (st) {
+      const failed = (st.steps || []).filter(s => s.exit !== 0 && s.exit !== 3).length;
+      const finished = (st.steps || []).some(s => s.name === "Budget");
+      const night = ((state.data && state.data.alerts) || []).filter(a => a.area === "Nachtlauf" && a.step);
+      const open = night.filter(a => !a.resolved).length;
+      $("g-night").textContent = failed ? `${failed} Schritt${failed > 1 ? "e" : ""} fehlgeschlagen` : finished ? "Ohne Fehler" : "Unvollständig";
+      $("g-night").style.color = failed ? (night.length && !open ? "var(--warn)" : "var(--bad)") : finished ? "var(--ok)" : "var(--warn)";
+      $("g-night-hint").hidden = !failed;
+      $("g-night-hint").textContent = night.length && !open ? "Inzwischen erledigt, hält nichts auf · Details ansehen" : "Was ist passiert und wie schlimm? Antippen";
+      $("g-night-sub").textContent = `Nacht vom ${fmtDay(st.day)}` + (st.started_at ? `, ${fmtTime(st.started_at)} bis ${st.finished_at ? fmtTime(st.finished_at).slice(-5) : "?"}` : "") + `, ${(st.steps || []).length} Schritte`;
+    }
+    const live = $("g-night-live");
+    if (!t) {                             // the night runs on a fixed schedule; no connector needed for it
+      const now = berlinParts(new Date()), RUN = 2 * 60 + 47;
+      const next = now.hm < RUN ? "heute" : "morgen";
+      const fin = st && (st.steps || []).some(s => s.name === "Budget");
+      live.className = "live on";
+      live.textContent = `Nächster Lauf ${next} 02:47` + (st ? ` · letzter Lauf ${fmtDay(st.day)} ${fin ? "zu Ende gelaufen" : "nicht zu Ende gelaufen"}` : "")
+        + (state.triggerErr ? ` · Live-Status ${mcpText(state.triggerErr, "Claude Code Remote")}` : state.liveNote ? " · " + state.liveNote : "");
+    }
+    else { live.className = "live on"; live.textContent = "Live: " + (t.enabled ? "Aufgabe an" : "Aufgabe AUS") + (t.next_run_at ? ` · nächster Lauf ${fmtTime(t.next_run_at)}` : "") + (t.last_run && t.last_run.status ? ` · letzter Start ${/SUCCEEDED/.test(t.last_run.status) ? "ok" : t.last_run.status.replace("ROUTINE_RUN_STATUS_", "")}` : ""); }
+  }
+
+  function renderProduction() {
+    const d = state.data; if (!d) return;
+    const n = d.next || {};
+    const label = { research: "Recherche", pick: "Idee wählen", reject: "Idee verwerfen", script: "Skript", spinoffs: "Ableger", storyboard: "Storyboard", media_plan: "Medienplan", media: "Medien bei Higgsfield", thumbs_plan: "Thumbnail-Plan", thumbs_make: "Thumbnail", render: "Schnitt", review: "Prüfung", publish: "Einplanen", done: "Woche eingeplant", stop: "Angehalten" }[n.step] || n.step || "—";
+    $("g-prod").textContent = label;
+    $("g-prod").style.color = n.step === "stop" ? "var(--bad)" : n.step === "done" ? "var(--ok)" : "";
+    $("g-prod-sub").textContent = (n.idea_title ? `#${n.idea_id} ${n.idea_title}. ` : "") + `Woche ab ${fmtDay(d.week.monday)}: ${d.week.planned ? "eingeplant" : "noch offen"}.`;
+    const ol = $("stages"); ol.replaceChildren();
+    const at = STAGES.findIndex(s => s[1].includes(n.step));
+    STAGES.forEach(([name], i) => {
+      let cls = at < 0 ? "" : i < at ? "done" : i === at ? (n.step === "reject" ? "stop" : "now") : "";
+      if (n.step === "done") cls = "done";
+      if (n.step === "stop" && i === 0) cls = "stop";
+      ol.append(el("li", cls, name));
+    });
+    $("flow-week").textContent = `Woche ab ${fmtDay(d.week.monday)}`;
+    $("flow-why").textContent = n.why || "";
+    const ideas = d.ideas || {};
+    $("ideas").textContent = `Ideen für Langvideos: ${ideas.new || 0} offen, ${ideas.approved || 0} in Arbeit, ${ideas.published || 0} veröffentlicht, ${ideas.rejected || 0} verworfen.` + (d.batches && d.batches.n ? ` ${d.batches.n} Claude-Anfragen warten auf die Batch-API.` : "");
+  }
+
+  const dur = (s) => s == null ? "" : s < 60 ? `${Math.round(s)} s` : s < 3600 ? `${Math.floor(s / 60)} min ${String(Math.round(s % 60)).padStart(2, "0")} s` : `${Math.floor(s / 3600)} h ${Math.round((s % 3600) / 60)} min`;
+  const runFailed = (r) => (r.steps || []).some(s => s.exit !== 0 && s.exit !== 3 && s.exit !== 4) || !!(r.end && r.end.cause);
+  const dayFailed = (p) => p.runs.some(runFailed) || p.media.some(m => m.failed);
+
+  function renderProdSteps() {
+    const d = state.data; if (!d) return;
+    const prod = d.production || [];
+    const hist = Object.fromEntries((d.history || []).map(h => [h.day, h]));
+    const days = [...new Set([...prod.map(p => p.day), ...(d.history || []).slice(0, 7).map(h => h.day)])].sort().reverse().slice(0, 10);
+    if (!state.prodDay || !days.includes(state.prodDay)) state.prodDay = days[0] || null;
+    const bar = $("prod-days"); bar.replaceChildren();
+    for (const day of days) {
+      const p = prod.find(x => x.day === day), h = hist[day];
+      const bad = p ? dayFailed(p) : !!(h && (h.problems || []).some(x => /^Produktion/.test(x)));
+      const b = el("button", bad ? "bad" : "", fmtDay(day)); b.type = "button";
+      b.setAttribute("aria-pressed", String(day === state.prodDay));
+      b.addEventListener("click", () => { state.prodDay = day; renderProdSteps(); });
+      bar.append(b);
+    }
+    const box = $("prod-runs"); box.replaceChildren();
+    if (!state.prodDay) { box.append(el("span", "muted", "Noch keine Produktion aufgezeichnet.")); return; }
+    const p = prod.find(x => x.day === state.prodDay), h = hist[state.prodDay];
+    if (!p || (!p.runs.length && !p.media.length)) {
+      box.append(el("div", "muted", "Für diese Nacht gibt es nur den Gesamtblock (die Einzelschritte werden seit dem 30.10. aufgezeichnet):"));
+      if (h && h.production) box.append(el("div", null, "Produktion: " + h.production.replace(/^== /, "")));
+      return;
+    }
+    p.runs.forEach((r, k) => {
+      const wrap = el("div", "run"), head = el("div", "run-head");
+      const usd = (r.steps || []).reduce((a, s) => a + (s.usd || 0), 0), secs = (r.steps || []).reduce((a, s) => a + (s.seconds || 0), 0);
+      head.append(el("b", null, `Durchgang ${k + 1}`), el("span", "mono muted", r.from_log ? `${(r.steps || []).length} Schritte · aus dem Log, ohne Dauer und Kosten` : `ab ${fmtTime(r.started_at).slice(-5)} · ${(r.steps || []).length} Schritte · ${dur(secs)} · ${usd.toFixed(2)} $`));
+      wrap.append(head);
+      const ul = el("ul", "psteps");
+      for (const s of r.steps || []) {
+        const bad = s.exit !== 0 && s.exit !== 3 && s.exit !== 4, li = el("li");
+        li.append(el("span", "dot" + (bad ? " bad" : s.exit === 3 || s.exit === 4 ? " warn" : "")));
+        const what = el("span", "what"); what.append(el("span", null, s.label + (s.idea_id ? ` · Idee #${s.idea_id}` : "")), el("code", null, s.command)); li.append(what);
+        li.append(el("span", "facts", [dur(s.seconds), s.usd ? s.usd.toFixed(2) + " $" : "", "Exit " + s.exit].filter(Boolean).join(" · ")));
+        if (s.cause) li.append(el("div", "cause" + (bad ? "" : " warn"), (bad ? "Ursache: " : "") + s.cause));
+        ul.append(li);
+      }
+      if (r.end) {
+        const e = r.end, li = el("li", "end"), bad = !!e.cause, cls = bad ? " bad" : e.step === "stop" || e.step === "wait" ? " warn" : "";
+        li.append(el("span", "dot" + cls)); const what = el("span", "what"); what.append(el("span", null, `Ende: ${e.label}`), el("span", "muted", e.text || "")); li.append(what, el("span"));
+        if (e.cause) li.append(el("div", "cause", "Ursache: " + e.cause));
+        ul.append(li);
+      } else {
+        const li = el("li", "end"); li.append(el("span", "dot warn")); const what = el("span", "what"); what.append(el("span", null, "Ende fehlt"), el("span", "muted", "der Durchgang lief noch oder brach ab")); li.append(what, el("span")); ul.append(li);
+      }
+      wrap.append(ul); box.append(wrap);
+    });
+    if (p.media.length) {
+      const wrap = el("div", "run"), head = el("div", "run-head");
+      head.append(el("b", null, "Medien"), el("span", "muted", "Stimme, Bilder und Clips bei Higgsfield, alles an diesem Tag"));
+      wrap.append(head);
+      const ul = el("ul", "psteps");
+      for (const m of p.media) {
+        const li = el("li", "media");
+        li.append(el("span", "dot" + (m.failed ? " bad" : m.open ? " warn" : "")));
+        const what = el("span", "what"); what.append(el("span", null, m.label), el("span", "muted", `${m.done} fertig` + (m.failed ? ` · ${m.failed} fehlgeschlagen` : "") + (m.open ? ` · ${m.open} unterwegs` : ""))); li.append(what);
+        li.append(el("span", "facts", `${int(m.credits)} Credits`));
+        if (m.cause) li.append(el("div", "cause", "Ursache: " + m.cause));
+        ul.append(li);
+      }
+      wrap.append(ul); box.append(wrap);
+    }
+  }
+
+  function renderBudget() {
+    const b = state.data && state.data.budget; if (!b) return;
+    $("g-month").textContent = b.month ? b.month.slice(5) + "/" + b.month.slice(0, 4) : "";
+    $("g-spent").textContent = eur(b.spent_eur); $("g-limit").textContent = int(b.limit_eur);
+    const bar = $("g-budget-bar"), pct = Math.min(100, b.spent_eur / b.limit_eur * 100), fc = Math.min(100, b.forecast_eur / b.limit_eur * 100);
+    bar.className = "bar" + (b.forecast_eur > b.limit_eur ? " bad" : fc > 90 ? " warn" : "");
+    bar.querySelector("i").style.width = pct + "%"; bar.querySelector("b").style.left = `calc(${fc}% - 1px)`;
+    $("g-budget-sub").textContent = `Abos ${eur(b.fixed_eur)} € · Claude ${eur(b.api_eur)} € (${eur(b.api_usd)} $ von ${int(b.api_limit_usd)} $) · Prognose ${eur(b.forecast_eur)} €` + (b.stop && b.stop.length ? " · gestoppt" : "");
+  }
+
+  function renderCredits() {
+    const b = state.data && state.data.budget, live = state.balance;
+    const total = (b && b.credits_total) || 1000;
+    const left = live && typeof live.credits === "number" ? live.credits : b ? b.credits_left : null;
+    $("g-credits").textContent = int(left);
+    const bar = $("g-credit-bar"); const pct = left == null ? 0 : Math.max(0, Math.min(100, left / total * 100));
+    bar.className = "bar" + (pct < 10 ? " bad" : pct < 25 ? " warn" : ""); bar.querySelector("i").style.width = pct + "%";
+    if (b) $("g-credit-sub").textContent = `Abo ${int(total)} je Monat · je Langvideo bis ${int(b.week_credits_share)} · Stufe ${b.level}` + (b.longs ? ` · ${b.longs} Langvideo${b.longs > 1 ? "s" : ""}/Woche` : "");
+    const l = $("g-credit-live");
+    if (live) { l.className = "live on"; l.textContent = `Live von Higgsfield (${live.subscription_plan_type || "Abo"})` + (state.balanceAt ? `, ${new Date(state.balanceAt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}` : ""); }
+    else if (state.balanceErr) { l.className = "live"; l.textContent = "Live-Stand " + mcpText(state.balanceErr, "Higgsfield") + ", gezeigt wird der Stand der Nacht"; }
+    else if (b) l.textContent = `Stand der Nacht (${b.credits_at === "jetzt" ? "beim Schreiben gemessen" : b.credits_measured ? "gemessen" : "geschätzt"})`;
+  }
+
+  function renderPlan() {
+    const d = state.data; if (!d || !d.calendar) return;
+    const today = berlinParts(new Date()).day;
+    const t = $("plan"); t.replaceChildren();
+    const head = el("thead"), hr = el("tr"); hr.append(el("th", null, ""));
+    for (const c of d.calendar) { const th = el("th", c.day === today ? "today" : ""); th.append(document.createTextNode(WD[c.weekday])); th.append(el("span", "d", `${c.day.slice(8, 10)}.${c.day.slice(5, 7)}.`)); hr.append(th); }
+    head.append(hr); t.append(head);
+    const body = el("tbody");
+    for (const [plat, name, cls] of [["youtube", "YouTube", "yt"], ["tiktok", "TikTok", "tt"]]) {
+      const tr = el("tr"); tr.append(el("td", null, name));
+      for (const c of d.calendar) {
+        const td = el("td", (c.day === today ? "today " : "") + (c.day < today ? "past" : ""));
+        const items = c.items.filter(x => x.platform === plat);
+        for (const x of items) {
+          const s = el("span", `slot ${cls}${x.kind === "long" ? " long" : ""}${x.status === "failed" ? " failed" : ""}`);
+          s.append(el("span", "t", x.time + " "), document.createTextNode((x.kind === "long" ? "Lang · " : "") + (x.title || x.key)));
+          s.title = `${x.title || ""}${x.status ? " · " + x.status : ""}${x.note ? " · " + x.note : ""}`;
+          td.append(s);
+        }
+        if (!items.length && c.day >= today) {
+          const ahead = Math.round((new Date(c.day) - new Date(today)) / 86400000);
+          td.append(el("span", "gap" + (ahead > 3 ? " soon" : ""), "leer"));
+        }
+        tr.append(td);
+      }
+      body.append(tr);
+    }
+    t.append(body);
+  }
+
+  function renderSteps() {
+    const st = state.status, d = state.data; const ul = $("steps"); ul.replaceChildren();
+    if (st) (st.steps || []).forEach((s, k) => {
+      const li = el("li"); const bad = s.exit !== 0 && s.exit !== 3;
+      li.append(el("span", "dot" + (bad ? " bad" : s.exit === 3 ? " warn" : "")));
+      const mid = el("span"); mid.append(el("span", null, s.name + " "), el("code", null, s.command)); li.append(mid);
+      li.append(el("span", "mono muted", "Exit " + s.exit + (bad ? " ▾" : "")));
+      if (bad) {
+        const key = st.day + "|" + k, a = ((d && d.alerts) || []).find(x => x.area === "Nachtlauf" && x.step === s.name) || {};
+        li.className = "clickable"; li.tabIndex = 0; li.setAttribute("role", "button"); li.setAttribute("aria-expanded", String(state.openSteps.has(key)));
+        const show = () => li.append(whyBox([["Was genau", a.detail], ["Wie schlimm", a.impact]], st.day, s.name, s.name === "Produktion"));
+        const toggle = (e) => { if (e.target.closest("button, pre")) return; if (state.openSteps.has(key)) state.openSteps.delete(key); else state.openSteps.add(key); renderSteps(); };
+        li.addEventListener("click", toggle); li.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(e); } });
+        if (state.openSteps.has(key)) show();
+      }
+      ul.append(li);
+    });
+    if (st && st.production) { const li = el("li"); li.append(el("span", "dot warn"), el("span", null, "Produktion: " + st.production.replace(/^== /, "")), el("span")); ul.append(li); }
+    const nights = $("nights"); nights.replaceChildren();
+    const hist = (d && d.history) || [];
+    const byDay = Object.fromEntries(hist.map(h => [h.day, h]));
+    const end = new Date(berlinParts(new Date()).day + "T12:00:00Z");
+    for (let k = 29; k >= 0; k--) {
+      const day = new Date(end.getTime() - k * 86400000).toISOString().slice(0, 10); const h = byDay[day];
+      const s = el("span", !h ? "none" : h.failed || (h.problems && h.problems.length) ? "bad" : h.finished ? "" : "warn", day.slice(8, 10));
+      s.title = !h ? `${fmtDay(day)}: kein Bericht` : `${fmtDay(day)}: ${h.steps} Schritte, ${h.failed} fehlgeschlagen${h.problems && h.problems.length ? " · " + h.problems.join(" · ") : ""}`;
+      nights.append(s);
+    }
+  }
+
+  function renderRepair() {
+    const box = $("repair"), runs = (state.data && state.data.repair) || [];
+    box.replaceChildren();
+    if (!runs.length) { box.append(el("span", "muted", "Noch kein Reparaturlauf. Er startet jeden Morgen um 6:43 Uhr, behebt Code-Fehler der Nacht selbst und meldet Logins, Budget und Konten an dich.")); return; }
+    for (const r of runs.slice(0, 3)) {
+      const head = el("div", "rhead");
+      head.append(el("b", null, fmtDay(r.day)), el("span", "mono muted", r.finished_at ? `${fmtTime(r.started_at).slice(-5)} bis ${fmtTime(r.finished_at).slice(-5)}` : `ab ${fmtTime(r.started_at).slice(-5)}, nicht abgeschlossen`));
+      box.append(head);
+      const ul = el("ul");
+      for (const x of r.lines || []) ul.append(el("li", null, x.replace(/^- /, "")));
+      if (!(r.lines || []).length) ul.append(el("li", "muted", "Nichts zu reparieren"));
+      box.append(ul);
+    }
+  }
+
+  function renderSpend() {
+    const d = state.data; if (!d) return;
+    const rows = d.spend_days || [], svg = $("spend"); svg.replaceChildren();
+    const W = 400, H = 150, L = 30, B = 20, T = 8, max = Math.max(1, ...rows.map(r => r.usd));
+    const step = max > 4 ? 2 : max > 2 ? 1 : 0.5, top = Math.ceil(max / step) * step;
+    const ns = "http://www.w3.org/2000/svg", mk = (t, a) => { const e = document.createElementNS(ns, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+    for (let v = 0; v <= top + 1e-9; v += step) {
+      const y = H - B - (v / top) * (H - B - T);
+      svg.append(mk("line", { x1: L, x2: W, y1: y, y2: y, stroke: "var(--line)", "stroke-width": 1 }));
+      const tx = mk("text", { x: L - 4, y: y + 3, "text-anchor": "end" }); tx.textContent = v.toFixed(v % 1 ? 1 : 0); svg.append(tx);
+    }
+    const bw = (W - L) / Math.max(1, rows.length), tip = $("tip");
+    rows.forEach((r, i) => {
+      const h = (r.usd / top) * (H - B - T), x = L + i * bw + bw * 0.18, y = H - B - h;
+      const rect = mk("rect", { x, y, width: bw * 0.64, height: Math.max(h, r.usd > 0 ? 1 : 0), rx: 2, fill: i === rows.length - 1 ? "var(--accent)" : "var(--muted)", opacity: i === rows.length - 1 ? 1 : 0.55 });
+      rect.addEventListener("mouseenter", () => { tip.hidden = false; tip.textContent = `${fmtDay(r.day)}: ${r.usd.toFixed(2)} $ · ${r.calls} Aufrufe`; const box = $("spend-chart").getBoundingClientRect(), rb = rect.getBoundingClientRect(); const left = Math.min(Math.max(0, rb.left - box.left - 40), box.width - 170); tip.style.left = left + "px"; tip.style.top = Math.max(0, rb.top - box.top - 30) + "px"; });
+      rect.addEventListener("mouseleave", () => { tip.hidden = true; });
+      svg.append(rect);
+      if (i % 2 === rows.length % 2 || rows.length < 8) { const tx = mk("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }); tx.textContent = r.day.slice(8, 10) + "."; svg.append(tx); }
+    });
+    const tb = $("stages-cost"); tb.replaceChildren();
+    const by = (d.budget && d.budget.by_stage) || {};
+    const names = { script: "Skript", review: "Prüfung", spinoffs: "Ableger", storyboard: "Storyboard", ideas: "Ideen", pick: "Auswahl", thumbs: "Thumbnails", metadata: "Texte", hints: "Hinweise", stats: "Auswertung", translate: "Übersetzung" };
+    for (const [k, v] of Object.entries(by)) { const tr = el("tr"); tr.append(el("td", null, names[k] || k), el("td", "n", v.toFixed(2))); tb.append(tr); }
+    if (!Object.keys(by).length) { const tr = el("tr"); tr.append(el("td", "muted", "Diesen Monat noch nichts"), el("td")); tb.append(tr); }
+  }
+
+  function renderVideos() {
+    const d = state.data; if (!d) return;
+    const tb = $("videos"); tb.replaceChildren();
+    for (let v of d.videos || []) {
+      const tr = el("tr"); const tag = el("span", "tag " + v.platform, v.platform === "youtube" ? (v.kind === "long" ? "YT Lang" : "YT Short") : "TikTok");
+      const td0 = el("td"); td0.append(tag);
+      const td1 = el("td");
+      const lv = v.platform === "youtube" && state.live && state.live.videos && state.live.videos[v.video_id];
+      if (lv) v = { ...v, views: lv.views, likes: lv.likes };
+      if (v.video_id) {
+        const a = el("a", null, v.title); a.target = "_blank"; a.rel = "noopener";
+        a.href = v.platform === "tiktok" ? `https://www.tiktok.com/@strangeknowns/video/${encodeURIComponent(v.video_id)}` : `https://youtu.be/${encodeURIComponent(v.video_id)}`;
+        td1.append(a);
+      } else td1.textContent = v.title;
+      const due = v.publish_at && new Date(v.publish_at) > new Date();
+      tr.append(td0, td1, el("td", "mono", fmtTime(v.publish_at) + (due ? " geplant" : "")), el("td", "n", int(v.views)), el("td", "n", int(v.likes)));
+      tb.append(tr);
+    }
+    if (!(d.videos || []).length) { const tr = el("tr"); const td = el("td", "muted", "Noch keine Videos"); td.colSpan = 5; tr.append(td); tb.append(tr); }
+    const live = state.live && state.live.channel, cs = live || (d.channel && d.channel.stats);
+    $("chan").textContent = cs ? `${int(cs.subscribers)} Abonnenten · ${int(cs.views)} Aufrufe gesamt · ` + (live ? `YouTube live, ${fmtTime(state.live.at)}` : "Stand der Nacht") : "Kanalzahlen kommen mit dem ersten Abruf der Statistik";
+  }
+
+  // ---------- wiring ----------
+  $("reload").addEventListener("click", () => loadFiles());
+  $("g-night-btn").addEventListener("click", openNightAlert);
+  $("keyform").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const k = keyFromText($("keyin").value);
+    if (!k) { $("nodata-text").textContent = "Das ist kein gültiger Schlüssel. Er steht im Link hinter #k= (43 Zeichen)."; return; }
+    storeKey(k); history.replaceState(null, "", "#k=" + k); $("keyin").value = ""; loadFiles();
+  });
+  window.addEventListener("hashchange", () => { if (keyFromText(location.hash)) loadFiles(); });
+  $("showlog").addEventListener("click", async () => {
+    const pre = $("log");
+    if (!pre.hidden) { pre.hidden = true; $("showlog").textContent = "Log anzeigen"; return; }
+    if (!state.status) return;
+    pre.hidden = false; $("showlog").textContent = "Log ausblenden";
+    const text = await logOf(state.status.day); pre.textContent = text == null ? "Kein Log für diese Nacht." : text;
+  });
+
+  render();
+  loadFiles();
+  setInterval(render, 60000);   // time-based alerts move on while the page stays open
+  // New data after each night and repair run: fetch again every 10 minutes and when the tab comes back.
+  let fetched = Date.now();
+  const refresh = () => { if (document.visibilityState === "visible" && Date.now() - fetched > 120000) { fetched = Date.now(); loadFiles(); } };
+  setInterval(() => { if (Date.now() - fetched > 600000) refresh(); }, 60000);
+  document.addEventListener("visibilitychange", refresh);
+})();
+</script>
+</body>
+</html>
+
+
+</body></html>
