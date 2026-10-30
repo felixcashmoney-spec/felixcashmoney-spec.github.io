@@ -9,7 +9,8 @@
 <meta name="theme-color" content="#030712" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Dashboard">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%236366f1'/%3E%3Cpath d='M7 22h4v-6H7zm7 0h4V10h-4zm7 0h4v-9h-4z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
 <title>Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
@@ -18,7 +19,10 @@
    Plausible-Kennzahlreihe): Kopf + Tabs, je Tab ein Bereich: Übersicht (Hinweise, Kennzahlen, Status,
    Partnerprogramm), Läufe (Fristen, Schritte-Raster, letzte Nacht, Produktion), Sendeplan, Kanal
    (Aufrufe-Verlauf, Videoreihe, Rangliste), Kosten (Budgetkurve, Tageskosten, je Schritt).
-   Felix 30.10.: auf großen Bildschirmen füllt jeder Tab genau das Fenster, ohne zu scrollen. */
+   Felix 30.10.: auf großen Bildschirmen füllt jeder Tab genau das Fenster, ohne zu scrollen.
+   Felix 30.10. abends (Ideenliste U1–U6, L1–L3, H1–H2): Kopf als Weltraum-Band mit Higgsfield-Loop und
+   3D-Logo; Übersicht = Heute-Leiste, kompakte Hinweise, Kennzahlen mit Verlauf, Produktion als Fluss,
+   nächste Posts, Ringe, Live-Ticker; Zahlen rollen bei neuen Werten, sanfte Einblendung beim Laden. */
 :root {
   --bg: #f9fafb;
   --panel: #ffffff;
@@ -84,11 +88,19 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px s
 a { color: var(--accent-ink); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-header.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+/* H1: the head is a dark band with a slow space loop (Higgsfield, made once); text always light on it */
+header.top { position: relative; overflow: hidden; isolation: isolate; border-radius: 12px; background: #000510; color: #f3f4f6;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 14px 16px; min-height: 72px; }
+header.top video { position: absolute; z-index: -2; left: 52%; top: 50%; height: 230%; width: auto; transform: translateY(-50%); }
+header.top .shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, #000510 0%, rgb(0 5 16 / .7) 50%, rgb(0 5 16 / 0) 75%, rgb(0 5 16 / .15) 100%); }
+@media (max-width: 700px) { header.top video { left: auto; right: -25%; opacity: .6; } }
 .brand { display: flex; align-items: center; gap: 12px; }
-.logo { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; color: #fff; font-weight: 600; font-size: .85rem; flex: none; }
-.brand .sub { font-size: .78rem; color: var(--muted); }
+.logo { width: 38px; height: 38px; border-radius: 10px; flex: none; display: block; box-shadow: 0 2px 10px rgb(0 0 0 / .4); }
+.brand .sub { font-size: .78rem; color: rgb(243 244 246 / .7); }
 header.top .meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+header.top .meta .muted { color: rgb(243 244 246 / .72); }
+header.top button { background: rgb(255 255 255 / .08); border-color: rgb(255 255 255 / .18); color: #f3f4f6; box-shadow: none; backdrop-filter: blur(6px); }
+header.top button:hover { border-color: rgb(255 255 255 / .45); color: #fff; }
 nav.jump { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
   display: flex; gap: 22px; overflow-x: auto; margin-top: -8px; scrollbar-width: none; }
 nav.jump a { color: var(--muted); font-size: .875rem; font-weight: 500; padding: 8px 2px; margin-bottom: -1px; border-bottom: 2px solid transparent; white-space: nowrap; }
@@ -323,6 +335,119 @@ footer { font-size: .78rem; color: var(--muted); }
 footer summary { cursor: pointer; }
 footer details > div { margin-top: 4px; }
 
+/* ---------- Übersicht (Felix 30.10. abends) ---------- */
+#s-overview { grid-template-columns: minmax(0, 1fr); }
+/* U1: today bar */
+.today { display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; }
+.today > div { padding: 12px 14px; display: grid; gap: 2px; align-content: start; min-width: 0; }
+.today > div + div { border-left: 1px solid var(--line); }
+.today .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; color: var(--muted); }
+.today .val { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.today .sub { font-size: .78rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.today .state { display: flex; align-items: center; gap: 8px; }
+.today .state i { width: 10px; height: 10px; border-radius: 50%; background: var(--faint); flex: none; }
+.today .state.ok i { background: var(--ok-mark); } .today .state.warn i { background: var(--warn-mark); } .today .state.bad i { background: var(--bad-mark); }
+.today .state.ok { color: var(--ok); } .today .state.warn { color: var(--warn); } .today .state.bad { color: var(--bad); }
+.today button.big-btn { all: unset; cursor: pointer; font-size: .78rem; color: var(--accent-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.today button.big-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.livedot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); margin-right: 6px; vertical-align: 1px; }
+.livedot.on { background: var(--ok-mark); }
+@media (max-width: 760px) { .today { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .today > div:nth-child(3) { border-left: 0; } .today > div:nth-child(n+3) { border-top: 1px solid var(--line); } }
+
+/* U6: yellow notes behind one line */
+details.morealerts { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+details.morealerts > summary { list-style: none; cursor: pointer; padding: 8px 14px; display: flex; gap: 10px; align-items: baseline; font-size: .86rem; min-width: 0; }
+details.morealerts > summary::-webkit-details-marker { display: none; }
+details.morealerts > summary b { color: var(--warn); font-weight: 600; white-space: nowrap; }
+details.morealerts > summary span { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+details.morealerts > summary::after { content: "▾"; margin-left: auto; color: var(--accent-ink); font-size: .78rem; }
+details.morealerts[open] > summary::after { content: "▴"; }
+details.morealerts .alerts { padding: 0 8px 8px; }
+
+.ovgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .ovgrid { grid-template-columns: minmax(0, 1fr); } }
+.ovgrid > .card { display: grid; gap: 10px; align-content: start; }
+
+/* U4: production as a flow of nodes */
+.flow { display: flex; align-items: flex-start; gap: 0; padding-top: 4px; }
+.flow .node { flex: 0 1 60px; min-width: 0; display: grid; justify-items: center; gap: 6px; text-align: center; }
+.flow .node i { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); background: var(--panel); display: grid; place-items: center; font-style: normal; font-size: .7rem; font-weight: 600; color: var(--muted); }
+.flow .node span { font-size: .7rem; color: var(--muted); line-height: 1.2; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.flow .node.done i { background: var(--accent); border-color: var(--accent); color: #fff; }
+.flow .node.now i { border-color: var(--accent); color: var(--accent-ink); }
+.flow .node.now span { color: var(--ink); font-weight: 600; }
+.flow .node.stop i { background: var(--bad-mark); border-color: var(--bad-mark); color: #fff; }
+.flow .node.stop span { color: var(--bad); font-weight: 600; }
+.flow .link { flex: 1 1 auto; min-width: 4px; height: 2px; margin-top: 13px; background: var(--line); position: relative; overflow: hidden; border-radius: 1px; }
+.flow .link.done { background: var(--accent); }
+.flow .link.go { background: linear-gradient(90deg, var(--accent), var(--line)); }
+.flow .link.go::after { content: ""; position: absolute; top: -1px; left: 0; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.flowcause { font-size: .8rem; color: var(--bad); background: var(--bad-soft); border-radius: 5px; padding: 4px 8px; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .flow .node { width: 48px; } .flow .node span { font-size: .64rem; } }
+
+/* U2: next posts */
+.nextposts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.npost { display: grid; gap: 5px; align-content: start; min-width: 0; color: inherit; }
+.npost .thumb { aspect-ratio: 16 / 9; }
+.npost .thumb.blank { background: linear-gradient(135deg, var(--accent-soft), var(--line)); }
+.npost .t { font-size: .8rem; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.npost .w { font-size: .74rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.npost .w b { color: var(--accent-ink); font-weight: 500; }
+@media (max-width: 520px) { .nextposts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .nextposts > :nth-child(3) { display: none; } }
+
+/* U5: rings */
+.rings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.ring { all: unset; display: grid; justify-items: center; gap: 4px; text-align: center; min-width: 0; }
+button.ring { cursor: pointer; }
+button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.ring .dial { position: relative; width: 92px; height: 92px; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 9; }
+.ring circle.track { stroke: var(--track); }
+.ring circle.arc { stroke: var(--accent); stroke-linecap: round; }
+.ring.warn circle.arc { stroke: var(--warn-mark); } .ring.bad circle.arc { stroke: var(--bad-mark); } .ring.ok circle.arc { stroke: var(--ok-mark); }
+.ring.cred circle.arc { stroke: var(--tt); }
+.ring .mid { position: absolute; inset: 0; display: grid; place-content: center; line-height: 1.1; }
+.ring .mid b { font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.ring .mid small { font-size: .66rem; color: var(--muted); }
+.ring .name { font-size: .8rem; font-weight: 500; }
+.ring .note { font-size: .72rem; color: var(--muted); line-height: 1.3; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+details.yppmore > summary { cursor: pointer; font-size: .78rem; color: var(--accent-ink); list-style: none; }
+details.yppmore > summary::-webkit-details-marker { display: none; }
+details.yppmore .grid4 { margin-top: 8px; }
+
+/* L2: live ticker */
+.ticker { list-style: none; margin: 0; padding: 0; display: grid; }
+.ticker li { display: grid; grid-template-columns: 52px 8px minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: .82rem; }
+.ticker li:last-child { border-bottom: 0; }
+.ticker time { font-family: var(--font-data); font-size: .72rem; color: var(--muted); white-space: nowrap; }
+.ticker .k { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); align-self: center; }
+.ticker .k.up { background: var(--ok-mark); } .ticker .k.pub { background: var(--yt); } .ticker .k.tt { background: var(--tt); } .ticker .k.bad { background: var(--bad-mark); } .ticker .k.sys { background: var(--warn-mark); } .ticker .k.night { background: var(--faint); }
+.ticker .x { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ticker .x b { font-weight: 500; }
+.ticker .x span { color: var(--muted); }
+
+/* L1: numbers glow when they change */
+.bump { animation: bump 1.2s ease-out; border-radius: 4px; }
+@keyframes bump { 0% { background: color-mix(in srgb, var(--ok-mark) 28%, transparent); } 100% { background: transparent; } }
+
+/* L1 + L3: live dot pulse, flow, rise on load, lines draw in, new ticker rows slide in */
+@media (prefers-reduced-motion: no-preference) {
+  .livedot.on { animation: pulse 2s ease-out infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok-mark) 55%, transparent); } 80%, 100% { box-shadow: 0 0 0 7px transparent; } }
+  .flow .node.now i { animation: nodepulse 2s ease-out infinite; }
+  @keyframes nodepulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 80%, 100% { box-shadow: 0 0 0 8px transparent; } }
+  .flow .link.go::after { animation: travel 2.4s linear infinite; }
+  @keyframes travel { from { left: -4px; } to { left: 100%; } }
+  .intro .rise { animation: rise .55s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+  .intro svg.spark polyline { stroke-dasharray: 1; animation: draw 1.1s ease-out both; animation-delay: .3s; }
+  @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  .ring circle.arc { transition: stroke-dashoffset 1.1s cubic-bezier(.2, .7, .2, 1), stroke .3s; }
+  .ticker li.new { animation: slidein .5s ease-out both; }
+  @keyframes slidein { from { opacity: 0; transform: translateX(-8px); background: var(--accent-soft); } }
+}
+
 /* One screen per tab (Felix 30.10.): from 1000 × 620 the open tab fills the window, and only long
    lists scroll inside their own card. Smaller screens keep the normal page scroll. */
 .pane { display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
@@ -333,6 +458,21 @@ footer details > div { margin-top: 4px; }
   .pane > .scroll { flex: 0 1 auto; min-height: 0; overflow: auto; }
   .pane > .grow { flex: 1 1 0; min-height: 0; }
   #alerts { max-height: 24vh; overflow: auto; }
+  header.top { min-height: 64px; padding-block: 10px; }
+  #s-overview > .title { display: none; }
+  #s-overview.on { gap: 9px; }
+  #s-overview .kpi { padding: 11px 14px; gap: 2px; } #s-overview .kpi svg.spark { height: 24px; }
+  .today > div { padding-block: 9px; }
+  details.morealerts > summary { padding-block: 6px; }
+  #s-overview .ovgrid { gap: 10px; } #s-overview .ovgrid > .card { gap: 8px; padding: 12px 14px; }
+  .ring .dial { width: 74px; height: 74px; } .ring .mid b { font-size: .95rem; }
+  .ring { gap: 2px; } .flow { padding-top: 0; }
+  #s-overview .ovgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr); grid-template-areas: "flow posts ticker" "rings posts ticker"; }
+  #o-flow { grid-area: flow; } #o-posts { grid-area: posts; } #o-rings { grid-area: rings; } #o-ticker { grid-area: ticker; overflow: hidden; }
+  #s-overview .nextposts { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  #s-overview .npost { grid-template-columns: 112px minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 10px; align-items: start; }
+  #s-overview .npost .thumb { grid-row: 1 / 3; }
+  #s-overview .npost .t { -webkit-line-clamp: 2; }
   .card.block { align-content: start; }
   #s-runs.on { overflow: hidden; align-content: stretch; grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-rows: auto auto minmax(0, 1.1fr) minmax(0, 1fr);
@@ -362,8 +502,10 @@ footer details > div { margin-top: 4px; }
 <body>
 <div class="wrap">
   <header class="top">
+    <video id="headvid" autoplay muted loop playsinline preload="auto" poster="head.jpg" aria-hidden="true"><source src="head.mp4" type="video/mp4"></video>
+    <div class="shade" aria-hidden="true"></div>
     <div class="brand">
-      <div class="logo" aria-hidden="true">SK</div>
+      <img class="logo" src="logo.png" alt="" width="38" height="38">
       <div><div class="sub">Strange Knowns · YouTube und TikTok</div><h1>Dashboard</h1></div>
     </div>
     <div class="meta">
@@ -382,40 +524,45 @@ footer details > div { margin-top: 4px; }
   <!-- ===================== Übersicht ===================== -->
   <section class="area on" id="s-overview" aria-labelledby="h-overview">
     <div class="title"><h2 id="h-overview">Übersicht</h2><span class="muted small" id="alert-count"></span></div>
-    <ul class="alerts" id="alerts"><li class="gut"><div class="body"><span class="area">Stand</span><span class="txt">Hinweise erscheinen, sobald die Daten gelesen sind.</span></div></li></ul>
+
+    <div class="card today rise" id="today" style="--i:0" aria-label="Heute">
+      <div><span class="label" id="t-day">Heute</span><span class="val state" id="t-state"><i></i><span>Lädt …</span></span><span class="sub" id="t-state-sub"></span></div>
+      <div><span class="label">Nächster Post</span><span class="val" id="cd-post">—</span><span class="sub" id="cd-post-what"></span></div>
+      <div><span class="label">Nächster Nachtlauf</span><span class="val" id="cd-night">—</span>
+        <button type="button" class="big-btn" id="g-night-btn" aria-label="Fehler der Nacht ansehen"><span id="g-night">—</span><span id="g-night-hint" hidden></span></button>
+        <span class="sub" id="g-night-sub" hidden></span></div>
+      <div><span class="label">Live</span><span class="val"><span class="livedot" id="t-livedot"></span><span id="t-live">YouTube</span></span><span class="sub" id="t-live-sub">Zahlen alle 5 Minuten</span></div>
+    </div>
+
+    <ul class="alerts" id="alerts"></ul>
+    <details class="morealerts" id="morealerts" hidden><summary><b id="more-n"></b><span id="more-first"></span></summary><ul class="alerts" id="alerts-more"></ul></details>
 
     <div class="grid4" id="kpis" aria-label="Kennzahlen, mit Vergleich zur Vorwoche"></div>
 
-    <div class="grid4">
-      <div class="card stat">
-        <div class="label">Nachtlauf</div>
-        <button type="button" class="big-btn" id="g-night-btn" aria-label="Fehler der Nacht ansehen"><span class="big" id="g-night">—</span><span class="hint" id="g-night-hint" hidden></span></button>
-        <div class="sub" id="g-night-sub">Täglich 2:47 Uhr</div>
-        <div class="live" id="g-night-live"></div>
+    <div class="ovgrid">
+      <div class="card rise" id="o-flow" style="--i:5">
+        <div class="head"><h3>Produktion</h3></div>
+        <div class="flow" id="flow" aria-label="Schritte der Produktion"></div>
+        <div class="small"><b id="g-prod">—</b> <span class="muted" id="g-prod-sub"></span></div>
+        <div class="flowcause" id="flow-cause" hidden></div>
       </div>
-      <div class="card stat">
-        <div class="label">Produktion</div>
-        <div class="big" id="g-prod">—</div>
-        <div class="sub" id="g-prod-sub"></div>
+      <div class="card rise" id="o-posts" style="--i:6">
+        <div class="head"><h3>Nächste Posts</h3><a href="#s-plan" class="small" id="to-plan">Sendeplan</a></div>
+        <div class="nextposts" id="nextposts"><span class="empty">—</span></div>
       </div>
-      <div class="card stat">
-        <div class="label">Budget <span id="g-month"></span></div>
-        <div class="big"><span id="g-spent">—</span> € <span class="muted" style="font-size:.85rem;font-weight:400">von <span id="g-limit">100</span> €</span></div>
-        <div class="bar" id="g-budget-bar"><i style="width:0"></i><b style="left:0" title="Prognose Monatsende"></b></div>
-        <div class="sub" id="g-budget-sub"></div>
+      <div class="card rise" id="o-rings" style="--i:7">
+        <div class="head"><h3>Budget, Credits, Partnerprogramm</h3><span class="muted small" id="g-month"></span></div>
+        <div class="rings">
+          <div class="ring" id="r-budget"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-spent">—</b><small>von <span id="g-limit">100</span> €</small></div></div><span class="name">Budget</span><span class="note" id="g-budget-sub"></span></div>
+          <div class="ring cred" id="r-credits"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-credits">—</b><small>frei</small></div></div><span class="name">Higgsfield-Credits</span><span class="note" id="g-credit-sub"></span></div>
+          <button type="button" class="ring" id="r-ypp" aria-controls="yppmore"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-ypp">—</b><small id="g-ypp-unit">%</small></div></div><span class="name">Partnerprogramm</span><span class="note" id="g-ypp-sub">kleine Stufe</span></button>
+        </div>
+        <details class="yppmore" id="yppmore"><summary>Weg zum Partnerprogramm im Detail <span class="muted" id="ypp-note"></span></summary><div class="grid4" id="ypp"><span class="empty">Kommt mit dem nächsten Nachtlauf.</span></div></details>
       </div>
-      <div class="card stat">
-        <div class="label">Higgsfield-Credits</div>
-        <div class="big"><span id="g-credits">—</span> <span class="muted" style="font-size:.85rem;font-weight:400">frei</span></div>
-        <div class="bar" id="g-credit-bar"><i style="width:0"></i></div>
-        <div class="sub" id="g-credit-sub"></div>
-        <div class="live muted" id="g-credit-live"></div>
+      <div class="card rise" id="o-ticker" style="--i:8">
+        <div class="head"><h3>Gerade passiert</h3><span class="muted small">neueste oben</span></div>
+        <ul class="ticker" id="ticker"><li><time></time><i class="k night"></i><span class="x muted">Ereignisse erscheinen, sobald die Daten gelesen sind.</span></li></ul>
       </div>
-    </div>
-
-    <div class="card block" aria-labelledby="h-ypp">
-      <div class="head"><h3 id="h-ypp">Weg zum Partnerprogramm</h3><span class="muted small" id="ypp-note"></span></div>
-      <div class="grid4" id="ypp"><span class="empty">Kommt mit dem nächsten Nachtlauf.</span></div>
     </div>
   </section>
 
@@ -546,6 +693,30 @@ footer details > div { margin-top: 4px; }
   const ago = (iso) => { if (!iso) return "—"; const h = hoursSince(iso); return h < 1 ? `vor ${Math.max(1, Math.round(h * 60))} Min.` : h < 48 ? `vor ${Math.round(h)} h` : `vor ${Math.round(h / 24)} Tagen`; };
   const dayShift = (day, n) => new Date(new Date(day + "T12:00:00Z").getTime() + n * 86400000).toISOString().slice(0, 10);
   const median = (xs) => { const s = [...xs].sort((a, b) => a - b), m = s.length >> 1; return s.length ? (s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2) : null; };
+  // The moment of a Berlin wall-clock time ("2026-10-31", "18:00").
+  function berlinAt(day, hm) {
+    const guess = new Date(`${day}T${hm}:00Z`), p = berlinParts(guess);
+    const wall = Date.UTC(+p.day.slice(0, 4), +p.day.slice(5, 7) - 1, +p.day.slice(8, 10), Math.floor(p.hm / 60), p.hm % 60);
+    return new Date(guess.getTime() - (wall - guess.getTime()));
+  }
+  const until = (ms) => { const s = Math.max(0, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+    return h >= 24 ? `in ${Math.round(h / 24)} Tag${Math.round(h / 24) > 1 ? "en" : ""}` : h ? `in ${h} h ${m} min` : `in ${m}:${String(s % 60).padStart(2, "0")} min`; };
+  const since = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return s < 60 ? `vor ${s} s` : s < 3600 ? `vor ${Math.floor(s / 60)} Min.` : `vor ${Math.round(s / 3600)} h`; };
+  // Live clocks (U1, L1): elements with data-until / data-since tick every second.
+  function tick() {
+    for (const n of document.querySelectorAll("[data-until]")) n.textContent = until(new Date(n.dataset.until) - Date.now());
+    for (const n of document.querySelectorAll("[data-since]")) n.textContent = since(Date.now() - new Date(n.dataset.since));
+  }
+  // L1: a number that changed since the last render rolls to its new value and glows once.
+  const shown = {}, calm = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function setNum(node, key, v, fmt) {
+    const old = shown[key]; shown[key] = v;
+    if (v == null || old == null || old === v || calm()) { node.textContent = fmt(v); return; }
+    const t0 = performance.now(), D = 800;
+    const step = (t) => { const k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3); node.textContent = fmt(k < 1 ? old + (v - old) * e : v); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+    node.classList.remove("bump"); void node.offsetWidth; node.classList.add("bump");
+  }
 
   // ---------- sealed data next to the page (gzip + AES-256-GCM, key after # in the link) ----------
   const KEY_STORE = "leitstand-key";
@@ -732,7 +903,8 @@ footer details > div { margin-top: 4px; }
     const a = allAlerts().find(x => x.area === "Nachtlauf" && x.step);
     if (!a) return;
     state.openAlerts.add(a.area + "|" + a.text); render();
-    const li = [...$("alerts").children].find(x => x.dataset.key === a.area + "|" + a.text);
+    if (a.level !== "rot") $("morealerts").open = true;
+    const li = [...$("alerts").children, ...$("alerts-more").children].find(x => x.dataset.key === a.area + "|" + a.text);
     if (li) li.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
@@ -770,7 +942,7 @@ footer details > div { margin-top: 4px; }
     const max = Math.max(...values), min = Math.min(...values), span = max - min || 1;
     const pts = values.map((v, i) => [i / (values.length - 1) * 200, 36 - (v - min) / span * 32]);
     svg.append(sv("path", { d: "M" + pts.map(p => p.join(",")).join("L") + `L200,40L0,40Z`, fill: color, opacity: .12, stroke: "none" }));
-    svg.append(sv("polyline", { points: pts.map(p => p.join(",")).join(" "), fill: "none", stroke: color, "stroke-width": 1.6, "vector-effect": "non-scaling-stroke" }));
+    svg.append(sv("polyline", { points: pts.map(p => p.join(",")).join(" "), fill: "none", stroke: color, "stroke-width": 1.6, "vector-effect": "non-scaling-stroke", pathLength: 1 }));
     const [lx, ly] = pts[pts.length - 1]; svg.append(sv("circle", { cx: lx, cy: ly, r: 2.5, fill: color }));
     return svg;
   }
@@ -787,14 +959,27 @@ footer details > div { margin-top: 4px; }
     else { ov.className = "pill ok"; ov.textContent = "Alles läuft"; }
     $("stamp").textContent = d ? `Stand ${fmtTime(d.generated_at)}` : "";
 
-    const ul = $("alerts"); ul.replaceChildren();
-    if (!alerts.length) { const li = el("li", "gut"); const b = el("div", "body"); b.append(el("span", "area", "Alles gut"), el("span", "txt", "Keine Störung und nichts, was Aufmerksamkeit braucht.")); li.append(b); ul.append(li); }
-    for (const a of alerts) ul.append(alertItem(a));
+    // U6: red ones stay open, the rest sits behind one line
+    const ul = $("alerts"), more = alerts.filter(a => a.level !== "rot"); ul.replaceChildren();
+    for (const a of alerts.filter(a => a.level === "rot")) ul.append(alertItem(a));
+    ul.hidden = !ul.children.length;
+    const mu = $("alerts-more"); mu.replaceChildren(); for (const a of more) mu.append(alertItem(a));
+    $("morealerts").hidden = !more.length;
+    $("more-n").textContent = more.length === 1 ? "1 Hinweis" : `${more.length} Hinweise`;
+    $("more-first").textContent = more.length ? more[0].text : "";
     $("alert-count").textContent = alerts.length ? `${red} rot · ${yellow} gelb` : "";
+    const ts = $("t-state"), tsCls = !d && !state.status ? "" : red ? "bad" : yellow ? "warn" : "ok";
+    ts.className = "val state " + tsCls; ts.lastChild.textContent = ov.textContent;
+    $("t-day").textContent = "Heute, " + fmtDay(berlinParts(new Date()).day);
+    $("t-state-sub").textContent = d ? `Stand der Nacht ${fmtTime(d.generated_at)}` : "";
 
-    const parts = [renderKpis, renderNightGauge, renderProduction, renderBudget, renderCredits, renderYpp, renderChecks, renderGrid, renderSteps, renderRepair, renderProdSteps, renderPlan, renderViews, renderVideoRow, renderRank, renderMonth, renderSpend];
+    const parts = [renderKpis, renderNightGauge, renderProduction, renderBudget, renderCredits, renderYpp, renderNextPosts, renderLive, renderTicker, renderChecks, renderGrid, renderSteps, renderRepair, renderProdSteps, renderPlan, renderViews, renderVideoRow, renderRank, renderMonth, renderSpend];
     for (const f of parts) { try { f(); } catch (e) { console.error(f.name, e); } }
     $("foot-gen").textContent = d ? `Daten-Datei erzeugt ${fmtTime(d.generated_at)} für den ${fmtDay(d.day)}.` + (state.live ? ` YouTube-Zahlen ${fmtTime(state.live.at)}.` : "") : "";
+    tick();
+    if (d && !state.introDone) {          // L3: the first render with data rises in, once
+      state.introDone = true; const ov = $("s-overview"); ov.classList.add("intro"); setTimeout(() => ov.classList.remove("intro"), 2200);
+    }
   }
 
   // ---------- KPIs with the week before (F7), a click picks the big chart (Plausible) ----------
@@ -803,32 +988,36 @@ footer details > div { margin-top: 4px; }
     const d = state.data, live = state.live, wk = weekCompare();
     const chan = (live && live.channel) || (d && d.channel && d.channel.stats) || null;
     const daily = ((state.hist && state.hist.daily) || []).slice(-14);
-    const card = (key, label, value, unit, delta, from, series, color) => {
-      const b = el(key ? "button" : "div", "card kpi" + (key ? " pick" : ""));
+    const hourly = ((state.hist && state.hist.hourly) || []).filter(p => hoursSince(p.t) <= 49);
+    const steps = (pts, f) => pts.map(f).map((v, i, a) => i ? Math.max(0, v - a[i - 1]) : null).slice(1);   // gain per point
+    let k = 0;
+    const card = (key, label, value, unit, delta, from, series, color, raw, fmt) => {
+      const b = el(key ? "button" : "div", "card kpi rise" + (key ? " pick" : "")); b.style.setProperty("--i", ++k);
       if (key) { b.type = "button"; b.title = "Im Diagramm unter „Kanal“ zeigen"; b.setAttribute("aria-pressed", String(state.kpi === key)); b.addEventListener("click", () => { state.kpi = key; renderKpis(); renderViews(); showTab("s-channel"); }); }
       const l = el("div", "label"); l.append(el("span", null, label)); if (delta) l.append(delta);
-      const v = el("div", "value", value); if (unit) v.append(el("small", null, " " + unit));
+      const v = el("div", "value"), n = el("span", null, value); v.append(n); if (unit) v.append(el("small", null, " " + unit));
+      if (typeof raw === "number") setNum(n, label, raw, fmt || int);
       b.append(l, v, el("div", "from", from || "")); if (series) b.append(spark(series, color));
       box.append(b);
     };
     const subsNow = chan ? chan.subscribers : null;
     card("subs", "Abonnenten", int(subsNow), "", wk && wk.w1 ? deltaBadge(subsNow, wk.w1.s) : null,
       wk && wk.w1 ? `vor einer Woche ${int(wk.w1.s)}` : wk ? `Vergleich ab ${fmtDay(dayShift(wk.first.t.slice(0, 10), 7))}` : "Verlauf startet mit dem nächsten Abgleich",
-      daily.map(p => p.s), "var(--accent)");
+      daily.length > 2 ? daily.map(p => p.s) : hourly.map(p => p.s), "var(--accent)", subsNow);
     let gained = null, before = null;
     if (wk && wk.w1) { gained = total(wk.now) - total(wk.w1); if (wk.w2) before = total(wk.w1) - total(wk.w2); }
     card("views", "Aufrufe, 7 Tage", gained == null ? int(chan ? chan.views : null) : int(gained), gained == null ? "gesamt" : "", deltaBadge(gained, before),
       before != null ? `Vorwoche ${int(before)}` : wk ? `gesamt ${int(total(wk.now))}, Vergleich ab ${fmtDay(dayShift(wk.first.t.slice(0, 10), 14))}` : "",
-      daily.map(total).map((v, i, a) => i ? v - a[i - 1] : null).slice(1), "var(--accent)");
+      hourly.length > 2 ? steps(hourly, total) : steps(daily, total), "var(--accent)", gained == null ? (chan ? chan.views : null) : gained);
     const sd = (d && d.spend_days) || [];
     const last7 = sd.slice(-7).reduce((a, r) => a + r.usd, 0), prev7 = sd.length >= 14 ? sd.slice(-14, -7).reduce((a, r) => a + r.usd, 0) : null;
-    card(null, "Claude-Kosten, 7 Tage", d ? eur(last7) : "—", "$", deltaBadge(last7, prev7, true), prev7 != null ? `Vorwoche ${eur(prev7)} $` : "", sd.map(r => r.usd), "var(--warn-mark)");
+    card(null, "Claude-Kosten, 7 Tage", d ? eur(last7) : "—", "$", deltaBadge(last7, prev7, true), prev7 != null ? `Vorwoche ${eur(prev7)} $` : "", sd.map(r => r.usd), "var(--warn-mark)", d ? last7 : null, eur);
     const hist = ((d && d.history) || []).filter(h => typeof h.credits === "number");
     const cNow = hist[0], cWeek = hist.find(h => h.day <= dayShift(cNow ? cNow.day : "", -7)), cTwo = hist.find(h => h.day <= dayShift(cNow ? cNow.day : "", -14));
     const used = cNow && cWeek && cWeek.credits >= cNow.credits ? cWeek.credits - cNow.credits : null;
     const usedBefore = cWeek && cTwo && cTwo.credits >= cWeek.credits ? cTwo.credits - cWeek.credits : null;
     card(null, "Credits verbraucht, 7 Tage", used == null ? "—" : int(used), "", deltaBadge(used, usedBefore, true),
-      used == null ? "Verlauf der Credits sammelt sich ab heute Nacht" : usedBefore != null ? `Vorwoche ${int(usedBefore)}` : "", hist.slice(0, 14).reverse().map(h => h.credits), "var(--tt)");
+      used == null ? "Verlauf ab der nächsten Nacht" : usedBefore != null ? `Vorwoche ${int(usedBefore)}` : "", hist.slice(0, 14).reverse().map(h => h.credits), "var(--tt)", used);
   }
 
   function renderNightGauge() {
@@ -838,15 +1027,16 @@ footer details > div { margin-top: 4px; }
       const finished = (st.steps || []).some(s => s.name === "Budget");
       const night = ((state.data && state.data.alerts) || []).filter(a => a.area === "Nachtlauf" && a.step);
       const open = night.filter(a => !a.resolved).length;
-      $("g-night").textContent = failed ? `${failed} Schritt${failed > 1 ? "e" : ""} fehlgeschlagen` : finished ? "Ohne Fehler" : "Unvollständig";
+      $("g-night").textContent = `Letzte Nacht: ` + (failed ? `${failed} Schritt${failed > 1 ? "e" : ""} fehlgeschlagen` : finished ? "ohne Fehler" : "unvollständig");
       $("g-night").style.color = failed ? (night.length && !open ? "var(--warn)" : "var(--bad)") : finished ? "var(--ok)" : "var(--warn)";
       $("g-night-hint").hidden = !failed;
-      $("g-night-hint").textContent = night.length && !open ? "Inzwischen erledigt, hält nichts auf · Details ansehen" : "Was ist passiert und wie schlimm? Antippen";
+      $("g-night-hint").textContent = night.length && !open ? " · erledigt ▸" : " · Details ▸";
+      $("g-night-btn").title = night.length && !open ? "Inzwischen erledigt, hält nichts auf. Details ansehen" : "Was ist passiert und wie schlimm? Antippen";
       $("g-night-sub").textContent = `Nacht vom ${fmtDay(st.day)}` + (st.started_at ? `, ${fmtTime(st.started_at)} bis ${st.finished_at ? fmtTime(st.finished_at).slice(-5) : "?"}` : "") + `, ${(st.steps || []).length} Schritte`;
     }
     const now = berlinParts(new Date()), RUN = 2 * 60 + 47;
-    const fin = st && (st.steps || []).some(s => s.name === "Budget");
-    $("g-night-live").textContent = `Nächster Lauf ${now.hm < RUN ? "heute" : "morgen"} 02:47` + (st ? ` · letzter ${fmtDay(st.day)} ${fin ? "zu Ende gelaufen" : "nicht zu Ende gelaufen"}` : "");
+    const next = berlinAt(now.hm < RUN ? now.day : dayShift(now.day, 1), "02:47");
+    $("cd-night").dataset.until = next.toISOString(); $("cd-night").title = `täglich 02:47 Uhr, nächster ${fmtDay(berlinParts(next).day)}`;
   }
 
   function renderProduction() {
@@ -856,6 +1046,19 @@ footer details > div { margin-top: 4px; }
     $("g-prod").textContent = label;
     $("g-prod").style.color = n.step === "stop" ? "var(--bad)" : n.step === "done" ? "var(--ok)" : "";
     $("g-prod-sub").textContent = (n.idea_title ? `#${n.idea_id} ${n.idea_title}. ` : "") + `Woche ab ${fmtDay(d.week.monday)}: ${d.week.planned ? "eingeplant" : "noch offen"}.`;
+    // U4: the week's video as a chain of six nodes, the current one pulses, a dot travels into it
+    const FLOW = [["Recherche", ["research", "pick", "reject"]], ["Skript", ["script", "spinoffs"]], ["Storyboard", ["storyboard", "media_plan"]],
+      ["Medien", ["media", "thumbs_plan", "thumbs_make"]], ["Schnitt", ["render", "review"]], ["Einplanen", ["publish", "done"]]];
+    const fl = $("flow"); fl.replaceChildren();
+    const stopped = n.step === "stop" || n.step === "reject", done = n.step === "done";
+    let pos = FLOW.findIndex(f => f[1].includes(n.step)); if (n.step === "stop") pos = 0;
+    FLOW.forEach(([name], i) => {
+      if (i) fl.append(el("i", "link" + (done || i < pos ? " done" : i === pos && !stopped ? " go" : "")));
+      const cls = done || (pos >= 0 && i < pos) ? "done" : i === pos ? (stopped ? "stop" : "now") : "";
+      const nd = el("div", "node " + cls), dot = el("i", null, cls === "done" ? "✓" : cls === "stop" ? "!" : String(i + 1));
+      nd.append(dot, el("span", null, name)); fl.append(nd);
+    });
+    $("flow-cause").hidden = !stopped || !n.why; $("flow-cause").textContent = n.why || "";
     const ol = $("stages"); ol.replaceChildren();
     const at = STAGES.findIndex(s => s[1].includes(n.step));
     STAGES.forEach(([name], i) => {
@@ -870,25 +1073,30 @@ footer details > div { margin-top: 4px; }
     $("ideas").textContent = `Ideen für Langvideos: ${ideas.new || 0} offen, ${ideas.approved || 0} in Arbeit, ${ideas.published || 0} veröffentlicht, ${ideas.rejected || 0} verworfen.` + (d.batches && d.batches.n ? ` ${d.batches.n} Claude-Anfragen warten auf die Batch-API.` : "");
   }
 
+  // U5: a ring filled to pct (0..100), coloured by state
+  function ring(id, pct, cls) {
+    const r = $(id); r.className = r.className.replace(/\b(ok|warn|bad)\b/g, "").trim() + (cls ? " " + cls : "");
+    r.querySelector("circle.arc").setAttribute("stroke-dashoffset", String(100 - Math.max(0, Math.min(100, pct || 0))));
+  }
   function renderBudget() {
     const b = state.data && state.data.budget; if (!b) return;
-    $("g-month").textContent = b.month ? b.month.slice(5) + "/" + b.month.slice(0, 4) : "";
-    $("g-spent").textContent = eur(b.spent_eur); $("g-limit").textContent = int(b.limit_eur);
-    const bar = $("g-budget-bar"), pct = Math.min(100, b.spent_eur / b.limit_eur * 100), fc = Math.min(100, b.forecast_eur / b.limit_eur * 100);
-    bar.className = "bar" + (b.forecast_eur > b.limit_eur ? " bad" : fc > 90 ? " warn" : "");
-    bar.querySelector("i").style.width = pct + "%"; bar.querySelector("b").style.left = `calc(${fc}% - 1px)`;
-    $("g-budget-sub").textContent = `Prognose Monatsende ${eur(b.forecast_eur)} €` + (b.stop && b.stop.length ? " · gestoppt" : "");
+    $("g-month").textContent = b.month ? "Monat " + b.month.slice(5) + "/" + b.month.slice(0, 4) : "";
+    setNum($("g-spent"), "spent", b.spent_eur, (x) => Math.round(x).toLocaleString("de-DE") + " €"); $("g-limit").textContent = int(b.limit_eur);
+    const fc = Math.min(100, b.forecast_eur / b.limit_eur * 100);
+    ring("r-budget", b.spent_eur / b.limit_eur * 100, b.forecast_eur > b.limit_eur ? "bad" : fc > 90 ? "warn" : "");
+    $("g-budget-sub").textContent = `Prognose ${eur(b.forecast_eur)} €` + (b.stop && b.stop.length ? " · gestoppt" : "");
+    $("r-budget").title = `${eur(b.spent_eur)} € von ${int(b.limit_eur)} € ausgegeben, Prognose Monatsende ${eur(b.forecast_eur)} €`;
   }
 
   function renderCredits() {
     const b = state.data && state.data.budget;
     const total_ = (b && b.credits_total) || 1000;
     const left = b ? b.credits_left : null;
-    $("g-credits").textContent = int(left);
-    const bar = $("g-credit-bar"); const pct = left == null ? 0 : Math.max(0, Math.min(100, left / total_ * 100));
-    bar.className = "bar" + (pct < 10 ? " bad" : pct < 25 ? " warn" : ""); bar.querySelector("i").style.width = pct + "%";
-    if (b) $("g-credit-sub").textContent = `Abo ${int(total_)} je Monat · je Langvideo bis ${int(b.week_credits_share)} · Stufe ${b.level}` + (b.longs ? ` · ${b.longs} Langvideo${b.longs > 1 ? "s" : ""}/Woche` : "");
-    if (b) $("g-credit-live").textContent = `Stand der Nacht (${b.credits_at === "jetzt" ? "beim Schreiben gemessen" : b.credits_measured ? "gemessen" : "geschätzt"})`;
+    setNum($("g-credits"), "credits", left, int);
+    const pct = left == null ? 0 : Math.max(0, Math.min(100, left / total_ * 100));
+    ring("r-credits", pct, pct < 10 ? "bad" : pct < 25 ? "warn" : "");
+    if (b) $("g-credit-sub").textContent = `von ${int(total_)} · Stufe ${b.level}`;
+    if (b) $("r-credits").title = `Abo ${int(total_)} je Monat · je Langvideo bis ${int(b.week_credits_share)}` + (b.longs ? ` · ${b.longs} Langvideo${b.longs > 1 ? "s" : ""}/Woche` : "") + ` · Stand der Nacht (${b.credits_at === "jetzt" ? "beim Schreiben gemessen" : b.credits_measured ? "gemessen" : "geschätzt"})`;
   }
 
   // ---------- F8: the way to the Partner Program (numbers of the weekly report) ----------
@@ -916,7 +1124,87 @@ footer details > div { margin-top: 4px; }
     big.append(quota("Abonnenten", subs, y.subs_needed),
       quota("Wiedergabestunden Langvideos, 365 Tage", y.hours, y.hours_needed, "h", y.reached ? `bei jetzigem Tempo (${dec(y.hours_per_week)} h/Woche) am ${fmtDay(y.reached)}` : `Tempo ${dec(y.hours_per_week)} h je Woche`));
     box.append(small, big);
-    $("ypp-note").textContent = "Stunden aus YouTube Analytics (Stand der Nacht), Abos live";
+    $("ypp-note").textContent = "· Stunden aus YouTube Analytics (Stand der Nacht), Abos live";
+    // ring: the small tier needs the subscribers and either the hours or the Shorts views
+    const p = (have, need) => need ? Math.min(100, (have || 0) / need * 100) : 0;
+    const pct = fan.reached ? 100 : Math.min(p(subs, fan.subs_needed), Math.max(p(y.hours, fan.hours_needed), p(fan.shorts_90, fan.shorts_needed)));
+    setNum($("g-ypp"), "ypp", pct, (x) => dec(x, x < 10 ? 1 : 0));
+    ring("r-ypp", pct, fan.reached ? "ok" : "");
+    $("g-ypp-sub").textContent = fan.reached ? "kleine Stufe erreicht" : `kleine Stufe · ${int(subs)} / ${int(fan.subs_needed)} Abos`;
+  }
+
+  // ---------- U2: the next three posts with picture and countdown ----------
+  function thumbFor(x) {
+    const vids = (state.data && state.data.videos) || [];
+    const v = vids.find(v => (x.upload_id && v.id === x.upload_id) || (x.video_id && v.video_id === x.video_id));
+    return state.thumbs[(x.upload_id || (v && v.id)) ?? ""] || null;
+  }
+  function renderNextPosts() {
+    const d = state.data, box = $("nextposts"); if (!d) return;
+    const now = Date.now(), list = [];
+    for (const c of d.calendar || []) for (const x of c.items) {
+      const at = berlinAt(c.day, x.time || "00:00");
+      if (at.getTime() > now && x.status !== "failed") list.push({ ...x, at });
+    }
+    list.sort((a, b) => a.at - b.at);
+    box.replaceChildren();
+    if (!list.length) { box.append(el("span", "empty", "Nichts geplant in den nächsten zwei Wochen.")); $("cd-post").textContent = "—"; $("cd-post-what").textContent = "Sendeplan leer"; return; }
+    for (const x of list.slice(0, 3)) {
+      const c = el("div", "npost"), th = el("div", "thumb"), pic = thumbFor(x);
+      if (pic) for (const cls of ["fill", "fit"]) { const img = el("img", cls); img.alt = ""; img.src = pic; th.append(img); }
+      else { th.classList.add("blank"); th.append(el("span", null, x.status === "planned" ? "noch nicht hochgeladen" : "kein Vorschaubild")); }
+      th.append(el("span", "tag " + x.platform, x.platform === "youtube" ? (x.kind === "long" ? "YT Lang" : "YT Short") : "TikTok"));
+      const w = el("div", "w"), cd = el("b"); cd.dataset.until = x.at.toISOString();
+      w.append(cd, document.createTextNode(` · ${fmtDay(berlinParts(x.at).day)} ${x.time}`));
+      c.append(th, el("div", "t", x.title || x.key), w); c.title = `${x.title || ""} · ${x.status}${x.note ? " · " + x.note : ""}`;
+      box.append(c);
+    }
+    const first = list[0];
+    $("cd-post").dataset.until = first.at.toISOString();
+    $("cd-post-what").textContent = `${first.platform === "youtube" ? (first.kind === "long" ? "YouTube-Video" : "YouTube-Short") : "TikTok"} · ${first.title || first.key}`;
+  }
+
+  // ---------- U1/L1: live state of the YouTube numbers ----------
+  function renderLive() {
+    const at = state.live && state.live.at, fresh = at && hoursSince(at) < 0.5;
+    $("t-livedot").className = "livedot" + (fresh ? " on" : "");
+    const t = $("t-live");
+    if (at) { t.dataset.since = at; t.title = `YouTube-Zahlen vom ${fmtTime(at)}`; } else { delete t.dataset.since; t.textContent = "keine Live-Zahlen"; }
+    const ch = state.live && state.live.channel;
+    $("t-live-sub").textContent = ch ? `${int(ch.subscribers)} Abos · ${int(ch.views)} Aufrufe gesamt` : "Zahlen alle 5 Minuten";
+  }
+
+  // ---------- L2: what just happened, newest first ----------
+  const seenTicks = new Set();
+  function tickerEvents() {
+    const d = state.data, st = state.status, h = state.hist, out = [];
+    const titles = Object.fromEntries(((d && d.videos) || []).filter(v => v.video_id).map(v => [v.video_id, v.title]));
+    const hourly = ((h && h.hourly) || []).filter(p => hoursSince(p.t) <= 48);
+    for (let i = 1; i < hourly.length; i++) {
+      const a = hourly[i - 1], b = hourly[i];
+      for (const [id, v] of Object.entries(b.v || {})) { const g = v - ((a.v || {})[id] || 0); if (g > 0) out.push({ t: b.t, k: "up", b: `+${int(g)} Aufruf${g > 1 ? "e" : ""}`, s: titles[id] || id }); }
+      if (b.s > a.s) out.push({ t: b.t, k: "up", b: `+${b.s - a.s} Abonnent${b.s - a.s > 1 ? "en" : ""}`, s: "Kanal" });
+    }
+    for (const v of (d && d.videos) || []) if (v.publish_at && new Date(v.publish_at) <= new Date() && hoursSince(v.publish_at) < 24 * 7)
+      out.push({ t: v.publish_at, k: v.platform === "tiktok" ? "tt" : "pub", b: v.platform === "tiktok" ? "TikTok online" : v.kind === "long" ? "Video online" : "Short online", s: v.title });
+    if (st && st.started_at) out.push({ t: st.started_at, k: "night", b: "Nachtlauf gestartet", s: `${(st.steps || []).length} Schritte` });
+    if (st && st.finished_at) { const f = (st.steps || []).filter(s => s.exit !== 0 && s.exit !== 3); out.push({ t: st.finished_at, k: f.length ? "bad" : "night", b: "Nachtlauf fertig", s: f.length ? `${f.map(s => s.name).join(", ")} fehlgeschlagen` : "ohne Fehler" }); }
+    for (const r of (d && d.repair) || []) if (r.finished_at) out.push({ t: r.finished_at, k: "sys", b: "Reparatur", s: ((r.lines || [])[0] || "nichts zu reparieren").replace(/^- /, "") });
+    for (const c of ((d && d.changes) || []).slice(0, 10)) out.push({ t: c.at, k: "sys", b: c.pr ? `Änderung #${c.pr}` : "Änderung", s: c.title });
+    return out.filter(e => e.t && new Date(e.t) <= new Date()).sort((a, b) => a.t < b.t ? 1 : -1).slice(0, 9);
+  }
+  function renderTicker() {
+    const ul = $("ticker"), evs = tickerEvents(); ul.replaceChildren();
+    if (evs.length && !state.tickerSince) state.tickerSince = Date.now();
+    const first = Date.now() - (state.tickerSince || Date.now()) < 8000;     // what loads with the page is not news
+    if (!evs.length) { const li = el("li"); li.append(el("time"), el("i", "k night"), el("span", "x muted", "Noch nichts passiert.")); ul.append(li); return; }
+    for (const e of evs) {
+      const key = e.t + e.b + e.s, li = el("li", !first && !seenTicks.has(key) ? "new" : null); seenTicks.add(key);
+      const day = berlinParts(new Date(e.t)).day, today = berlinParts(new Date()).day;
+      const tm = el("time", null, day === today ? fmtHour(e.t) : day === dayShift(today, -1) ? "gestern" : fmtDay(day).slice(3)); tm.dateTime = e.t; tm.title = fmtTime(e.t);
+      const x = el("span", "x"); x.append(el("b", null, e.b), el("span", null, " · " + e.s)); x.title = `${e.b} · ${e.s}`;
+      li.append(tm, el("i", "k " + e.k), x); ul.append(li);
+    }
   }
 
   // ---------- F2: deadlines of every automation with heartbeat bars ----------
@@ -1360,6 +1648,12 @@ footer details > div { margin-top: 4px; }
   // ---------- wiring ----------
   $("reload").addEventListener("click", () => loadFiles(true));
   $("g-night-btn").addEventListener("click", openNightAlert);
+  $("to-plan").addEventListener("click", (e) => { e.preventDefault(); showTab("s-plan"); });
+  $("r-ypp").addEventListener("click", () => { $("yppmore").open = !$("yppmore").open; });
+  setInterval(tick, 1000);
+  const vid = $("headvid");                 // H1: the loop stays still for "reduce motion" and off-screen tabs
+  if (calm()) { vid.removeAttribute("autoplay"); vid.pause(); }
+  document.addEventListener("visibilitychange", () => { if (calm()) return; if (document.hidden) vid.pause(); else vid.play().catch(() => {}); });
   document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { state.range = b.dataset.r; renderViews(); }));
   $("keyform").addEventListener("submit", (e) => {
     e.preventDefault();
