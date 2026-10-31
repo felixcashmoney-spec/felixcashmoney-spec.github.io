@@ -552,6 +552,13 @@ details.yppmore .grid4 { margin-top: 8px; }
   pre.log { max-height: none; }
   #s-plan.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
   #s-plan .tl { min-height: 0; }
+  /* everything of a day on screen (Felix 31.10.): pictures shrink when the column is short, text and numbers stay */
+  #s-plan .daycol .body { overflow: hidden; }
+  #s-plan .daycol .body > * { flex: none; }
+  #s-plan .daycol .body > .pcard { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  #s-plan .pcard > * { flex: none; }
+  #s-plan .pcard > .thumb:not(.noimg) { flex: 0 1 auto; min-height: 36px; }
+  #s-plan .pcard .ttl { -webkit-line-clamp: 2; }
   #s-compare.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto auto minmax(0, 1fr); }
   #s-compare .cmptop > .card { max-height: 34vh; overflow: auto; }
   #s-compare #p-ctbl { min-height: 0; }
