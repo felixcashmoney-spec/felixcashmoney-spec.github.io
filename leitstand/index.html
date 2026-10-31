@@ -164,7 +164,24 @@ pre.log { max-height: 420px; }
 .kpi .value { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.2; }
 .kpi .value small { font-size: .85rem; font-weight: 400; color: var(--muted); letter-spacing: 0; }
 .kpi .from { font-size: .78rem; color: var(--muted); }
-.kpi svg.spark { width: 100%; height: 34px; margin-top: 4px; }
+.kpi svg.spark, .kpi svg.bars { width: 100%; height: 34px; margin-top: 4px; }
+/* S4 (Felix 31.10.): how fresh a number is, live from YouTube or from the last run */
+.fresh { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: .7rem; font-weight: 400; color: var(--muted); white-space: nowrap; }
+.fresh:empty { display: none; }
+.fresh i { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); flex: none; }
+.fresh.live i { background: var(--ok-mark); } .fresh.late i { background: var(--warn-mark); }
+.head .fresh { margin-left: 0; }
+/* S7: YouTube and TikTok as one split bar */
+.split { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--line); margin-top: 6px; }
+.split i { display: block; height: 100%; } .split .yt { background: var(--accent); } .split .tt { background: var(--tt); }
+/* S2: newest video */
+.latest { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 3px 10px; align-items: start; min-width: 0; }
+.latest .thumb { grid-row: 1 / 4; }
+.latest .t { font-size: .8rem; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; color: inherit; }
+.latest .n { font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.latest .n b { color: var(--ink); font-size: .95rem; font-weight: 600; }
+.latest .w { font-size: .74rem; color: var(--muted); }
+.latest svg.spark { grid-column: 1 / -1; width: 100%; height: 26px; }
 button.kpi { font: inherit; color: inherit; text-align: left; width: 100%; box-shadow: 0 1px 2px rgb(0 0 0 / .03); }
 button.kpi:hover { color: inherit; }
 .card.pick { cursor: pointer; }
@@ -338,7 +355,7 @@ footer details > div { margin-top: 4px; }
 /* ---------- Übersicht (Felix 30.10. abends) ---------- */
 #s-overview { grid-template-columns: minmax(0, 1fr); }
 /* U1: today bar */
-.today { display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; }
+.today { display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(4, minmax(0, 1fr)); gap: 0; padding: 0; }
 .today > div { padding: 12px 14px; display: grid; gap: 2px; align-content: start; min-width: 0; }
 .today > div + div { border-left: 1px solid var(--line); }
 .today .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; color: var(--muted); }
@@ -352,7 +369,7 @@ footer details > div { margin-top: 4px; }
 .today button.big-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 .livedot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); margin-right: 6px; vertical-align: 1px; }
 .livedot.on { background: var(--ok-mark); }
-@media (max-width: 760px) { .today { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .today > div:nth-child(3) { border-left: 0; } .today > div:nth-child(n+3) { border-top: 1px solid var(--line); } }
+@media (max-width: 760px) { .today { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .today > div:nth-child(3) { border-left: 0; } .today > div:nth-child(n+3) { border-top: 1px solid var(--line); } .today > div:nth-child(5) { grid-column: 1 / -1; border-left: 0; } }
 
 /* U6: yellow notes behind one line */
 details.morealerts { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
@@ -467,8 +484,11 @@ details.yppmore .grid4 { margin-top: 8px; }
   #s-overview .ovgrid { gap: 10px; } #s-overview .ovgrid > .card { gap: 8px; padding: 12px 14px; }
   .ring .dial { width: 74px; height: 74px; } .ring .mid b { font-size: .95rem; }
   .ring { gap: 2px; } .flow { padding-top: 0; }
-  #s-overview .ovgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr); grid-template-areas: "flow posts ticker" "rings posts ticker"; }
-  #o-flow { grid-area: flow; } #o-posts { grid-area: posts; } #o-rings { grid-area: rings; } #o-ticker { grid-area: ticker; overflow: hidden; }
+  #s-overview .kpi svg.bars { height: 24px; }
+  #s-overview .ovgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr); grid-template-areas: "flow posts ticker" "rings latest ticker"; }
+  #o-flow { grid-area: flow; } #o-posts { grid-area: posts; } #o-latest { grid-area: latest; } #o-rings { grid-area: rings; } #o-ticker { grid-area: ticker; overflow: hidden; }
+  #s-overview .nextposts > :nth-child(n+3) { display: none; }
+  #kpis-chan .kpi, #kpis-cost .kpi { padding: 11px 14px; gap: 2px; } #kpis-chan .kpi svg.spark, #kpis-cost .kpi svg.spark { height: 24px; }
   #s-overview .nextposts { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   #s-overview .npost { grid-template-columns: 112px minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 10px; align-items: start; }
   #s-overview .npost .thumb { grid-row: 1 / 3; }
@@ -489,10 +509,10 @@ details.yppmore .grid4 { margin-top: 8px; }
   #s-plan .plan table { height: 100%; }
   #s-plan .slot { -webkit-line-clamp: 7; }
   #s-channel.on { overflow: hidden; align-content: stretch; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "t t" "views rank" "vids vids"; }
-  #s-channel > .title { grid-area: t; } #p-views { grid-area: views; } #rank { grid-area: rank; overflow: auto; align-content: start; } #p-vids { grid-area: vids; }
+    grid-template-rows: auto auto minmax(0, 1fr) auto; grid-template-areas: "t t" "k k" "views rank" "vids vids"; }
+  #s-channel > .title { grid-area: t; } #kpis-chan { grid-area: k; } #p-views { grid-area: views; } #rank { grid-area: rank; overflow: auto; align-content: start; } #p-vids { grid-area: vids; }
   #views-chart svg { height: 100%; }
-  #s-costs.on { overflow: hidden; align-content: stretch; grid-template-rows: auto minmax(0, 1fr); }
+  #s-costs.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
   #s-costs .two { min-height: 0; }
   #s-costs .two > .card { overflow: auto; }
 }
@@ -531,17 +551,18 @@ details.yppmore .grid4 { margin-top: 8px; }
       <div><span class="label">Nächster Nachtlauf</span><span class="val" id="cd-night">—</span>
         <button type="button" class="big-btn" id="g-night-btn" aria-label="Fehler der Nacht ansehen"><span id="g-night">—</span><span id="g-night-hint" hidden></span></button>
         <span class="sub" id="g-night-sub" hidden></span></div>
+      <div><span class="label">Für dich zu tun</span><span class="val state" id="t-todo"><i></i><span>—</span></span><span class="sub" id="t-todo-sub"></span></div>
       <div><span class="label">Live</span><span class="val"><span class="livedot" id="t-livedot"></span><span id="t-live">YouTube</span></span><span class="sub" id="t-live-sub">Zahlen alle 5 Minuten</span></div>
     </div>
 
     <ul class="alerts" id="alerts"></ul>
     <details class="morealerts" id="morealerts" hidden><summary><b id="more-n"></b><span id="more-first"></span></summary><ul class="alerts" id="alerts-more"></ul></details>
 
-    <div class="grid4" id="kpis" aria-label="Kennzahlen, mit Vergleich zur Vorwoche"></div>
+    <div class="grid4" id="kpis" aria-label="Kennzahlen wie in YouTube Studio"></div>
 
     <div class="ovgrid">
       <div class="card rise" id="o-flow" style="--i:5">
-        <div class="head"><h3>Produktion</h3></div>
+        <div class="head"><h3>Produktion</h3><span class="fresh" data-fresh="run"></span></div>
         <div class="flow" id="flow" aria-label="Schritte der Produktion"></div>
         <div class="small"><b id="g-prod">—</b> <span class="muted" id="g-prod-sub"></span></div>
         <div class="flowcause" id="flow-cause" hidden></div>
@@ -550,8 +571,12 @@ details.yppmore .grid4 { margin-top: 8px; }
         <div class="head"><h3>Nächste Posts</h3><a href="#s-plan" class="small" id="to-plan">Sendeplan</a></div>
         <div class="nextposts" id="nextposts"><span class="empty">—</span></div>
       </div>
-      <div class="card rise" id="o-rings" style="--i:7">
-        <div class="head"><h3>Budget, Credits, Partnerprogramm</h3><span class="muted small" id="g-month"></span></div>
+      <div class="card rise" id="o-latest" style="--i:7">
+        <div class="head"><h3>Neuestes Video</h3><span class="fresh" data-fresh="live"></span></div>
+        <div class="latest" id="latest"><span class="empty">—</span></div>
+      </div>
+      <div class="card rise" id="o-rings" style="--i:8">
+        <div class="head"><h3>Budget, Credits, Partnerprogramm</h3><span class="muted small" id="g-month"></span><span class="fresh" data-fresh="run"></span></div>
         <div class="rings">
           <div class="ring" id="r-budget"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-spent">—</b><small>von <span id="g-limit">100</span> €</small></div></div><span class="name">Budget</span><span class="note" id="g-budget-sub"></span></div>
           <div class="ring cred" id="r-credits"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-credits">—</b><small>frei</small></div></div><span class="name">Higgsfield-Credits</span><span class="note" id="g-credit-sub"></span></div>
@@ -559,7 +584,7 @@ details.yppmore .grid4 { margin-top: 8px; }
         </div>
         <details class="yppmore" id="yppmore"><summary>Weg zum Partnerprogramm im Detail <span class="muted" id="ypp-note"></span></summary><div class="grid4" id="ypp"><span class="empty">Kommt mit dem nächsten Nachtlauf.</span></div></details>
       </div>
-      <div class="card rise" id="o-ticker" style="--i:8">
+      <div class="card rise" id="o-ticker" style="--i:9">
         <div class="head"><h3>Gerade passiert</h3><span class="muted small">neueste oben</span></div>
         <ul class="ticker" id="ticker"><li><time></time><i class="k night"></i><span class="x muted">Ereignisse erscheinen, sobald die Daten gelesen sind.</span></li></ul>
       </div>
@@ -616,6 +641,7 @@ details.yppmore .grid4 { margin-top: 8px; }
   <!-- ===================== Kanal ===================== -->
   <section class="area" id="s-channel" aria-labelledby="h-channel">
     <div class="title"><h2 id="h-channel">Kanal</h2><span class="muted small" id="chan"></span></div>
+    <div class="grid4" id="kpis-chan" aria-label="Abonnenten und Aufrufe mit Vergleich zur Vorwoche"></div>
 
     <div class="card block pane" id="p-views">
       <div class="head">
@@ -638,6 +664,7 @@ details.yppmore .grid4 { margin-top: 8px; }
   <!-- ===================== Kosten ===================== -->
   <section class="area" id="s-costs" aria-labelledby="h-costs">
     <div class="title"><h2 id="h-costs">Kosten</h2><span class="muted small" id="cost-note"></span></div>
+    <div class="grid4" id="kpis-cost" aria-label="Kosten und Credits mit Vergleich zur Vorwoche"></div>
     <div class="two">
       <div class="card block">
         <div class="head"><h3>Monatsbudget</h3><span class="muted small">bisher, Prognose gestrichelt, Grenze rot</span></div>
@@ -923,6 +950,50 @@ details.yppmore .grid4 { margin-top: 8px; }
   function pointAt(list, iso) {           // newest point at or before a moment
     let best = null; for (const p of list || []) if (p.t <= iso) best = p; return best;
   }
+  // The live check (every 5 minutes) as a history point.
+  function livePoint() {
+    const live = state.live;
+    return live && live.videos ? { t: live.at, s: live.channel && live.channel.subscribers, v: Object.fromEntries(Object.entries(live.videos).filter(([, x]) => x.views != null).map(([k, x]) => [k, x.views])) } : null;
+  }
+  // Hourly history plus the live check, oldest first.
+  function livePoints() {
+    const pts = [...((state.hist && state.hist.hourly) || [])].sort((a, b) => a.t < b.t ? -1 : 1), lv = livePoint();
+    if (lv && (!pts.length || lv.t > pts[pts.length - 1].t)) pts.push(lv);
+    return pts;
+  }
+  // S4 (Felix 31.10.): a dot and a time that say where a number comes from.
+  function freshTag(kind, node) {
+    const s = node || el("span"), d = state.data, at = state.live && state.live.at; s.className = "fresh"; s.replaceChildren(el("i"));
+    if (kind === "live") {
+      if (!at) { s.classList.add("late"); s.append("keine Live-Zahlen"); s.title = "Der 5-Minuten-Abgleich hat noch nichts geliefert."; return s; }
+      s.classList.add(hoursSince(at) < 0.25 ? "live" : "late"); const x = el("span"); x.dataset.since = at; s.append("live · ", x);
+      s.title = `Von YouTube, abgeglichen ${fmtTime(at)} (alle 5 Minuten)`;
+    } else {
+      if (!d) return s;
+      const today = berlinParts(new Date()).day === berlinParts(new Date(d.generated_at)).day;
+      s.append(`Lauf ${today ? fmtHour(d.generated_at) : fmtTime(d.generated_at)}`); s.title = "Stand des letzten Nacht- oder Reparaturlaufs";
+    }
+    return s;
+  }
+  function renderFresh() { for (const n of document.querySelectorAll("[data-fresh]")) freshTag(n.dataset.fresh, n); }
+  function bars(values, color) {          // S1: gain per hour as small bars
+    const svg = sv("svg", { class: "bars", viewBox: "0 0 200 40", preserveAspectRatio: "none", "aria-hidden": "true" });
+    if (!values || !values.length) return svg;
+    const max = Math.max(1, ...values), w = 200 / values.length;
+    values.forEach((v, i) => { const h = v / max * 36; svg.append(sv("rect", { x: i * w + w * .15, y: 40 - Math.max(h, v ? 1.5 : .5), width: w * .7, height: Math.max(h, v ? 1.5 : .5), fill: color, opacity: v ? 1 : .25 })); });
+    return svg;
+  }
+  function twoLines(today, yesterday, color) {     // S3: today against yesterday, x = share of the day
+    const svg = sv("svg", { class: "spark", viewBox: "0 0 200 40", preserveAspectRatio: "none", "aria-hidden": "true" });
+    const max = Math.max(1, ...today.map(p => p[1]), ...yesterday.map(p => p[1]));
+    const line = (pts) => pts.map(([x, y]) => `${(x * 200).toFixed(1)},${(36 - y / max * 32).toFixed(1)}`).join(" ");
+    if (yesterday.length > 1) svg.append(sv("polyline", { points: line(yesterday), fill: "none", stroke: "var(--faint)", "stroke-width": 1.4, "stroke-dasharray": "3 3", "vector-effect": "non-scaling-stroke" }));
+    if (today.length > 1) {
+      svg.append(sv("polyline", { points: line(today), fill: "none", stroke: color, "stroke-width": 1.6, "vector-effect": "non-scaling-stroke", pathLength: 1 }));
+      const [x, y] = today[today.length - 1]; svg.append(sv("circle", { cx: x * 200, cy: 36 - y / max * 32, r: 2.5, fill: color }));
+    }
+    return svg;
+  }
   function weekCompare() {                // numbers now, 7 and 14 days ago from the daily history
     const h = state.hist, live = state.live;
     if (!h || !(h.daily || []).length) return null;
@@ -930,7 +1001,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     const iso = (days) => new Date(new Date(now).getTime() - days * 86400000).toISOString();
     const all = [...(h.daily || []), ...(h.hourly || [])].sort((a, b) => a.t < b.t ? -1 : 1);
     // "now" is the live check itself (every 5 minutes), not the last hourly history point
-    const lv = live && live.videos ? { t: live.at, s: live.channel && live.channel.subscribers, v: Object.fromEntries(Object.entries(live.videos).filter(([, x]) => x.views != null).map(([k, x]) => [k, x.views])) } : null;
+    const lv = livePoint();
     const young = !!lv && Object.values(live.videos).every(x => x.published && x.published >= iso(7));
     return { now: lv || all[all.length - 1], w1: pointAt(all, iso(7)), w2: pointAt(all, iso(14)), first: all[0], young };
   }
@@ -978,7 +1049,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     $("t-day").textContent = "Heute, " + fmtDay(berlinParts(new Date()).day);
     $("t-state-sub").textContent = d ? `Letzter Lauf ${fmtTime(d.generated_at)}` : "";
 
-    const parts = [renderKpis, renderNightGauge, renderProduction, renderBudget, renderCredits, renderYpp, renderNextPosts, renderLive, renderTicker, renderChecks, renderGrid, renderSteps, renderRepair, renderProdSteps, renderPlan, renderViews, renderVideoRow, renderRank, renderMonth, renderSpend];
+    const parts = [renderKpis, renderLatest, renderTodo, renderFresh, () => renderTab(tsCls || "idle"), renderNightGauge, renderProduction, renderBudget, renderCredits, renderYpp, renderNextPosts, renderLive, renderTicker, renderChecks, renderGrid, renderSteps, renderRepair, renderProdSteps, renderPlan, renderViews, renderVideoRow, renderRank, renderMonth, renderSpend];
     for (const f of parts) { try { f(); } catch (e) { console.error(f.name, e); } }
     $("foot-gen").textContent = (d ? `Produktion, Budget und Credits vom letzten Lauf ${fmtTime(d.generated_at)} (für den ${fmtDay(d.day)}).` : "")
       + (state.live ? ` YouTube-Zahlen live ${fmtTime(state.live.at)}: öffentliche Zahlen je Video, YouTube Studio zählt oft etwas früher.` : "");
@@ -990,20 +1061,21 @@ details.yppmore .grid4 { margin-top: 8px; }
 
   // ---------- KPIs with the week before (F7), a click picks the big chart (Plausible) ----------
   function renderKpis() {
-    const box = $("kpis"); box.replaceChildren();
+    for (const id of ["kpis", "kpis-chan", "kpis-cost"]) $(id).replaceChildren();
+    let box = $("kpis-chan");
     const d = state.data, live = state.live, wk = weekCompare();
     const chan = (live && live.channel) || (d && d.channel && d.channel.stats) || null;
     const daily = ((state.hist && state.hist.daily) || []).slice(-14);
     const hourly = ((state.hist && state.hist.hourly) || []).filter(p => hoursSince(p.t) <= 49);
     const steps = (pts, f) => pts.map(f).map((v, i, a) => i ? Math.max(0, v - a[i - 1]) : null).slice(1);   // gain per point
     let k = 0;
-    const card = (key, label, value, unit, delta, from, series, color, raw, fmt) => {
+    const card = (key, label, value, unit, delta, from, series, color, raw, fmt, extra = {}) => {
       const b = el(key ? "button" : "div", "card kpi rise" + (key ? " pick" : "")); b.style.setProperty("--i", ++k);
       if (key) { b.type = "button"; b.title = "Im Diagramm unter „Kanal“ zeigen"; b.setAttribute("aria-pressed", String(state.kpi === key)); b.addEventListener("click", () => { state.kpi = key; renderKpis(); renderViews(); showTab("s-channel"); }); }
-      const l = el("div", "label"); l.append(el("span", null, label)); if (delta) l.append(delta);
+      const l = el("div", "label"); l.append(el("span", null, label)); if (delta) l.append(delta); if (extra.fresh) l.append(freshTag(extra.fresh));
       const v = el("div", "value"), n = el("span", null, value); v.append(n); if (unit) v.append(el("small", null, " " + unit));
       if (typeof raw === "number") setNum(n, label, raw, fmt || int);
-      b.append(l, v, el("div", "from", from || "")); if (series) b.append(spark(series, color));
+      b.append(l, v, el("div", "from", from || "")); if (extra.chart) b.append(extra.chart); else if (series) b.append(spark(series, color));
       box.append(b);
     };
     const subsNow = chan ? chan.subscribers : null;
@@ -1016,6 +1088,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     card("views", "Aufrufe, 7 Tage", gained == null ? int(chan ? chan.views : null) : int(gained), gained == null ? "gesamt" : "", deltaBadge(gained, before),
       before != null ? `Vorwoche ${int(before)}` : wk && wk.young ? "alle Videos jünger als 7 Tage" : wk ? `gesamt ${int(total(wk.now))}, Vergleich ab ${fmtDay(dayShift(wk.first.t.slice(0, 10), 14))}` : "",
       hourly.length > 2 ? steps(hourly, total) : steps(daily, total), "var(--accent)", gained == null ? (chan ? chan.views : null) : gained);
+    box = $("kpis-cost");
     const sd = (d && d.spend_days) || [];
     const last7 = sd.slice(-7).reduce((a, r) => a + r.usd, 0), prev7 = sd.length >= 14 ? sd.slice(-14, -7).reduce((a, r) => a + r.usd, 0) : null;
     card(null, "Claude-Kosten, 7 Tage", d ? eur(last7) : "—", "$", deltaBadge(last7, prev7, true), prev7 != null ? `Vorwoche ${eur(prev7)} $` : "", sd.map(r => r.usd), "var(--warn-mark)", d ? last7 : null, eur);
@@ -1025,6 +1098,90 @@ details.yppmore .grid4 { margin-top: 8px; }
     const usedBefore = cWeek && cTwo && cTwo.credits >= cWeek.credits ? cTwo.credits - cWeek.credits : null;
     card(null, "Credits verbraucht, 7 Tage", used == null ? "—" : int(used), "", deltaBadge(used, usedBefore, true),
       used == null ? "Verlauf ab der nächsten Nacht" : usedBefore != null ? `Vorwoche ${int(usedBefore)}` : "", hist.slice(0, 14).reverse().map(h => h.credits), "var(--tt)", used);
+
+    // Start page (Felix 31.10., S1/S3/S6/S7): the numbers YouTube Studio shows first
+    box = $("kpis"); k = 0;
+    const pts = livePoints(), nowP = pts[pts.length - 1], nowMs = Date.now(), at = (ms) => new Date(ms).toISOString();
+    // S1 realtime: views in the last 48 hours (bars per hour) and since about an hour ago
+    if (nowP) {
+      const base = pointAt(pts, at(nowMs - 48 * 3600000)) || pts[0], since48 = pts.filter(p => p.t >= base.t);
+      const p60 = pointAt(pts, at(nowMs - 3600000)) || pts[0], g60 = total(nowP) - total(p60);
+      const late = new Date(base.t).getTime() > nowMs - 47 * 3600000;
+      card("views", "Echtzeit, 48 Stunden", int(total(nowP) - total(base)), "Aufrufe", null,
+        `+${int(g60)} seit ${fmtHour(p60.t)}` + (late ? ` · Verlauf ab ${fmtTime(base.t)}` : ""), null, "var(--accent)", total(nowP) - total(base), int,
+        { fresh: "live", chart: bars(steps(since48, total), "var(--accent)") });
+    } else card("views", "Echtzeit, 48 Stunden", "—", "", null, "Zahlen kommen mit dem 5-Minuten-Abgleich", null, "var(--accent)", null, int, { fresh: "live" });
+    // S3 today against yesterday until the same time (Berlin days)
+    if (nowP) {
+      const day = berlinParts(new Date()).day, t0 = berlinAt(day, "00:00").getTime(), y0 = t0 - 86400000;
+      const bT = pointAt(pts, at(t0)) || pts[0], bY = pointAt(pts, at(y0)), pY = pointAt(pts, at(nowMs - 86400000));
+      const todayV = total(nowP) - total(bT), yV = bY && pY && pY.t > bY.t ? total(pY) - total(bY) : null;
+      const tl = [[Math.max(0, (new Date(bT.t) - t0) / 86400000), 0], ...pts.filter(p => p.t > bT.t).map(p => [(new Date(p.t) - t0) / 86400000, total(p) - total(bT)])];
+      const yl = bY ? [[0, 0], ...pts.filter(p => p.t > bY.t && new Date(p.t).getTime() <= t0).map(p => [(new Date(p.t) - y0) / 86400000, total(p) - total(bY)])] : [];
+      card(null, "Heute", int(todayV), "Aufrufe", deltaBadge(todayV, yV),
+        yV != null ? `gestern bis ${fmtHour(at(nowMs))}: ${int(yV)} (gestrichelt)` : "Vergleich mit gestern ab morgen", null, "var(--accent)", todayV, int,
+        { fresh: "live", chart: twoLines(tl, yl, "var(--accent)") });
+    }
+    // S6 the last 28 days like YouTube Studio's channel analytics (YouTube Analytics, from the night)
+    const l28 = d && d.last_28;
+    card(null, "28 Tage wie Studio", l28 ? int(l28.views) : "—", l28 ? "Aufrufe" : "",
+      null, l28 ? `${dec(l28.hours)} Std. Wiedergabe · ${l28.subs >= 0 ? "+" : ""}${int(l28.subs)} Abos · ${fmtDay(l28.from).slice(3)}–${fmtDay(l28.to).slice(3)}` : "kommt mit dem nächsten Nachtlauf",
+      l28 ? l28.days : null, "var(--accent)", l28 ? l28.views : null, int, { fresh: "run" });
+    // S7 YouTube and TikTok together
+    const yt = live && live.channel ? chanViews(live.channel, live.videos) : chan ? chan.views : null;
+    const tts = ((d && d.videos) || []).filter(v => v.platform === "tiktok" && v.views != null), tt = tts.reduce((a, v) => a + v.views, 0);
+    const split = el("div", "split"); split.setAttribute("aria-hidden", "true");
+    if (yt != null && yt + tt) { const a = el("i", "yt"), b2 = el("i", "tt"); a.style.width = yt / (yt + tt) * 100 + "%"; b2.style.width = tt / (yt + tt) * 100 + "%"; split.append(a, b2); }
+    card(null, "Alle Plattformen", yt == null ? "—" : int(yt + tt), "Aufrufe", null,
+      `YouTube ${int(yt)} live · TikTok ${tts.length ? int(tt) : "—"} vom Lauf`, null, "var(--accent)", yt == null ? null : yt + tt, int, { fresh: "live", chart: split });
+  }
+
+  // ---------- S2: the newest video with its views, rank and factor ----------
+  function renderLatest() {
+    const d = state.data, box = $("latest"); if (!d) return;
+    const live = (state.live && state.live.videos) || {}, now = new Date().toISOString();
+    const vids = (d.videos || []).filter(v => v.platform === "youtube" && v.video_id && v.publish_at && v.publish_at <= now)
+      .map(v => ({ ...v, views: live[v.video_id] && live[v.video_id].views != null ? live[v.video_id].views : v.views }));
+    box.replaceChildren();
+    if (!vids.length) { box.append(el("span", "empty", "Noch kein Video online.")); return; }
+    const v = [...vids].sort((a, b) => a.publish_at < b.publish_at ? 1 : -1)[0];
+    const rank = [...vids].sort((a, b) => (b.views || 0) - (a.views || 0)).indexOf(v) + 1;
+    const th = el("a", "thumb"), pic = state.thumbs[v.id]; th.href = v.link || `https://youtu.be/${v.video_id}`; th.target = "_blank"; th.rel = "noopener";
+    if (pic) for (const cls of ["fill", "fit"]) { const img = el("img", cls); img.alt = ""; img.src = pic; th.append(img); }
+    else th.classList.add("blank");
+    th.append(el("span", "tag youtube", v.kind === "long" ? "YT Lang" : "YT Short"));
+    const n = el("div", "n"), b = el("b"); setNum(b, "latest", v.views, int); n.append(b, "Aufrufe", el("span", null, `· Rang ${rank} von ${vids.length}`));
+    const f = v.normal && v.normal.factor;
+    if (f != null) { const x = el("span", "delta " + (f >= 1.05 ? "up" : f <= 0.95 ? "down" : ""), `${dec(f, 1)}×`); x.title = `${int(v.normal.views)} Aufrufe nach ${v.normal.days} Tag${v.normal.days > 1 ? "en" : ""}, normal ${int(v.normal.median)}`; n.append(x); }
+    const w = el("div", "w"), s = el("span"); s.dataset.since = v.publish_at; w.append("online ", s);
+    box.append(th, el("div", "t", v.title), n, w);
+    const series = livePoints().filter(p => p.t >= v.publish_at && p.v && p.v[v.video_id] != null).map(p => p.v[v.video_id]);
+    if (series.length > 1) box.append(spark(series, "var(--accent)"));
+  }
+
+  // ---------- S8: only what Felix has to do himself ----------
+  function renderTodo() {
+    const todo = allAlerts().filter(a => !a.resolved && a.repair && ["gemeldet", "eskaliert"].includes(a.repair.result));
+    const t = $("t-todo"), sub = $("t-todo-sub");
+    t.className = "val state " + (!state.data ? "" : todo.length ? (todo.some(a => a.level === "rot") ? "bad" : "warn") : "ok");
+    t.lastChild.textContent = !state.data ? "—" : todo.length ? (todo.length === 1 ? "1 Punkt" : `${todo.length} Punkte`) : "Nichts zu tun";
+    sub.textContent = !state.data ? "" : todo.length ? `${todo[0].area}: ${todo[0].repair.text}` : "läuft ohne dich";
+    sub.title = todo.map(a => `${a.area}: ${a.repair.text}`).join("\n");
+  }
+
+  // ---------- S5: state and views in the browser tab and its icon ----------
+  function renderTab(level) {
+    const live = state.live, views = live && live.channel ? chanViews(live.channel, live.videos) : null;
+    document.title = (views != null ? `${int(views)} · ` : "") + $("overall").textContent + " · Dashboard";
+    if (state.icon === level) return; state.icon = level;
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas"); c.width = c.height = 64; const g = c.getContext("2d"); g.drawImage(img, 0, 0, 64, 64);
+      const dot = { ok: "#22c55e", warn: "#f59e0b", bad: "#ef4444" }[level];   // icon colors, independent of the theme
+      if (dot) { g.beginPath(); g.arc(50, 50, 11, 0, 2 * Math.PI); g.fillStyle = dot; g.fill(); g.lineWidth = 4; g.strokeStyle = "#0b0f19"; g.stroke(); }
+      try { document.querySelector('link[rel="icon"]').href = c.toDataURL("image/png"); } catch (_) { /* keep the plain logo */ }
+    };
+    img.src = "logo.png";
   }
 
   function renderNightGauge() {
