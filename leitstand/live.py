@@ -37,7 +37,11 @@ def main(path):
         for v in get("videos", part="statistics", id=",".join(ids)).get("items", []):
             st = v.get("statistics", {})
             videos[v["id"]] = {k: int(st[k]) for k in ("viewCount", "likeCount", "commentCount") if k in st}
-    numbers = {"channel": {"subscribers": int(s.get("subscriberCount", 0)), "views": int(s.get("viewCount", 0)),
+    # The channel's own viewCount lags days behind (31.10.: 159 while its videos had 328), the videos' counts
+    # are the freshest public number, so the channel total is never below their sum.
+    summed = sum(v.get("viewCount", 0) for v in videos.values())
+    numbers = {"channel": {"subscribers": int(s.get("subscriberCount", 0)),
+                           "views": max(int(s.get("viewCount", 0)), summed),
                            "videos": int(s.get("videoCount", 0))},
                "videos": {k: {"views": v.get("viewCount"), "likes": v.get("likeCount"),
                               "comments": v.get("commentCount"), "published": published.get(k)}

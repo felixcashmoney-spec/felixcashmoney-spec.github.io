@@ -918,6 +918,8 @@ details.yppmore .grid4 { margin-top: 8px; }
 
   // ---------- live history helpers ----------
   const total = (p) => Object.values(p.v || {}).reduce((a, b) => a + b, 0);
+  // YouTube's channel viewCount lags days behind its videos' counts (31.10.: 159 vs 328), so never show less than their sum
+  const chanViews = (ch, vids) => Math.max(ch && ch.views || 0, Object.values(vids || {}).reduce((a, x) => a + (x.views || 0), 0));
   function pointAt(list, iso) {           // newest point at or before a moment
     let best = null; for (const p of list || []) if (p.t <= iso) best = p; return best;
   }
@@ -927,7 +929,10 @@ details.yppmore .grid4 { margin-top: 8px; }
     const now = live && live.at ? live.at : h.daily[h.daily.length - 1].t;
     const iso = (days) => new Date(new Date(now).getTime() - days * 86400000).toISOString();
     const all = [...(h.daily || []), ...(h.hourly || [])].sort((a, b) => a.t < b.t ? -1 : 1);
-    return { now: all[all.length - 1], w1: pointAt(all, iso(7)), w2: pointAt(all, iso(14)), first: all[0] };
+    // "now" is the live check itself (every 5 minutes), not the last hourly history point
+    const lv = live && live.videos ? { t: live.at, s: live.channel && live.channel.subscribers, v: Object.fromEntries(Object.entries(live.videos).filter(([, x]) => x.views != null).map(([k, x]) => [k, x.views])) } : null;
+    const young = !!lv && Object.values(live.videos).every(x => x.published && x.published >= iso(7));
+    return { now: lv || all[all.length - 1], w1: pointAt(all, iso(7)), w2: pointAt(all, iso(14)), first: all[0], young };
   }
   function deltaBadge(now, before, cost) {
     if (now == null || before == null) return null;
@@ -957,7 +962,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     else if (red) { ov.className = "pill bad"; ov.textContent = red === 1 ? "1 Störung" : `${red} Störungen`; }
     else if (yellow) { ov.className = "pill warn"; ov.textContent = "Läuft, mit Hinweisen"; }
     else { ov.className = "pill ok"; ov.textContent = "Alles läuft"; }
-    $("stamp").textContent = d ? `Stand ${fmtTime(d.generated_at)}` : "";
+    $("stamp").textContent = [state.live && state.live.at ? `YouTube live ${fmtTime(state.live.at)}` : "", d ? `Letzter Lauf ${fmtTime(d.generated_at)}` : ""].filter(Boolean).join(" · ");
 
     // U6: red ones stay open, the rest sits behind one line
     const ul = $("alerts"), more = alerts.filter(a => a.level !== "rot"); ul.replaceChildren();
@@ -971,11 +976,12 @@ details.yppmore .grid4 { margin-top: 8px; }
     const ts = $("t-state"), tsCls = !d && !state.status ? "" : red ? "bad" : yellow ? "warn" : "ok";
     ts.className = "val state " + tsCls; ts.lastChild.textContent = ov.textContent;
     $("t-day").textContent = "Heute, " + fmtDay(berlinParts(new Date()).day);
-    $("t-state-sub").textContent = d ? `Stand der Nacht ${fmtTime(d.generated_at)}` : "";
+    $("t-state-sub").textContent = d ? `Letzter Lauf ${fmtTime(d.generated_at)}` : "";
 
     const parts = [renderKpis, renderNightGauge, renderProduction, renderBudget, renderCredits, renderYpp, renderNextPosts, renderLive, renderTicker, renderChecks, renderGrid, renderSteps, renderRepair, renderProdSteps, renderPlan, renderViews, renderVideoRow, renderRank, renderMonth, renderSpend];
     for (const f of parts) { try { f(); } catch (e) { console.error(f.name, e); } }
-    $("foot-gen").textContent = d ? `Daten-Datei erzeugt ${fmtTime(d.generated_at)} für den ${fmtDay(d.day)}.` + (state.live ? ` YouTube-Zahlen ${fmtTime(state.live.at)}.` : "") : "";
+    $("foot-gen").textContent = (d ? `Produktion, Budget und Credits vom letzten Lauf ${fmtTime(d.generated_at)} (für den ${fmtDay(d.day)}).` : "")
+      + (state.live ? ` YouTube-Zahlen live ${fmtTime(state.live.at)}: öffentliche Zahlen je Video, YouTube Studio zählt oft etwas früher.` : "");
     tick();
     if (d && !state.introDone) {          // L3: the first render with data rises in, once
       state.introDone = true; const ov = $("s-overview"); ov.classList.add("intro"); setTimeout(() => ov.classList.remove("intro"), 2200);
@@ -1006,8 +1012,9 @@ details.yppmore .grid4 { margin-top: 8px; }
       daily.length > 2 ? daily.map(p => p.s) : hourly.map(p => p.s), "var(--accent)", subsNow);
     let gained = null, before = null;
     if (wk && wk.w1) { gained = total(wk.now) - total(wk.w1); if (wk.w2) before = total(wk.w1) - total(wk.w2); }
+    else if (wk && wk.young) gained = total(wk.now);      // every video is younger than 7 days: all its views count
     card("views", "Aufrufe, 7 Tage", gained == null ? int(chan ? chan.views : null) : int(gained), gained == null ? "gesamt" : "", deltaBadge(gained, before),
-      before != null ? `Vorwoche ${int(before)}` : wk ? `gesamt ${int(total(wk.now))}, Vergleich ab ${fmtDay(dayShift(wk.first.t.slice(0, 10), 14))}` : "",
+      before != null ? `Vorwoche ${int(before)}` : wk && wk.young ? "alle Videos jünger als 7 Tage" : wk ? `gesamt ${int(total(wk.now))}, Vergleich ab ${fmtDay(dayShift(wk.first.t.slice(0, 10), 14))}` : "",
       hourly.length > 2 ? steps(hourly, total) : steps(daily, total), "var(--accent)", gained == null ? (chan ? chan.views : null) : gained);
     const sd = (d && d.spend_days) || [];
     const last7 = sd.slice(-7).reduce((a, r) => a + r.usd, 0), prev7 = sd.length >= 14 ? sd.slice(-14, -7).reduce((a, r) => a + r.usd, 0) : null;
@@ -1171,7 +1178,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     const t = $("t-live");
     if (at) { t.dataset.since = at; t.title = `YouTube-Zahlen vom ${fmtTime(at)}`; } else { delete t.dataset.since; t.textContent = "keine Live-Zahlen"; }
     const ch = state.live && state.live.channel;
-    $("t-live-sub").textContent = ch ? `${int(ch.subscribers)} Abos · ${int(ch.views)} Aufrufe gesamt` : "Zahlen alle 5 Minuten";
+    $("t-live-sub").textContent = ch ? `${int(ch.subscribers)} Abos · ${int(chanViews(ch, state.live.videos))} Aufrufe gesamt` : "Zahlen alle 5 Minuten";
   }
 
   // ---------- L2: what just happened, newest first ----------
@@ -1583,7 +1590,7 @@ details.yppmore .grid4 { margin-top: 8px; }
       l.append(bar, t); r.append(l, el("span", "n", int(v.views))); box.append(r);
     }
     const live = state.live && state.live.channel, cs = live || (d.channel && d.channel.stats);
-    $("chan").textContent = cs ? `${int(cs.subscribers)} Abonnenten · ${int(cs.views)} Aufrufe gesamt · ` + (live ? `YouTube live, ${fmtTime(state.live.at)}` : "Stand der Nacht") : "Kanalzahlen kommen mit dem ersten Abruf der Statistik";
+    $("chan").textContent = cs ? `${int(cs.subscribers)} Abonnenten · ${int(live ? chanViews(cs, state.live.videos) : cs.views)} Aufrufe gesamt · ` + (live ? `YouTube live, ${fmtTime(state.live.at)}` : "Stand der Nacht") : "Kanalzahlen kommen mit dem ersten Abruf der Statistik";
   }
 
   // F6: the month's spending as a curve against the limit, forecast dashed.
