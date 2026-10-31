@@ -1699,7 +1699,11 @@ details.yppmore .grid4 { margin-top: 8px; }
     const row = el("div", "row"); row.append(el("span", "time", x.time + (x.kind === "long" ? " · Lang" : "")), el("span", "st " + stc, stt));
     card.append(th, row, el("div", "ttl", x.title || x.key || "ohne Titel"));
     const n = withLive(v || { platform: x.platform, video_id: x.video_id });
-    if (out && n.views != null) card.append(el("div", "stats", `${int(n.views)} Aufrufe · ${int(n.likes)} Likes` + (n.comments != null ? ` · ${int(n.comments)} Komm.` : "")));
+    // always a numbers line, so a missing number reads as "not yet" and not as cut off (Felix 31.10.)
+    const stats = out && n.views != null ? `${int(n.views)} Aufrufe · ${int(n.likes)} Likes` + (n.comments != null ? ` · ${int(n.comments)} Komm.` : "")
+      : x.status === "failed" || isMissed ? "keine Zahlen" : !out ? "Zahlen ab Veröffentlichung"
+      : x.platform === "tiktok" ? "Zahlen ab morgen früh" : "Zahlen folgen gleich";
+    card.append(el("div", "stats", stats));
     card.title = [x.title, x.note].filter(Boolean).join(" · ");
     return card;
   }
