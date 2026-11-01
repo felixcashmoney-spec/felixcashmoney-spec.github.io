@@ -8,6 +8,9 @@
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#030712" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- no start_url in the manifest: the home-screen app opens the URL it was added from, #k= included (iOS keeps its own storage) -->
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-title" content="Dashboard">
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
@@ -571,6 +574,15 @@ details.yppmore .grid4 { margin-top: 8px; }
   #s-costs .two > .card { overflow: auto; }
 }
 @media (prefers-reduced-motion: no-preference) { .bar > i { transition: width .5s ease; } }
+/* Phone (Felix 01.11.): a smaller head, bigger tab targets, one day of the Sendeplan per screen width */
+@media (max-width: 700px) {
+  header.top { min-height: 0; padding: 12px 14px; gap: 10px; }
+  header.top .brand .sub { display: none; }
+  header.top .meta { gap: 8px; }
+  nav.jump { gap: 18px; }
+  nav.jump a { padding-block: 11px; }
+  .daycol { flex-basis: calc(100vw - 64px); }
+}
 </style>
 </head>
 <body>
@@ -1711,11 +1723,12 @@ details.yppmore .grid4 { margin-top: 8px; }
   function planToToday(smooth) {
     const tl = $("tl"), col = tl.querySelector(".daycol.is-today") || tl.querySelector(".daycol:not(.past)");
     if (!col || !tl.offsetParent) return;                // tab not open: placed when it is shown
-    const prev = col.previousElementSibling;
+    const prev = phone() ? null : col.previousElementSibling;     // phone: one day per screen, today first
     tl.scrollTo({ left: (prev || col).offsetLeft - tl.offsetLeft - 2, behavior: smooth ? "smooth" : "instant" });
     state.planAt = true;
   }
-  function planStep(dir) { const tl = $("tl"), col = tl.querySelector(".daycol"); if (col) tl.scrollBy({ left: dir * 3 * (col.offsetWidth + 14), behavior: "smooth" }); }
+  const phone = () => window.matchMedia && matchMedia("(max-width: 700px)").matches;
+  function planStep(dir) { const tl = $("tl"), col = tl.querySelector(".daycol"); if (col) tl.scrollBy({ left: dir * (phone() ? 1 : 3) * (col.offsetWidth + 14), behavior: "smooth" }); }
 
   // ---------- Videovergleich (Felix 31.10.) ----------
   const CMP_NAMES = { views: "Aufrufe", likes: "Likes", comments: "Kommentare", rate: "Like-Quote", factor: "Faktor" };
