@@ -25,6 +25,14 @@ else
     cp "$tmp" leitstand/data.json
   else echo "::warning::data.json nicht geholt"; fi
   rm -f "$tmp"
+  # the page itself: web/leitstand/index.html on the private repo's main (CI there checks its script)
+  url="https://api.github.com/repos/felixcashmoney-spec/Youtube-Automation/contents/web/leitstand/index.html?ref=main"
+  tmp="$(mktemp)"
+  if curl -sSf -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github.raw" "$url" -o "$tmp" \
+     && grep -q '</html>' "$tmp"; then
+    cp "$tmp" leitstand/index.html
+  else echo "::warning::index.html nicht geholt"; fi
+  rm -f "$tmp"
 fi
 
 if [ -z "${YOUTUBE_API_KEY:-}" ]; then echo "::warning::Secret YOUTUBE_API_KEY fehlt"
@@ -35,10 +43,10 @@ tree=$(export GIT_INDEX_FILE=.git/live-index; rm -f "$GIT_INDEX_FILE"; git add $
 commit=$(git -c user.name="leitstand-bot" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit-tree "$tree" -m "$stamp")
 for i in 1 2 3; do git push -q -f origin "$commit:refs/heads/live" && echo "live: $commit" && break; sleep 5; done
 
-# main only hourly (no Pages build every 5 minutes; GitHub allows about 10 an hour)
+# main only hourly (no Pages build every 5 minutes; GitHub allows about 10 an hour), a new page right away
 last=$(git log -1 --format=%ct origin/main -- leitstand/live.json 2>/dev/null || echo 0)
-if [ $(( $(date +%s) - ${last:-0} )) -lt 3300 ]; then exit 0; fi
-git add $FILES 2>/dev/null || true
+if git diff --quiet -- leitstand/index.html && [ $(( $(date +%s) - ${last:-0} )) -lt 3300 ]; then exit 0; fi
+git add $FILES leitstand/index.html 2>/dev/null || true
 if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
 git -c user.name="leitstand-bot" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
   commit -q -m "$stamp"
