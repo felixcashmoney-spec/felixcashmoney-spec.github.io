@@ -25,6 +25,19 @@ else
     cp "$tmp" leitstand/data.json
   else echo "::warning::data.json nicht geholt"; fi
   rm -f "$tmp"
+  # dead-man alarm without Claude: no new data for 28 h means night and repair both did not run
+  # (e.g. the Claude Pro weekly limit is used up). Telegram every 6 h (round at :01 of 0/6/12/18 UTC).
+  if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ $(( $(date +%s) % 21600 )) -lt 300 ]; then
+    when=$(curl -sSf -H "Authorization: Bearer $TOKEN" \
+      "https://api.github.com/repos/felixcashmoney-spec/Youtube-Automation/commits?sha=claude/ytauto-data&path=leitstand/data.json&per_page=1" \
+      | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['commit']['committer']['date'])" 2>/dev/null)
+    age=$(( ($(date +%s) - $(date -d "${when:-1970-01-01}" +%s)) / 3600 ))
+    if [ "$age" -ge 28 ]; then
+      curl -sS -o /dev/null -w "Telegram: %{http_code}\n" "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+        --data-urlencode "chat_id=$TELEGRAM_CHAT_ID" \
+        --data-urlencode "text=Strange Knowns: seit $age Stunden kein neuer Stand. Nachtlauf und Reparatur sind nicht gelaufen (Claude-Wochenlimit? geplante Aufgaben aus?). Dashboard: https://felixcashmoney-spec.github.io/leitstand/" || true
+    fi
+  fi
   # the page itself: web/leitstand/index.html on the private repo's main (CI there checks its script)
   url="https://api.github.com/repos/felixcashmoney-spec/Youtube-Automation/contents/web/leitstand/index.html?ref=main"
   tmp="$(mktemp)"

@@ -34,6 +34,8 @@ jobs:
           TOKEN: ${{ secrets.LEITSTAND_READ_TOKEN }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           GH_TOKEN: ${{ github.token }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           end=$(( $(date +%s) + 345 * 60 ))
           while :; do
