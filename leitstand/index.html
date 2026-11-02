@@ -887,9 +887,14 @@ details.yppmore .grid4 { margin-top: 8px; }
     try {
       const r = await fetch(`https://api.github.com/repos/${LIVE_REPO}/commits/live`, { headers: { Accept: "application/vnd.github.sha" }, cache: "no-store" });
       if (r.ok) return `https://raw.githubusercontent.com/${LIVE_REPO}/${(await r.text()).trim()}/leitstand/`;
-    } catch (_) { /* the copies next to the page */ }
+    } catch (_) { /* the branch itself */ }
+    // Handy (Felix 02.11.): on mobile data many phones share one IP, so the 60 API calls an hour are
+    // often gone. Then the branch itself (raw cache at most 5 min.) instead of the hourly copies on main;
+    // those only when raw does not answer either.
+    try { if ((await fetch(LIVE_BRANCH + "live.json", { cache: "no-store" })).ok) return LIVE_BRANCH; } catch (_) { /* offline */ }
     return "";
   }
+  const LIVE_BRANCH = `https://raw.githubusercontent.com/${LIVE_REPO}/live/leitstand/`;
   const fileUrl = (base, name) => base ? base + name : name + "?t=" + Date.now();
   // Public YouTube numbers and their history (not sealed).
   async function getJson(url) {
@@ -900,7 +905,7 @@ details.yppmore .grid4 { margin-top: 8px; }
 
   async function loadFiles(force) {
     const base = await liveBase();
-    if (!force && base && base === state.base && state.data) { render(); return; }     // nothing new since the last check
+    if (!force && base && base !== LIVE_BRANCH && base === state.base && state.data) { render(); return; }     // nothing new since the last check
     state.base = base;
     loadLive(base).then(render);
     const key = currentKey();
@@ -2130,6 +2135,24 @@ details.yppmore .grid4 { margin-top: 8px; }
   const refresh = () => { if (document.visibilityState === "visible" && Date.now() - fetched > 60000) { fetched = Date.now(); loadFiles(); } };
   setInterval(() => { if (Date.now() - fetched > 180000) refresh(); }, 30000);
   document.addEventListener("visibilitychange", refresh);
+  window.addEventListener("pageshow", (e) => { if (e.persisted) refresh(); });   // iOS back from the app switcher
+  // New page version (Felix 02.11.): the home-screen app on iOS keeps the page in memory for days and
+  // never reloads it. When the page online has a different script, reload once (at most every 10 min.).
+  // ponytail: compares only the script, a change of markup or CSS alone waits for the next script change.
+  const SELF = document.currentScript.textContent;
+  async function checkPage() {
+    try {
+      const html = await (await fetch(location.pathname, { cache: "no-cache" })).text();
+      const last = Number(localStorage.getItem("leitstand-reloaded") || 0);
+      if (html.includes("</html>") && !html.includes(SELF) && Date.now() - last > 600000) {
+        localStorage.setItem("leitstand-reloaded", String(Date.now())); location.reload();
+      }
+    } catch (_) { /* offline or no storage: keep the page */ }
+  }
+  let checked = 0;
+  const pageCheck = () => { if (document.visibilityState === "visible" && Date.now() - checked > 300000) { checked = Date.now(); checkPage(); } };
+  setInterval(pageCheck, 60000);
+  document.addEventListener("visibilitychange", pageCheck);
 })();
 </script>
 </body>
