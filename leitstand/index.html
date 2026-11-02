@@ -2089,7 +2089,7 @@ details.yppmore .grid4 { margin-top: 8px; }
   }
 
   // ---------- wiring ----------
-  $("reload").addEventListener("click", () => loadFiles(true));
+  $("reload").addEventListener("click", () => location.reload());   // Felix 02.11.: also a new page version (home-screen app on iOS)
   $("g-night-btn").addEventListener("click", () => { if (allAlerts().some(a => a.area === "Nachtlauf" && a.step)) openNightAlert(); else showTab("s-incidents"); });
   $("to-plan").addEventListener("click", (e) => { e.preventDefault(); showTab("s-plan"); });
   $("r-ypp").addEventListener("click", () => { $("yppmore").open = !$("yppmore").open; });
