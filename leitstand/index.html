@@ -949,8 +949,15 @@ details.yppmore .grid4 { margin-top: 8px; }
   // ---------- Störungen (Felix 02.11.): open and fixed faults, from the data plus the page's own ----------
   function renderIncidents() {
     const d = state.data, now = new Date().toISOString();
-    // before the first run with a history: the alerts of the file count as open
-    const stored = (d && d.incidents) || ((d && d.alerts) || []).map(a => ({ ...a, worst: a.level, first: d.generated_at }));
+    // before the first run with a history: built from the file's alerts, the fixed ones as fixed,
+    // the night's problems since the night started
+    const stored = (d && d.incidents) || ((d && d.alerts) || []).map(a => {
+      const r = a.repair || {}, fixed = a.resolved || FIXED.includes(r.result);
+      const first = a.area === "Nachtlauf" && state.status && state.status.started_at ? state.status.started_at : d.generated_at;
+      return { ...a, worst: fixed && a.area === "Nachtlauf" ? "rot" : a.level, first,
+               fixed_at: fixed ? d.generated_at : undefined, pr: r.pr,
+               how: fixed ? (FIXED.includes(r.result) ? "Reparaturlauf: " + (r.text || "") : a.impact || "erledigt") : "" };
+    });
     const rows = [...pageAlerts().filter(a => a.level !== "info").map(a => ({ ...a, worst: a.level, first: now, live: true })), ...stored];
     const open = rows.filter(r => !r.fixed_at), done = rows.filter(r => r.fixed_at).sort((a, b) => b.fixed_at.localeCompare(a.fixed_at));
     $("inc-note").textContent = `${open.length} aktiv · ${done.length} behoben`;
