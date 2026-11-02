@@ -1,13 +1,19 @@
 {
- "at": "2026-11-02T15:46:01Z",
+ "at": "2026-11-02T16:41:01Z",
  "channel": {
   "subscribers": 2,
   "views": 1653,
-  "videos": 5
+  "videos": 6
  },
  "videos": {
+  "oZffcnszukw": {
+   "views": 2,
+   "likes": 0,
+   "comments": 0,
+   "published": "2026-11-02T16:00:29Z"
+  },
   "d564JyWDVc4": {
-   "views": 1119,
+   "views": 1117,
    "likes": 18,
    "comments": 0,
    "published": "2026-11-01T16:00:15Z"
