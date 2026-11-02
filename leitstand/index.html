@@ -394,6 +394,14 @@ details.changes ul { margin: 6px 0 0; padding-left: 18px; font-size: .8rem; disp
 .tbl td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 .tbl td.n, .tbl th.n { text-align: right; }
 
+/* Störungen (Felix 02.11.): open ones first, the fixed ones with when and how */
+.inc td.lv { width: 10px; padding-right: 0; } .inc td.lv i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--warn-mark); margin-top: 5px; }
+.inc td.lv i.rot { background: var(--bad-mark); }
+.inc .what b { font-weight: 500; display: block; overflow-wrap: anywhere; } .inc .what span { font-size: .76rem; color: var(--muted); display: block; overflow-wrap: anywhere; }
+.inc td.when { white-space: nowrap; color: var(--muted); font-size: .78rem; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.inc td.how { font-size: .8rem; color: var(--muted); overflow-wrap: anywhere; } .inc td.how a { color: var(--accent-ink); }
+.inc tr.open td.what b { color: var(--ink); } .inc tr.done { opacity: .78; }
+@media (max-width: 700px) { .inc thead { display: none; } .inc tr { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 2px 8px; padding: 8px 0; border-bottom: 1px solid var(--line); } .inc td { border: 0; padding: 0; } .inc td.how, .inc td.when.fix { grid-column: 2 / -1; } .inc tr.done td.fix::before { content: "behoben "; } }
 .notice { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 18px; }
 .notice form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .notice input { flex: 1 1 260px; min-width: 0; font: inherit; font-size: .9rem; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
@@ -571,6 +579,7 @@ details.yppmore .grid4 { margin-top: 8px; }
   #views-chart svg { height: 100%; }
   #s-costs.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
   #s-costs .two { min-height: 0; }
+  #s-incidents.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
   #s-costs .two > .card { overflow: auto; }
 }
 @media (prefers-reduced-motion: no-preference) { .bar > i { transition: width .5s ease; } }
@@ -602,7 +611,7 @@ details.yppmore .grid4 { margin-top: 8px; }
   </header>
 
   <nav class="jump" aria-label="Bereiche">
-    <a href="#s-overview">Übersicht</a><a href="#s-runs">Läufe</a><a href="#s-plan">Sendeplan</a><a href="#s-channel">Kanal</a><a href="#s-compare">Videovergleich</a><a href="#s-costs">Kosten</a>
+    <a href="#s-overview">Übersicht</a><a href="#s-runs">Läufe</a><a href="#s-plan">Sendeplan</a><a href="#s-channel">Kanal</a><a href="#s-compare">Videovergleich</a><a href="#s-costs">Kosten</a><a href="#s-incidents">Störungen</a>
   </nav>
 
   <div id="nodata" class="notice" hidden><div id="nodata-text"></div><form id="keyform" hidden><input id="keyin" type="text" autocomplete="off" spellcheck="false" placeholder="Link mit #k=… oder Schlüssel einfügen" aria-label="Link oder Schlüssel"><button type="submit">Öffnen</button></form></div>
@@ -770,6 +779,18 @@ details.yppmore .grid4 { margin-top: 8px; }
     </div>
   </section>
 
+  <!-- ===================== Störungen ===================== -->
+  <section class="area" id="s-incidents" aria-labelledby="h-incidents">
+    <div class="title"><h2 id="h-incidents">Störungen</h2><span class="muted small" id="inc-note"></span></div>
+    <div class="cmpbar">
+      <div class="seg" id="inc-show" role="group" aria-label="Zeigen"><button type="button" data-s="open" aria-pressed="false">Aktiv</button><button type="button" data-s="done" aria-pressed="false">Behoben</button><button type="button" data-s="all" aria-pressed="true">Alle</button></div>
+    </div>
+    <div class="card block pane">
+      <div class="head"><h3>Verlauf</h3><span class="muted small">aktive oben · behoben = vom Reparaturlauf repariert, anders erledigt oder beim nächsten Lauf nicht mehr da · 60 Tage</span></div>
+      <div class="tbl scroll"><table class="inc"><thead><tr><th></th><th>Störung</th><th>Seit</th><th>Behoben</th><th>Womit</th></tr></thead><tbody id="inc"></tbody></table></div>
+    </div>
+  </section>
+
   <footer>
     <details><summary>Woher die Daten kommen · <span id="foot-gen"></span></summary>
       <div>Live: YouTube-Abonnenten, -Aufrufe und -Likes (alle 5 Minuten von YouTube, die Seite fragt alle 3 Minuten nach; Verlauf stündlich). Alles andere ist der Stand nach dem letzten Nacht- oder Reparaturlauf.</div>
@@ -925,6 +946,31 @@ details.yppmore .grid4 { margin-top: 8px; }
     return out;
   }
 
+  // ---------- Störungen (Felix 02.11.): open and fixed faults, from the data plus the page's own ----------
+  function renderIncidents() {
+    const d = state.data, now = new Date().toISOString();
+    // before the first run with a history: the alerts of the file count as open
+    const stored = (d && d.incidents) || ((d && d.alerts) || []).map(a => ({ ...a, worst: a.level, first: d.generated_at }));
+    const rows = [...pageAlerts().filter(a => a.level !== "info").map(a => ({ ...a, worst: a.level, first: now, live: true })), ...stored];
+    const open = rows.filter(r => !r.fixed_at), done = rows.filter(r => r.fixed_at).sort((a, b) => b.fixed_at.localeCompare(a.fixed_at));
+    $("inc-note").textContent = `${open.length} aktiv · ${done.length} behoben`;
+    const show = state.incShow || "all", list = show === "open" ? open : show === "done" ? done : [...open, ...done];
+    const tb = $("inc"); tb.replaceChildren();
+    if (!list.length) { const tr = el("tr"), td = el("td", "muted", show === "done" ? "Noch keine behobene Störung gespeichert." : "Keine aktive Störung."); td.colSpan = 5; tr.append(td); tb.append(tr); return; }
+    for (const r of list) {
+      const tr = el("tr", r.fixed_at ? "done" : "open"), lv = el("td", "lv"), dot = el("i", r.worst === "rot" ? "rot" : "");
+      dot.title = r.worst === "rot" ? "rot: kaputt" : "gelb: im Blick behalten"; lv.append(dot);
+      const what = el("td", "what"); what.append(el("b", null, `${r.area}: ${r.text}`));
+      const sub = [r.detail, r.times > 1 ? `${r.times}× aufgetreten` : "", r.live ? "live von der Seite berechnet" : ""].filter(Boolean).join(" · ");
+      if (sub) what.append(el("span", null, sub));
+      const fix = el("td", "when fix"); if (r.fixed_at) fix.textContent = fmtTime(r.fixed_at); else fix.append(el("span", "ask-tag", "aktiv"));
+      const how = el("td", "how", r.how || "");
+      if (r.pr) { const a = el("a", null, ` PR #${r.pr}`); a.href = `https://github.com/felixcashmoney-spec/Youtube-Automation/pull/${r.pr}`; a.target = "_blank"; a.rel = "noopener"; how.append(a); }
+      tr.append(lv, what, el("td", "when", r.live ? "jetzt" : fmtTime(r.first)), fix, how);
+      tb.append(tr);
+    }
+  }
+
   // ---------- alerts ----------
   function pageAlerts() {
     const out = [], d = state.data, st = state.status, now = berlinParts(new Date());
@@ -945,7 +991,8 @@ details.yppmore .grid4 { margin-top: 8px; }
     return out;
   }
   function allAlerts() {
-    const fromNight = (state.data && state.data.alerts) || [];
+    // a fault that is fixed (repair run, or the week got planned anyway) leaves the list (Felix 02.11.)
+    const fromNight = ((state.data && state.data.alerts) || []).filter(a => !a.resolved && !(a.repair && FIXED.includes(a.repair.result)));
     const live = pageAlerts();
     // the file's "not from today" note is superseded by the live time check
     const merged = [...live, ...fromNight.filter(a => !(a.area === "Nachtlauf" && /^Letzter Bericht/.test(a.text) && live.some(x => x.area === "Nachtlauf")))];
@@ -1139,7 +1186,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     $("t-day").textContent = "Heute, " + fmtDay(berlinParts(new Date()).day);
     $("t-state-sub").textContent = d ? `Letzter Lauf ${fmtTime(d.generated_at)}` : "";
 
-    const parts = [renderKpis, renderLatest, renderTodo, renderFresh, () => renderTab(tsCls || "idle"), renderNightGauge, renderProduction, renderBudget, renderCredits, renderYpp, renderNextPosts, renderLive, renderTicker, renderChecks, renderGrid, renderSteps, renderRepair, renderProdSteps, renderPlan, renderViews, renderVideoRow, renderRank, renderCompare, renderMonth, renderSpend];
+    const parts = [renderKpis, renderLatest, renderTodo, renderFresh, () => renderTab(tsCls || "idle"), renderNightGauge, renderProduction, renderBudget, renderCredits, renderYpp, renderNextPosts, renderLive, renderTicker, renderChecks, renderGrid, renderSteps, renderRepair, renderProdSteps, renderPlan, renderViews, renderVideoRow, renderRank, renderCompare, renderMonth, renderSpend, renderIncidents];
     for (const f of parts) { try { f(); } catch (e) { console.error(f.name, e); } }
     $("foot-gen").textContent = (d ? `Produktion, Budget und Credits vom letzten Lauf ${fmtTime(d.generated_at)} (für den ${fmtDay(d.day)}).` : "")
       + (state.live ? ` YouTube-Zahlen live ${fmtTime(state.live.at)}: öffentliche Zahlen je Video, YouTube Studio zählt oft etwas früher.` : "");
@@ -2042,6 +2089,8 @@ details.yppmore .grid4 { margin-top: 8px; }
     $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); set(b); renderCompare(); }));
   seg("cmp-metric", b => { state.cmpMetric = b.dataset.m; state.cmpSort = { k: b.dataset.m, dir: -1 }; });
   seg("cmp-kind", b => { state.cmpKind = b.dataset.k; });
+  $("inc-show").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    $("inc-show").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); state.incShow = b.dataset.s; renderIncidents(); }));
   $("keyform").addEventListener("submit", (e) => {
     e.preventDefault();
     const k = keyFromText($("keyin").value);
