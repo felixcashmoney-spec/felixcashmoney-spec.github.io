@@ -951,8 +951,8 @@ details.yppmore .grid4 { margin-top: 8px; }
     const d = state.data, now = new Date().toISOString();
     // before the first run with a history: built from the file's alerts, the fixed ones as fixed,
     // the night's problems since the night started
-    const stored = (d && d.incidents) || ((d && d.alerts) || []).map(a => {
-      const r = a.repair || {}, fixed = a.resolved || FIXED.includes(r.result);
+    const stored = (d && d.incidents) || ((d && d.alerts) || []).map(capped).map(a => {
+      const r = a.repair || {}, fixed = isFixed(a);
       const first = a.area === "Nachtlauf" && state.status && state.status.started_at ? state.status.started_at : d.generated_at;
       return { ...a, worst: fixed && a.area === "Nachtlauf" ? "rot" : a.level, first,
                fixed_at: fixed ? d.generated_at : undefined, pr: r.pr,
@@ -997,9 +997,13 @@ details.yppmore .grid4 { margin-top: 8px; }
       out.push({ level: "rot", area: "Veröffentlichung", text: `${x.platform === "tiktok" ? "TikTok" : "YouTube"}-${x.kind === "long" ? "Video" : "Short"} vom ${fmtDay(x.day)} ${x.time} ${x.why}: ${x.title}`, impact: x.why === "nicht hochgeladen" ? "Der nächste Nachtlauf holt verpasste Termine der letzten 7 Tage nach (neuer Termin)." : "Steht in YouTube Studio noch auf privat oder wurde entfernt: dort prüfen." });
     return out;
   }
+  const isFixed = (a) => a.resolved || (a.repair && FIXED.includes(a.repair.result));
+  // the day's Claude cap is the budget guard at work, not a fault (same rule as dashboard.alerts; data
+  // built before 02.11. still has it red)
+  const capped = (a) => a.level === "rot" && /Tagesdeckel/.test(a.text) ? { ...a, level: "gelb" } : a;
   function allAlerts() {
     // a fault that is fixed (repair run, or the week got planned anyway) leaves the list (Felix 02.11.)
-    const fromNight = ((state.data && state.data.alerts) || []).filter(a => !a.resolved && !(a.repair && FIXED.includes(a.repair.result)));
+    const fromNight = ((state.data && state.data.alerts) || []).filter(a => !isFixed(a)).map(capped);
     const live = pageAlerts();
     // the file's "not from today" note is superseded by the live time check
     const merged = [...live, ...fromNight.filter(a => !(a.area === "Nachtlauf" && /^Letzter Bericht/.test(a.text) && live.some(x => x.area === "Nachtlauf")))];
@@ -1334,11 +1338,11 @@ details.yppmore .grid4 { margin-top: 8px; }
       const failed = (st.steps || []).filter(s => s.exit !== 0 && s.exit !== 3).length;
       const finished = (st.steps || []).some(s => s.name === "Budget");
       const night = ((state.data && state.data.alerts) || []).filter(a => a.area === "Nachtlauf" && a.step);
-      const open = night.filter(a => !a.resolved).length;
-      $("g-night").textContent = `Letzte Nacht: ` + (failed ? `${failed} Schritt${failed > 1 ? "e" : ""} fehlgeschlagen` : finished ? "ohne Fehler" : "unvollständig");
-      $("g-night").style.color = failed ? (night.length && !open ? "var(--warn)" : "var(--bad)") : finished ? "var(--ok)" : "var(--warn)";
+      const open = night.filter(a => !isFixed(a)).length, fixed = failed && night.length && !open;
+      $("g-night").textContent = `Letzte Nacht: ` + (fixed ? `${failed} Fehler, behoben` : failed ? `${failed} Schritt${failed > 1 ? "e" : ""} fehlgeschlagen` : finished ? "ohne Fehler" : "unvollständig");
+      $("g-night").style.color = fixed ? "var(--ok)" : failed ? "var(--bad)" : finished ? "var(--ok)" : "var(--warn)";
       $("g-night-hint").hidden = !failed;
-      $("g-night-hint").textContent = night.length && !open ? " · erledigt ▸" : " · Details ▸";
+      $("g-night-hint").textContent = fixed ? " · Störungen ▸" : " · Details ▸";
       $("g-night-btn").title = night.length && !open ? "Inzwischen erledigt, hält nichts auf. Details ansehen" : "Was ist passiert und wie schlimm? Antippen";
       $("g-night-sub").textContent = `Nacht vom ${fmtDay(st.day)}` + (st.started_at ? `, ${fmtTime(st.started_at)} bis ${st.finished_at ? fmtTime(st.finished_at).slice(-5) : "?"}` : "") + `, ${(st.steps || []).length} Schritte`;
     }
@@ -2081,7 +2085,7 @@ details.yppmore .grid4 { margin-top: 8px; }
 
   // ---------- wiring ----------
   $("reload").addEventListener("click", () => loadFiles(true));
-  $("g-night-btn").addEventListener("click", openNightAlert);
+  $("g-night-btn").addEventListener("click", () => { if (allAlerts().some(a => a.area === "Nachtlauf" && a.step)) openNightAlert(); else showTab("s-incidents"); });
   $("to-plan").addEventListener("click", (e) => { e.preventDefault(); showTab("s-plan"); });
   $("r-ypp").addEventListener("click", () => { $("yppmore").open = !$("yppmore").open; });
   setInterval(tick, 1000);
