@@ -689,7 +689,7 @@ details.yppmore .grid4 { margin-top: 8px; }
         <pre class="log scroll" id="log" hidden></pre>
       </div>
       <div class="block pane" id="p-repair">
-        <div class="head"><h3>Reparatur am Morgen</h3><span class="muted small">täglich 6:00 Uhr</span></div>
+        <div class="head"><h3>Reparatur am Morgen</h3><span class="muted small" id="repair-when">—</span></div>
         <div class="card repair scroll" id="repair"><span class="muted">—</span></div>
       </div>
     </div>
@@ -807,10 +807,15 @@ details.yppmore .grid4 { margin-top: 8px; }
   // Nur hier ändern, zusammen mit der Aufgabe. Die Fristen hängen am Start: ohne Bericht von heute 4 h danach
   // gilt die Nacht als ausgefallen, ohne Abschluss 5,5 h danach als nicht fertig.
   const NIGHT_START = "01:30";
-  const REPAIR_AT = "06:00";      // Start der „Strange Knowns Reparatur“ (Berlin, seit 02.11.; vorher 06:43)
   const toHm = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
   const fromHm = (n) => `${String(Math.floor(n / 60)).padStart(2, "0")}:${String(n % 60).padStart(2, "0")}`;
   const NIGHT_RUN = toHm(NIGHT_START), NIGHT_REPORT_BY = NIGHT_RUN + 4 * 60, NIGHT_DONE_BY = NIGHT_RUN + 5.5 * 60;
+  // Reparatur: Start der geplanten Aufgabe „Strange Knowns Reparatur“ (CRON_TZ=Europe/Berlin 0 6 * * *, seit 02.11.;
+  // vorher 06:43). Nur hier ändern. Die Frist hängt am Start: bis zu 90 Min. wartet sie auf einen noch laufenden
+  // Nachtlauf (repair start --wait 90), dazu 30 Min. Arbeit. Ohne Lauf von heute bis dahin gilt sie als ausgefallen,
+  // ohne Abschluss als nicht fertig (bei 06:00: 08:00 wie bisher). Ihr Stand erscheint erst mit repair finish.
+  const REPAIR_AT = "06:00";
+  const REPAIR_RUN = toHm(REPAIR_AT), REPAIR_DONE_BY = REPAIR_RUN + 90 + 30;
   const WD = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
   const STAGES = [
     ["Recherche", ["research"]], ["Auswahl", ["pick", "reject"]], ["Skript", ["script"]],
@@ -1556,8 +1561,10 @@ details.yppmore .grid4 { margin-top: 8px; }
     const firstRep = Object.keys(repByDay).sort()[0] || today;
     const repBeats = []; for (let k = 13; k >= 0; k--) { const day = dayShift(today, -k), r = repByDay[day]; if (day < firstRep) continue; repBeats.push([r ? (r.finished_at ? "ok" : "warn") : "", `${fmtDay(day)}: ` + (r ? (r.finished_at ? "gelaufen" : "nicht abgeschlossen") : "kein Lauf bekannt")]); }
     const rt = repByDay[today];
-    if (!reps.length) rows.push({ name: "Reparatur am Morgen", plan: `täglich ${REPAIR_AT}, fertig bis 08:00`, s: "none", t: "Noch kein Lauf bekannt", beats: null, last: null });
-    else rows.push({ name: "Reparatur am Morgen", plan: `täglich ${REPAIR_AT}, fertig bis 08:00`, s: rt ? (rt.finished_at ? "ok" : now.hm > 8 * 60 ? "bad" : "warn") : now.hm > 8 * 60 ? "bad" : "none", t: rt ? (rt.finished_at ? "Pünktlich" : now.hm > 8 * 60 ? "Nicht fertig" : "Läuft") : now.hm > 8 * 60 ? "Ausgefallen" : `Wartet auf ${REPAIR_AT}`, beats: repBeats, last: rt ? (rt.finished_at || rt.started_at) : (reps[0] && (reps[0].finished_at || reps[0].started_at)) });
+    const repLate = now.hm > REPAIR_DONE_BY, repPlan = `täglich ${REPAIR_AT}, fertig bis ${fromHm(REPAIR_DONE_BY)}`;
+    const repWait = now.hm < REPAIR_RUN ? `Wartet auf ${REPAIR_AT}` : `Seit ${REPAIR_AT} fällig, noch kein Stand`;
+    if (!reps.length) rows.push({ name: "Reparatur am Morgen", plan: repPlan, s: "none", t: "Noch kein Lauf bekannt", beats: null, last: null });
+    else rows.push({ name: "Reparatur am Morgen", plan: repPlan, s: rt ? (rt.finished_at ? "ok" : repLate ? "bad" : "warn") : repLate ? "bad" : "none", t: rt ? (rt.finished_at ? "Pünktlich" : repLate ? "Nicht fertig" : "Läuft") : repLate ? "Ausgefallen" : repWait, beats: repBeats, last: rt ? (rt.finished_at || rt.started_at) : (reps[0] && (reps[0].finished_at || reps[0].started_at)) });
     // sealed data of the night on this page
     const gen = d && d.generated_at, gh = gen ? hoursSince(gen) : null;
     rows.push({ name: "Daten fürs Dashboard", plan: "nach jedem Nacht- und Reparaturlauf, spätestens alle 28 h", s: gh == null ? "none" : gh < 28 ? "ok" : gh < 36 ? "warn" : "bad", t: gh == null ? "Keine Daten" : gh < 28 ? "Pünktlich" : gh < 36 ? "Spät" : "Ausgefallen", beats: null, last: gen });
@@ -1895,6 +1902,7 @@ details.yppmore .grid4 { margin-top: 8px; }
 
   function renderRepair() {
     const box = $("repair"), runs = (state.data && state.data.repair) || [];
+    $("repair-when").textContent = `täglich ${REPAIR_AT} Uhr`;
     box.replaceChildren();
     if (!runs.length) { box.append(el("span", "muted", `Noch kein Reparaturlauf. Er startet jeden Morgen um ${REPAIR_AT} Uhr, behebt Code-Fehler der Nacht selbst und meldet Logins, Budget und Konten an dich.`)); return; }
     for (const r of runs.slice(0, 3)) {
