@@ -456,6 +456,12 @@ details.morealerts .alerts { padding: 0 8px 8px; }
 .flow .link.done { background: var(--accent); }
 .flow .link.go { background: linear-gradient(90deg, var(--accent), var(--line)); }
 .flow .link.go::after { content: ""; position: absolute; top: -1px; left: 0; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.roadmap { display: grid; gap: 8px; }
+.roadmap .rm { display: grid; gap: 3px; font-size: .8rem; border-top: 1px solid var(--line); padding-top: 8px; }
+.roadmap .rm b { font-weight: 600; }
+.roadmap .rm .path { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: baseline; color: var(--muted); }
+.roadmap .rm .path span.now { color: var(--ink); font-weight: 600; }
+.roadmap .rm .path i { font-style: normal; color: var(--muted); }
 .flowcause { font-size: .8rem; color: var(--bad); background: var(--bad-soft); border-radius: 5px; padding: 4px 8px; overflow-wrap: anywhere; }
 @media (max-width: 520px) { .flow .node { width: 48px; } .flow .node span { font-size: .64rem; } }
 
@@ -641,6 +647,7 @@ details.yppmore .grid4 { margin-top: 8px; }
         <div class="flow" id="flow" aria-label="Schritte der Produktion"></div>
         <div class="small"><b id="g-prod">—</b> <span class="muted" id="g-prod-sub"></span></div>
         <div class="flowcause" id="flow-cause" hidden></div>
+        <div class="roadmap" id="roadmap" aria-label="Fahrplan je Video"></div>
       </div>
       <div class="card rise" id="o-posts" style="--i:6">
         <div class="head"><h3>Nächste Posts</h3><a href="#s-plan" class="small" id="to-plan">Sendeplan</a></div>
@@ -1399,10 +1406,28 @@ details.yppmore .grid4 { margin-top: 8px; }
       if (n.step === "stop" && i === 0) cls = "stop";
       ol.append(el("li", cls, name));
     });
+    renderRoadmap();
     $("flow-week").textContent = `Woche ab ${fmtDay(d.week.monday)}`;
     $("flow-why").textContent = n.why || "";
     const ideas = d.ideas || {};
     $("ideas").textContent = `Ideen für Langvideos: ${ideas.new || 0} offen, ${ideas.approved || 0} in Arbeit, ${ideas.published || 0} veröffentlicht, ${ideas.rejected || 0} verworfen.` + (d.batches && d.batches.n ? ` ${d.batches.n} Claude-Anfragen warten auf die Batch-API.` : "");
+  }
+
+  // Welle 2 Nr. 11: per coming video "now -> next step with the time -> upload" (data: ytauto next, dashboard.roadmap)
+  function renderRoadmap() {
+    const box = $("roadmap"), list = (state.data && state.data.roadmap) || [];
+    box.replaceChildren();
+    if (!list.length) { box.hidden = true; return; }
+    box.hidden = false;
+    const when = (iso) => { const d = new Date(iso); return `${fmtDay(berlinParts(d).day)} ${fmtHour(iso)}`; };
+    for (const r of list) {
+      const row = el("div", "rm"), path = el("div", "path");
+      row.append(el("b", null, `${r.idea_id ? "#" + r.idea_id + " " : ""}${r.title || "Langvideo"}`));
+      path.append(el("span", "now", `jetzt: ${r.now.label}`));
+      if (r.next) path.append(el("i", null, "→"), el("span", null, `${r.next.label}, ${when(r.next.at)} (${r.next.via})`));
+      if (r.upload) path.append(el("i", null, "→"), el("span", null, `${r.upload.planned ? "online" : "online (geplant)"} ${fmtDay(r.upload.day)} ${r.upload.time}`));
+      row.append(path); box.append(row);
+    }
   }
 
   // U5: a ring filled to pct (0..100), coloured by state
@@ -1427,8 +1452,10 @@ details.yppmore .grid4 { margin-top: 8px; }
     setNum($("g-credits"), "credits", left, int);
     const pct = left == null ? 0 : Math.max(0, Math.min(100, left / total_ * 100));
     ring("r-credits", pct, pct < 10 ? "bad" : pct < 25 ? "warn" : "");
-    if (b) $("g-credit-sub").textContent = `von ${int(total_)} · Stufe ${b.level}`;
-    if (b) $("r-credits").title = `Abo ${int(total_)} je Monat · je Langvideo bis ${int(b.week_credits_share)}` + (b.longs ? ` · ${b.longs} Langvideo${b.longs > 1 ? "s" : ""}/Woche` : "") + ` · Stand der Nacht (${b.credits_at === "jetzt" ? "beim Schreiben gemessen" : b.credits_measured ? "gemessen" : "geschätzt"})`;
+    if (b) $("g-credit-sub").textContent = `von ${int(total_)} · Stufe ${b.level}`
+      + (b.side_credits != null ? ` · daneben ${int(b.side_credits)}` : "");      // Nr. 12: not from the pipeline
+    if (b) $("r-credits").title = `Abo ${int(total_)} je Monat · je Langvideo bis ${int(b.week_credits_share)}` + (b.longs ? ` · ${b.longs} Langvideo${b.longs > 1 ? "s" : ""}/Woche` : "") + ` · Stand der Nacht (${b.credits_at === "jetzt" ? "beim Schreiben gemessen" : b.credits_measured ? "gemessen" : "geschätzt"})`
+      + (b.side_credits != null ? ` · Nebenverbrauch seit ${b.credit_since ? fmtDay(b.credit_since) : "Zyklusbeginn"}: ${int(b.side_credits)} Credits (gemessen minus Aufträge der Pipeline ${int(b.pipeline_credits)}), gelb ab 50` : "");
   }
 
   // ---------- F8: the way to the Partner Program (numbers of the weekly report) ----------
