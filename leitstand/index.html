@@ -803,6 +803,13 @@ details.yppmore .grid4 { margin-top: 8px; }
 (function () {
   "use strict";
   const TZ = "Europe/Berlin";
+  // Nachtlauf: Start der geplanten Aufgabe „Strange Knowns Nachtlauf“ (Berlin; seit 05.11. 01:30, vorher 02:47).
+  // Nur hier ändern, zusammen mit der Aufgabe. Die Fristen hängen am Start: ohne Bericht von heute 4 h danach
+  // gilt die Nacht als ausgefallen, ohne Abschluss 5,5 h danach als nicht fertig.
+  const NIGHT_START = "01:30";
+  const toHm = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+  const fromHm = (n) => `${String(Math.floor(n / 60)).padStart(2, "0")}:${String(n % 60).padStart(2, "0")}`;
+  const NIGHT_RUN = toHm(NIGHT_START), NIGHT_REPORT_BY = NIGHT_RUN + 4 * 60, NIGHT_DONE_BY = NIGHT_RUN + 5.5 * 60;
   const WD = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
   const STAGES = [
     ["Recherche", ["research"]], ["Auswahl", ["pick", "reject"]], ["Skript", ["script"]],
@@ -830,11 +837,13 @@ details.yppmore .grid4 { margin-top: 8px; }
   const ago = (iso) => { if (!iso) return "—"; const h = hoursSince(iso); return h < 1 ? `vor ${Math.max(1, Math.round(h * 60))} Min.` : h < 48 ? `vor ${Math.round(h)} h` : `vor ${Math.round(h / 24)} Tagen`; };
   const dayShift = (day, n) => new Date(new Date(day + "T12:00:00Z").getTime() + n * 86400000).toISOString().slice(0, 10);
   const median = (xs) => { const s = [...xs].sort((a, b) => a - b), m = s.length >> 1; return s.length ? (s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2) : null; };
-  // The moment of a Berlin wall-clock time ("2026-10-31", "18:00").
+  // The moment of a Berlin wall-clock time ("2026-10-31", "18:00"). The offset is taken a second time at
+  // the result: on the change-over days the guess can lie past 01:00 UTC while the time itself does not
+  // (01:30 on 25.10. is still summer time, on 28.03. still winter time).
   function berlinAt(day, hm) {
-    const guess = new Date(`${day}T${hm}:00Z`), p = berlinParts(guess);
-    const wall = Date.UTC(+p.day.slice(0, 4), +p.day.slice(5, 7) - 1, +p.day.slice(8, 10), Math.floor(p.hm / 60), p.hm % 60);
-    return new Date(guess.getTime() - (wall - guess.getTime()));
+    const guess = new Date(`${day}T${hm}:00Z`).getTime();
+    const offset = (t) => { const p = berlinParts(new Date(t)); return Date.UTC(+p.day.slice(0, 4), +p.day.slice(5, 7) - 1, +p.day.slice(8, 10), Math.floor(p.hm / 60), p.hm % 60) - t; };
+    return new Date(guess - offset(guess - offset(guess)));
   }
   const until = (ms) => { const s = Math.max(0, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
     return h >= 24 ? `in ${Math.round(h / 24)} Tag${Math.round(h / 24) > 1 ? "en" : ""}` : h ? `in ${h} h ${m} min` : `in ${m}:${String(s % 60).padStart(2, "0")} min`; };
@@ -990,10 +999,10 @@ details.yppmore .grid4 { margin-top: 8px; }
       out.push({ level: "rot", area: "Nachtlauf", text: `Seit ${Math.round(hoursSince(d.generated_at))} Stunden kein neuer Stand. Ist der Nachtlauf gelaufen?` });
     if (st && st.day) {
       const finished = (st.steps || []).some(s => s.name === "Budget");
-      if (st.day !== now.day && now.hm > 5 * 60 + 30)
+      if (st.day !== now.day && now.hm > NIGHT_REPORT_BY)
         out.push({ level: "rot", area: "Nachtlauf", text: `Heute Nacht kein Bericht (letzter vom ${fmtDay(st.day)}).` });
       else if (st.day === now.day && !finished)
-        out.push(now.hm > 7 * 60 ? { level: "rot", area: "Nachtlauf", text: "Der Nachtlauf ist heute nicht zu Ende gelaufen (Abschluss fehlt)." }
+        out.push(now.hm > NIGHT_DONE_BY ? { level: "rot", area: "Nachtlauf", text: "Der Nachtlauf ist heute nicht zu Ende gelaufen (Abschluss fehlt)." }
                                  : { level: "info", area: "Nachtlauf", text: "Der Nachtlauf läuft gerade." });
     }
     if (state.live && state.live.at && hoursSince(state.live.at) > 1.5)
@@ -1351,9 +1360,9 @@ details.yppmore .grid4 { margin-top: 8px; }
       $("g-night-btn").title = night.length && !open ? "Inzwischen erledigt, hält nichts auf. Details ansehen" : "Was ist passiert und wie schlimm? Antippen";
       $("g-night-sub").textContent = `Nacht vom ${fmtDay(st.day)}` + (st.started_at ? `, ${fmtTime(st.started_at)} bis ${st.finished_at ? fmtTime(st.finished_at).slice(-5) : "?"}` : "") + `, ${(st.steps || []).length} Schritte`;
     }
-    const now = berlinParts(new Date()), RUN = 2 * 60 + 47;
-    const next = berlinAt(now.hm < RUN ? now.day : dayShift(now.day, 1), "02:47");
-    $("cd-night").dataset.until = next.toISOString(); $("cd-night").title = `täglich 02:47 Uhr, nächster ${fmtDay(berlinParts(next).day)}`;
+    const now = berlinParts(new Date());
+    const next = berlinAt(now.hm < NIGHT_RUN ? now.day : dayShift(now.day, 1), NIGHT_START);
+    $("cd-night").dataset.until = next.toISOString(); $("cd-night").title = `täglich ${NIGHT_START} Uhr, nächster ${fmtDay(berlinParts(next).day)}`;
   }
 
   function renderProduction() {
@@ -1532,15 +1541,15 @@ details.yppmore .grid4 { margin-top: 8px; }
     // night: one beat per night of the last 30 days
     const hist = Object.fromEntries(((d && d.history) || []).map(h => [h.day, h]));
     const firstNight = Object.keys(hist).sort()[0] || today;
-    const nightBeats = []; for (let k = 29; k >= 0; k--) { const day = dayShift(today, -k), h = hist[day]; if (day < firstNight) continue; nightBeats.push([!h ? (k === 0 && now.hm < 7 * 60 ? "" : "bad") : h.failed || (h.problems || []).length ? "warn" : h.finished ? "ok" : "bad", `${fmtDay(day)}: ` + (!h ? "kein Bericht" : `${h.steps} Schritte, ${h.failed} fehlgeschlagen`)]); }
+    const nightBeats = []; for (let k = 29; k >= 0; k--) { const day = dayShift(today, -k), h = hist[day]; if (day < firstNight) continue; nightBeats.push([!h ? (k === 0 && now.hm <= NIGHT_REPORT_BY ? "" : "bad") : h.failed || (h.problems || []).length ? "warn" : h.finished ? "ok" : "bad", `${fmtDay(day)}: ` + (!h ? "kein Bericht" : `${h.steps} Schritte, ${h.failed} fehlgeschlagen`)]); }
     let ns = "ok", nt = "Pünktlich";
     const tonight = st && st.day === today, fin = st && (st.steps || []).some(s => s.name === "Budget");
-    if (!tonight && now.hm > 5 * 60 + 30) { ns = "bad"; nt = "Ausgefallen"; }
-    else if (!tonight) { ns = "none"; nt = "Wartet auf 02:47"; }
-    else if (!fin && now.hm > 7 * 60) { ns = "bad"; nt = "Nicht fertig"; }
+    if (!tonight && now.hm > NIGHT_REPORT_BY) { ns = "bad"; nt = "Ausgefallen"; }
+    else if (!tonight) { ns = "none"; nt = now.hm < NIGHT_RUN ? `Wartet auf ${NIGHT_START}` : `Seit ${NIGHT_START} fällig, noch kein Stand`; }
+    else if (!fin && now.hm > NIGHT_DONE_BY) { ns = "bad"; nt = "Nicht fertig"; }
     else if (!fin) { ns = "warn"; nt = "Läuft"; }
     else if ((st.problems || []).length) { ns = "warn"; nt = "Fertig, mit Fehlern"; }
-    rows.push({ name: "Nachtlauf", plan: "täglich 02:47, fertig bis 07:00", s: ns, t: nt, beats: nightBeats, last: st && (st.finished_at || st.started_at) });
+    rows.push({ name: "Nachtlauf", plan: `täglich ${NIGHT_START}, fertig bis ${fromHm(NIGHT_DONE_BY)}`, s: ns, t: nt, beats: nightBeats, last: st && (st.finished_at || st.started_at) });
     // repair
     const reps = (d && d.repair) || [], repByDay = Object.fromEntries(reps.map(r => [r.day, r]));
     const firstRep = Object.keys(repByDay).sort()[0] || today;
