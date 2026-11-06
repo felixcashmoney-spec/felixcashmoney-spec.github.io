@@ -582,13 +582,18 @@ details.yppmore .grid4 { margin-top: 8px; }
   .flow:not(.board) .node.now i, .flow.board .dseg i.now { animation: active-step 1.8s cubic-bezier(.22, 1, .36, 1) infinite alternate; }
   @keyframes active-step { to { opacity: .45; } }
   .intro { animation: rise 320ms cubic-bezier(.22, 1, .36, 1) both; }
-  /* Tab change (Felix 06.11.): a swipe slides the new tab in from its side, then every tile fades
-     up from invisible one after another. Opacity and a hint of scale only, cheap on phones. */
-  section.area.enter.from-right { --dx: 32px; } section.area.enter.from-left { --dx: -32px; }
-  section.area.enter { animation: tab-in 380ms cubic-bezier(.22, 1, .36, 1) both; }
-  section.area.enter .tile-in { animation: tile-in 460ms cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--n, 0) * 50ms + 40ms); }
-  @keyframes tab-in { from { transform: translateX(var(--dx, 0)); } }
-  @keyframes tile-in { from { opacity: 0; transform: scale(.975); } }
+  /* Tab change (Felix 06.11., second round "slower, more interesting"): the tab glides in with the
+     iOS swipe curve (fast start, long settle; Flutter's fastLinearToSlowEaseIn) and comes into focus.
+     The tiles follow as a wave that starts on the side the swipe came from (a tap starts top left):
+     each one sharpens out of a blur, rises a little and settles with a slight spring. --d per tile
+     is set in animateIn from its position. */
+  section.area.enter.from-right { --dx: 56px; } section.area.enter.from-left { --dx: -56px; }
+  section.area.enter { animation: tab-in 700ms cubic-bezier(.18, 1, .04, 1) both; }
+  section.area.enter .tile-in { animation: tile-fade 720ms cubic-bezier(.25, .8, .25, 1) both, tile-rise 900ms cubic-bezier(.34, 1.36, .64, 1) both;
+    animation-delay: var(--d, 0ms); transform-origin: 50% 100%; }
+  @keyframes tab-in { from { transform: translateX(var(--dx, 0)); filter: blur(3px); } }
+  @keyframes tile-fade { from { opacity: 0; filter: blur(8px) saturate(.6); } }
+  @keyframes tile-rise { from { transform: translateY(18px) scale(.94); } }
   @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 }
 
@@ -1189,8 +1194,9 @@ details.yppmore .grid4 { margin-top: 8px; }
   }
   function showTab(id, dir) {
     if (!id || !/^s-/.test(id) || !$(id)) id = "s-overview";
-    if (!$(id).classList.contains("on")) animateIn($(id), dir);
+    const fresh = !$(id).classList.contains("on");
     document.querySelectorAll("section.area").forEach(s => s.classList.toggle("on", s.id === id));
+    if (fresh) animateIn($(id), dir);
     document.querySelectorAll("nav.jump a").forEach(a => { if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     try { localStorage.setItem(TAB_STORE, id); } catch (_) { /* private mode: starts on Übersicht */ }
     if (id === "s-plan" && !state.planAt) planToToday(false);
@@ -1200,11 +1206,16 @@ details.yppmore .grid4 { margin-top: 8px; }
   function animateIn(sec, dir) {
     sec.classList.remove("enter", "from-left", "from-right");
     const tiles = [...sec.querySelectorAll(".card, .kpi")].filter(n => !n.parentElement.closest(".card, .kpi"));
-    tiles.forEach((n, i) => { n.classList.add("tile-in"); n.style.setProperty("--n", Math.min(i, 10)); });
+    const box = sec.getBoundingClientRect(), w = Math.max(box.width, 1), h = Math.max(Math.min(box.height, window.innerHeight || 800), 1);
+    tiles.forEach(n => {
+      const r = n.getBoundingClientRect(), x = (r.left - box.left + r.width / 2) / w, y = Math.min(Math.max((r.top - box.top) / h, 0), 1.2);
+      const across = dir > 0 ? 1 - x : x;   // the wave starts where the swipe came from
+      n.classList.add("tile-in"); n.style.setProperty("--d", Math.round(120 + across * 260 + y * 320) + "ms");
+    });
     void sec.offsetWidth;   // restart the animation when the same tab comes back quickly
     sec.classList.add("enter"); if (dir) sec.classList.add(dir > 0 ? "from-right" : "from-left");
     clearTimeout(sec.enterTimer);
-    sec.enterTimer = setTimeout(() => { sec.classList.remove("enter", "from-left", "from-right"); tiles.forEach(n => n.classList.remove("tile-in")); }, 1100);
+    sec.enterTimer = setTimeout(() => { sec.classList.remove("enter", "from-left", "from-right"); tiles.forEach(n => n.classList.remove("tile-in")); }, 1800);
   }
 
   function channelGroups() {
