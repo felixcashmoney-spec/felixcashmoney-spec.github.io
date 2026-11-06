@@ -698,20 +698,29 @@ details.yppmore .grid4 { margin-top: 8px; }
   .seg button, .tabs button, .tlnav button, #reload, #keyform button { min-height: 44px; }
   .daycol { flex-basis: calc(100vw - 64px); }
 }
-/* Phone (Felix 06.11.): the tabs sit at the bottom like an app's tab bar, icon above the name,
-   translucent over the content. Tablets keep the sticky bar at the top (block above). */
+/* Phone (Felix 06.11.): an app tab bar at the bottom like Instagram/TikTok: edge to edge, solid,
+   a hairline on top, icons only (the names stay for screen readers, font-size 0), the active icon
+   in the accent color with a heavier stroke and a small pop. Tablets keep the sticky bar on top. */
 @media (max-width: 700px) {
   .sidebar { position: static; padding-bottom: 20px; }
   .sidebar.stuck { box-shadow: none; border-radius: 6px; }
-  .wrap { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
-  nav.jump, .sidebar.stuck nav.jump { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; gap: 2px; margin: 0;
-    padding: 6px max(8px, env(safe-area-inset-left, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
-    background: color-mix(in srgb, var(--side) 86%, transparent); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
-    border-top: 1px solid var(--line); scrollbar-width: none; }
-  nav.jump::-webkit-scrollbar { display: none; }
-  nav.jump a { flex: 1 0 auto; min-width: 68px; min-height: 52px; flex-direction: column; justify-content: center; gap: 3px; padding: 6px 8px; font-size: 11px; border-radius: 10px; }
-  nav.jump svg { display: block; width: 22px; height: 22px; }
-  nav.jump a[aria-current="page"] { box-shadow: none; }
+  .wrap { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  nav.jump, .sidebar.stuck nav.jump { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; margin: 0; gap: 0; overflow: visible;
+    display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+    padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    background: var(--side); border-top: .5px solid var(--line); border-radius: 0; }
+  nav.jump a { min-height: 52px; padding: 0; justify-content: center; font-size: 0; color: var(--muted); border-radius: 0; }
+  nav.jump a:hover { background: none; }
+  nav.jump svg { display: block; width: 26px; height: 26px; stroke-width: 1.6; }
+  nav.jump a[aria-current="page"] { color: var(--accent); background: none; box-shadow: none; }
+  nav.jump a[aria-current="page"] svg { stroke-width: 2.3; }
+  nav.jump a:focus-visible { outline-offset: -6px; border-radius: 10px; }
+}
+@media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
+  nav.jump a svg { transition: transform 260ms cubic-bezier(.3, 1.6, .5, 1); }
+  nav.jump a:active svg { transform: scale(.86); }
+  nav.jump a[aria-current="page"] svg { animation: tab-pop 420ms cubic-bezier(.3, 1.6, .5, 1); }
+  @keyframes tab-pop { 40% { transform: scale(1.18); } }
 }
 </style>
 </head>
