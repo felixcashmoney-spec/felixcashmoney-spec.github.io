@@ -463,6 +463,79 @@ details.morealerts .alerts { padding: 0 8px 8px; }
 .roadmap .rm .path span.now { color: var(--ink); font-weight: 600; }
 .roadmap .rm .path i { font-style: normal; color: var(--muted); }
 .flowcause { font-size: .8rem; color: var(--bad); background: var(--bad-soft); border-radius: 5px; padding: 4px 8px; overflow-wrap: anywhere; }
+/* Phase 5 (05.11.): the whole flow from dashboard.flow (events.py): every step of the night, media side by
+   side, repeats, data age. Same look as the six-node chain; more states, wraps on narrow screens. */
+.flow.full { flex-wrap: wrap; row-gap: 10px; }
+.flow.full .node { flex: 0 1 58px; position: relative; }
+.flow.full .link { flex: 1 1 6px; max-width: 36px; }
+.flow .node.fail i { background: var(--bad-mark); border-color: var(--bad-mark); color: #fff; }
+.flow .node.fail span { color: var(--bad); font-weight: 600; }
+.flow .node.wait i { border-color: var(--warn-mark); color: var(--warn); border-style: dashed; }
+.flow .node.wait span { color: var(--warn); }
+.flow .node.last i { border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 0 0 3px var(--accent-soft); }
+.flow .node.blocked i, .flow .node.unknown i { border-style: dashed; color: var(--faint); }
+.flow .node.blocked span, .flow .node.unknown span { color: var(--faint); }
+.flow .node.earlier i { background: var(--line); border-color: var(--line); color: var(--muted); }
+.flow .node .rep { position: absolute; top: -6px; right: 4px; font-size: .6rem; font-weight: 600; background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 0 5px; font-style: normal; }
+.flow .node .kids { display: grid; gap: 2px; width: 100%; }
+.flow .node .kids b { font-size: .62rem; font-weight: 500; border-radius: 4px; padding: 1px 4px; background: var(--accent-soft); color: var(--accent-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.flow .node .kids b.ok { background: var(--ok-soft); color: var(--ok); } .flow .node .kids b.bad { background: var(--bad-soft); color: var(--bad); }
+.flow .node .kids b.wait { background: var(--warn-soft); color: var(--warn); } .flow .node .kids b.none { background: var(--bg); color: var(--faint); }
+.flowstamp { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; font-size: .72rem; color: var(--muted); }
+.flowstamp .pill { font-size: .68rem; padding: 1px 7px; }
+/* Entwurf D "Nachtflugtafel" (06.11.): the production card as a departure board */
+.flow.board { display: grid; gap: 12px; padding-top: 0; }
+.flow.board .dhero { display: grid; gap: 8px; }
+.flow.board .dprog { display: flex; gap: 12px; align-items: center; }
+.flow.board .dnum { font-size: clamp(2.6rem, 7vw, 3.6rem); font-weight: 800; letter-spacing: -.07em; line-height: 1; font-variant-numeric: tabular-nums; }
+.flow.board .dnum small { font-size: 1.1rem; letter-spacing: -.04em; color: var(--muted); }
+.flow.board .dprog p { margin: 0; font-weight: 600; }
+.flow.board .dseg { display: flex; gap: 3px; align-items: center; }
+.flow.board .dseg i { flex: 1 1 0; height: 12px; border: 1px solid var(--faint); border-radius: 3px; }
+.flow.board .dseg i.gend { margin-right: 6px; }
+.flow.board .dseg i.done { background: var(--ok-mark, var(--ok)); border-color: var(--ok-mark, var(--ok)); }
+.flow.board .dseg i.earlier { background: repeating-linear-gradient(135deg, var(--ok) 0 2px, var(--panel) 2px 5px); border-color: var(--ok); }
+.flow.board .dseg i.now { height: 18px; border-radius: 50% 50% 3px 3px; background: var(--accent); border-color: var(--accent); }
+.flow.board .dseg i.last { background: var(--accent-soft); border-color: var(--accent); }
+.flow.board .dseg i.wait { background: var(--warn-soft); border: 2px dashed var(--warn-mark, var(--warn)); }
+.flow.board .dseg i.fail { background: var(--bad-mark, var(--bad)); border-color: var(--bad-mark, var(--bad)); clip-path: polygon(0 0, 100% 0, 100% 65%, 65% 65%, 65% 100%, 0 100%); }
+.flow.board .dseg i.blocked, .flow.board .dseg i.unknown { border-style: dashed; }
+.flow.board .dsignal { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 2px; background: var(--bad-soft); border-left: 4px solid var(--bad-mark, var(--bad)); border-radius: 4px 10px 10px 4px; padding: 10px 12px; color: var(--bad); }
+.flow.board .dsignal small { font-family: var(--font-data); font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; }
+.flow.board .dsignal b { font-size: 1.05rem; letter-spacing: -.02em; }
+.flow.board .dsignal span { font-size: .78rem; }
+.flow.board .dsignal:focus-visible, .flow.board summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.flow.board .dgroups { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 4px 14px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.flow.board .dghead { list-style: none; cursor: pointer; display: flex; gap: 6px; font-size: .74rem; font-weight: 600; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+.flow.board .dghead::-webkit-details-marker, .flow.board .node summary::-webkit-details-marker { display: none; }
+.flow.board .dghead b { margin-left: auto; font-family: var(--font-data); font-size: .68rem; color: var(--muted); font-weight: 500; }
+.flow.board .node { display: block; justify-items: stretch; gap: 0; width: auto; flex: none; text-align: left; position: static; border-bottom: 1px solid var(--line); }
+.flow.board .node summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 20px minmax(0, 1fr); column-gap: 6px; align-items: center; padding: 7px 0; }
+.flow.board .node summary small { grid-column: 2; font-size: .66rem; color: var(--muted); overflow-wrap: anywhere; }
+.flow.board .node .lbl { font-size: .78rem; font-weight: 600; color: var(--ink); max-width: none; white-space: normal; }
+.flow.board .node i { position: relative; width: 18px; height: 18px; border-width: 1px; font-size: .62rem; grid-row: span 2; }
+.flow.board .node.done i { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.flow.board .node.earlier i { background: transparent; border: 1px dashed var(--ok); color: var(--ok); }
+.flow.board .node.now i { background: var(--accent); border-color: var(--accent); color: #fff; }
+.flow.board .node.wait i, .flow.board .node.fail i { border-radius: 4px; }
+.flow.board .node.fail i { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.flow.board .node.fail .lbl { color: var(--bad); }
+.flow.board .node.blocked .lbl, .flow.board .node.unknown .lbl { color: var(--muted); }
+.flow.board .node .rep { top: -10px; right: auto; left: -8px; }
+.flow.board .dbody { font-size: .74rem; padding: 0 0 8px 26px; overflow-wrap: anywhere; display: grid; gap: 3px; }
+.flow.board .dbody p { margin: 0; } .flow.board .dbody p.bad { color: var(--bad); }
+.flow.board .dbody dl { display: grid; grid-template-columns: 1fr auto; gap: 1px 8px; margin: 0; }
+.flow.board .dbody dt { color: var(--muted); } .flow.board .dbody dd { margin: 0; font-family: var(--font-data); }
+.flow.board .node .kids { width: auto; }
+@media (max-width: 520px) { .flow.board .node { width: auto; } .flow.board .node .lbl { font-size: .8rem; } .flow.board .dbody { padding-left: 0; } }
+.errcard { display: grid; gap: 4px; font-size: .8rem; border: 1px solid color-mix(in srgb, var(--bad) 30%, var(--line)); border-radius: 6px; padding: 8px 10px; background: var(--panel); }
+.errcard b.title { color: var(--bad); }
+.errcard dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 10px; margin: 0; }
+.errcard dt { color: var(--muted); } .errcard dd { margin: 0; overflow-wrap: anywhere; }
+.errcard code { font-family: var(--font-data); font-size: .72rem; background: var(--bg); border-radius: 4px; padding: 1px 4px; }
+.errcard .tag { display: inline-block; font-size: .68rem; border-radius: 4px; padding: 0 6px; background: var(--warn-soft); color: var(--warn); }
+.errcard .tag.ok { background: var(--ok-soft); color: var(--ok); } .errcard .tag.off { background: var(--bg); color: var(--muted); }
+.psteps .try { font-size: .66rem; font-weight: 600; border-radius: 8px; padding: 0 5px; background: var(--warn-soft); color: var(--warn); }
 @media (max-width: 520px) { .flow .node { width: 48px; } .flow .node span { font-size: .64rem; } }
 
 /* U2: next posts */
@@ -644,9 +717,11 @@ details.yppmore .grid4 { margin-top: 8px; }
     <div class="ovgrid">
       <div class="card rise" id="o-flow" style="--i:5">
         <div class="head"><h3>Produktion</h3><span class="fresh" data-fresh="run"></span></div>
+        <div class="flowstamp" id="flow-stamp" hidden></div>
         <div class="flow" id="flow" aria-label="Schritte der Produktion"></div>
         <div class="small"><b id="g-prod">—</b> <span class="muted" id="g-prod-sub"></span></div>
         <div class="flowcause" id="flow-cause" hidden></div>
+        <div class="errcard" id="flow-err" tabindex="-1" hidden></div>
         <div class="roadmap" id="roadmap" aria-label="Fahrplan je Video"></div>
       </div>
       <div class="card rise" id="o-posts" style="--i:6">
@@ -1385,18 +1460,22 @@ details.yppmore .grid4 { margin-top: 8px; }
     $("g-prod").textContent = label;
     $("g-prod").style.color = n.step === "stop" ? "var(--bad)" : n.step === "done" ? "var(--ok)" : "";
     $("g-prod-sub").textContent = (n.idea_title ? `#${n.idea_id} ${n.idea_title}. ` : "") + `Woche ab ${fmtDay(d.week.monday)}: ${d.week.planned ? "eingeplant" : "noch offen"}.`;
-    // U4: the week's video as a chain of six nodes, the current one pulses, a dot travels into it
-    const FLOW = [["Recherche", ["research", "pick", "reject"]], ["Skript", ["script", "spinoffs"]], ["Storyboard", ["storyboard", "media_plan"]],
-      ["Medien", ["media", "thumbs_plan", "thumbs_make"]], ["Schnitt", ["render", "review"]], ["Einplanen", ["publish", "done"]]];
-    const fl = $("flow"); fl.replaceChildren();
+    const fl = $("flow"); fl.replaceChildren(); fl.classList.remove("full", "board");
     const stopped = n.step === "stop" || n.step === "reject", done = n.step === "done";
-    let pos = FLOW.findIndex(f => f[1].includes(n.step)); if (n.step === "stop") pos = 0;
-    FLOW.forEach(([name], i) => {
-      if (i) fl.append(el("i", "link" + (done || i < pos ? " done" : i === pos && !stopped ? " go" : "")));
-      const cls = done || (pos >= 0 && i < pos) ? "done" : i === pos ? (stopped ? "stop" : "now") : "";
-      const nd = el("div", "node " + cls), dot = el("i", null, cls === "done" ? "✓" : cls === "stop" ? "!" : String(i + 1));
-      nd.append(dot, el("span", null, name)); fl.append(nd);
-    });
+    if (d.flow && (d.flow.nodes || []).length) renderFlow(d.flow);
+    else {
+      // U4 (data before Phase 5): the week's video as a chain of six nodes, the current one pulses
+      const FLOW = [["Recherche", ["research", "pick", "reject"]], ["Skript", ["script", "spinoffs"]], ["Storyboard", ["storyboard", "media_plan"]],
+        ["Medien", ["media", "thumbs_plan", "thumbs_make"]], ["Schnitt", ["render", "review"]], ["Einplanen", ["publish", "done"]]];
+      let pos = FLOW.findIndex(f => f[1].includes(n.step)); if (n.step === "stop") pos = 0;
+      FLOW.forEach(([name], i) => {
+        if (i) fl.append(el("i", "link" + (done || i < pos ? " done" : i === pos && !stopped ? " go" : "")));
+        const cls = done || (pos >= 0 && i < pos) ? "done" : i === pos ? (stopped ? "stop" : "now") : "";
+        const nd = el("div", "node " + cls), dot = el("i", null, cls === "done" ? "✓" : cls === "stop" ? "!" : String(i + 1));
+        nd.append(dot, el("span", null, name)); fl.append(nd);
+      });
+      $("flow-stamp").hidden = true; $("flow-err").hidden = true;
+    }
     $("flow-cause").hidden = !stopped || !n.why; $("flow-cause").textContent = n.why || "";
     const ol = $("stages"); ol.replaceChildren();
     const at = STAGES.findIndex(s => s[1].includes(n.step));
@@ -1411,6 +1490,157 @@ details.yppmore .grid4 { margin-top: 8px; }
     $("flow-why").textContent = n.why || "";
     const ideas = d.ideas || {};
     $("ideas").textContent = `Ideen für Langvideos: ${ideas.new || 0} offen, ${ideas.approved || 0} in Arbeit, ${ideas.published || 0} veröffentlicht, ${ideas.rejected || 0} verworfen.` + (d.batches && d.batches.n ? ` ${d.batches.n} Claude-Anfragen warten auf die Batch-API.` : "");
+  }
+
+  // Phase 5 (Felix 05.11.): the night's production as the directed flow of dashboard.flow (events.py).
+  // Live: loadFiles() re-reads the sealed data when the website's live branch has a new commit (every
+  // 3 minutes) and render() runs again, so a running night moves on here without a reload; the data
+  // age and the heartbeat are recomputed every minute from the page's clock (setInterval(render)).
+  const HEARTBEAT_H = 2;            // as events.HEARTBEAT_HOURS: started, no finish, this old = unknown
+  const FRESH_H = 0.75;             // data younger than this may show a "running" step as live
+  function flowAge(f) {             // what the page knows about the data and the night, by its own clock
+    const at = f.observed_at || (state.data && state.data.generated_at), age = at ? hoursSince(at) : null;
+    const n = f.night || {}, began = n.started_at ? hoursSince(n.started_at) : null;
+    let beat = f.heartbeat || "finished";
+    if (!n.finished_at && began != null) beat = began < HEARTBEAT_H ? "running" : "expired";
+    return { at, age, beat, fresh: age != null && age < FRESH_H };
+  }
+  const NODE_STATE = { succeeded: "done", failed: "fail", running: "now", waiting: "wait", blocked: "blocked", unknown: "unknown", pending: "", cancelled: "blocked" };
+  // Entwurf D "Nachtflugtafel" (Felix 06.11.): big "x/y bereit", segments per group (form + colour),
+  // one button to the current fault, steps in four groups that open for details. Data: dashboard.flow.
+  const FLOW_GROUPS = [["prep", "Vorbereitung", ["research", "pick", "script", "spinoffs", "storyboard", "thumbs_plan", "media_plan"]],
+    ["media", "Medien", ["media"]], ["finish", "Fertigstellung", ["media_check", "thumbs_make", "render", "review", "reject"]],
+    ["publish", "Veröffentlichung", ["publish", "upload"]]];
+  const FLOW_MARK = { done: "✓", earlier: "↶", now: "●", last: "●", wait: "…", fail: "!", blocked: "⊘", unknown: "?", "": "○" };
+  const flowUi = { open: new Set(), shut: new Set() };   // what Felix opened/closed survives the re-render every minute
+  function flowStatus(nd, live) {
+    return { succeeded: "fertig", failed: "fehlgeschlagen", running: live ? "läuft" : "lief zuletzt", waiting: "wartet auf den Connector", blocked: nd.blocked_by ? "blockiert durch " + nd.blocked_by : "noch nicht dran", unknown: nd.inferred === "earlier" ? "früher erledigt" : "Status unbekannt", pending: "noch nicht dran" }[nd.state] || nd.state;
+  }
+  function renderFlow(f) {
+    const fl = $("flow"), { beat, fresh } = flowAge(f);
+    fl.classList.add("full", "board");
+    const live = beat === "running" && fresh;          // only then may a step glow
+    const known = new Set(FLOW_GROUPS.flatMap(g => g[2]));
+    const groups = FLOW_GROUPS.map(([id, label, ids]) => [id, label, f.nodes.filter(n => ids.includes(n.id))]);
+    const rest = f.nodes.filter(n => !known.has(n.id));
+    if (rest.length) groups.push(["more", "Weitere", rest]);
+    const shown = groups.filter(g => g[2].length);
+    const cls = (nd) => {
+      let c = NODE_STATE[nd.state] || "";
+      if (nd.inferred === "earlier") c = "earlier";
+      if (c === "now" && !live) c = beat === "expired" ? "unknown" : "last";
+      return c;
+    };
+    const ready = (nd) => nd.state === "succeeded" || nd.inferred === "earlier";
+    const all = shown.flatMap(g => g[2]), count = all.filter(ready).length;
+    // hero: the number, the segments, the fault button
+    const hero = el("div", "dhero"), prog = el("div", "dprog"), num = el("div", "dnum", String(count));
+    num.append(el("small", null, `/${all.length}`));
+    const cap = el("div"); cap.append(el("p", null, beat === "expired" ? "zuletzt bereit" : "Schritte bereit"),
+      el("small", "muted", `${all.filter(n => n.state === "succeeded").length} fertig · ${all.filter(n => n.inferred === "earlier").length} früher erledigt`));
+    prog.append(num, cap);
+    const seg = el("div", "dseg"); seg.setAttribute("aria-label", `${count} von ${all.length} Schritten bereit`);
+    shown.forEach((g, gi) => g[2].forEach((nd, j) => seg.append(el("i", cls(nd) + (gi < shown.length - 1 && j === g[2].length - 1 ? " gend" : "")))));
+    hero.append(prog, seg);
+    const fault = all.find(n => n.state === "failed");
+    if (fault) {
+      const held = all.filter(n => n.state === "blocked").length;
+      const b = el("button", "dsignal"); b.type = "button"; b.setAttribute("aria-controls", "flow-err");
+      b.append(el("small", null, `! Hindernis · Versuch ${fault.attempts || 1}`), el("b", null, `${fault.label} hängt.`),
+        el("span", null, held ? `${held} Folgeschritte blockiert · Beleg und Reparatur ansehen` : "Beleg und Reparatur ansehen"));
+      b.addEventListener("click", () => { const box = $("flow-err"); if (box.scrollIntoView) box.scrollIntoView({ block: "nearest" }); if (box.focus) box.focus({ preventScroll: true }); });
+      hero.append(b);
+    }
+    fl.append(hero);
+    // the route: four groups, each step opens for connector, attempts, cost, Higgsfield lanes, error
+    const route = el("div", "dgroups"), narrow = typeof matchMedia === "function" && matchMedia("(max-width: 520px)").matches;
+    shown.forEach(([gid, glabel, nodes], gi) => {
+      const g = el("details", "dgroup"), key = "g:" + gid;
+      const hot = nodes.some(nd => ["fail", "now", "wait", "last", "unknown"].includes(cls(nd)) && nd.inferred !== "earlier");
+      g.open = flowUi.open.has(key) || (!flowUi.shut.has(key) && (!narrow || hot));   // phone: only where something happens
+      g.addEventListener("toggle", () => { (g.open ? flowUi.open : flowUi.shut).add(key); (g.open ? flowUi.shut : flowUi.open).delete(key); });
+      const head = el("summary", "dghead", glabel); head.append(el("b", null, `${nodes.filter(ready).length}/${nodes.length}`));
+      g.append(head);
+      nodes.forEach((nd) => {
+        const c = cls(nd), box = el("details", "node " + c), skey = "s:" + nd.id;
+        box.open = flowUi.open.has(skey);
+        box.addEventListener("toggle", () => { if (box.open) flowUi.open.add(skey); else flowUi.open.delete(skey); });
+        const sum = el("summary"), dot = el("i", null, FLOW_MARK[c] ?? "○");
+        if (nd.attempts > 1) dot.append(el("em", "rep", `×${nd.attempts}`));
+        const name = el("span", "lbl", nd.label);
+        sum.append(dot, name, el("small", null, flowStatus(nd, live)));
+        const body = el("div", "dbody");
+        const when = nd.occurred_at ? ` · ${fmtTime(nd.occurred_at)}` : "";
+        body.append(el("p", null, (nd.connector || "Programm") + when));
+        if (nd.purpose) body.append(el("p", "muted", nd.purpose));
+        const dl = el("dl");
+        const kv = (k, v) => dl.append(el("dt", null, k), el("dd", null, v));
+        kv("Kosten", nd.cost_minor != null ? `${(nd.cost_minor / 100).toFixed(2)} $` : "–");
+        kv("Versuche", String(nd.attempts || (nd.state === "pending" ? 0 : 1)));
+        body.append(dl);
+        if (nd.inferred === "earlier") body.append(el("p", "muted", "in einer früheren Nacht erledigt, hier nicht gemessen"));
+        if (nd.origin === "reconstructed") body.append(el("p", "muted", "aus dem Log, ohne Dauer und Kosten"));
+        if (nd.origin === "estimated") body.append(el("p", "muted", "geschätzt: nächster Schritt nach dem letzten gemessenen"));
+        if (nd.error && nd.error.message) body.append(el("p", "bad", nd.error.message));
+        if (nd.children && nd.children.length) {
+          const kids = el("div", "kids");
+          for (const ch of nd.children) {
+            const k = ch.state === "succeeded" ? "ok" : ch.state === "failed" ? "bad" : ch.state === "waiting" || ch.state === "running" || ch.state === "unknown" ? "wait" : "none";
+            const parts = [ch.done ? `${ch.done} fertig` : "", ch.open ? `${ch.open} unterwegs` : "", ch.failed ? `${ch.failed} Fehler` : "", ch.pending ? `${ch.pending} offen` : ""].filter(Boolean).join(", ");
+            const lane = el("b", k, `${ch.label}: ${parts || "—"}`);
+            lane.title = `${ch.label} (Higgsfield): ${parts}` + (ch.credits ? ` · ${ch.credits} Credits` : "") + (ch.note ? `\n${ch.note}` : "") + (ch.error ? `\nFehler: ${ch.error.message}` : "") + (ch.occurred_at ? `\nStand ${fmtTime(ch.occurred_at)}` : "");
+            kids.append(lane);
+          }
+          body.append(kids);
+        }
+        box.append(sum, body); g.append(box);
+      });
+      route.append(g);
+    });
+    fl.append(route);
+    renderFlowStamp(f);
+    renderFlowError(f);
+  }
+  function renderFlowStamp(f) {
+    const { at, age, beat } = flowAge(f);
+    // stamp: what is live, what is a snapshot, what nobody knows
+    const stamp = $("flow-stamp"); stamp.replaceChildren(); stamp.hidden = false;
+    const old = age != null && age >= FRESH_H;
+    const n = f.night || {};
+    if (beat === "expired") stamp.append(el("span", "pill bad", "Status unbekannt"), el("span", null, `Nachtlauf seit ${fmtTime(n.started_at)} ohne Abschluss (länger als ${HEARTBEAT_H} h), kein Lebenszeichen${old ? `; Stand von ${fmtTime(at)}` : ""}.`));
+    else if (beat === "running") stamp.append(el("span", old ? "pill warn" : "pill ok", old ? `Stand von ${fmtTime(at)}` : "läuft"), el("span", null, old ? `Der Nachtlauf lief um ${fmtTime(n.started_at)} los; neuere Daten sind noch nicht da.` : `Nachtlauf seit ${fmtHour(n.started_at)}, Daten ${ago(at)}.`));
+    else stamp.append(el("span", "pill idle", `Stand von ${fmtTime(at)}`), el("span", null, (n.finished_at ? `Nachtlauf ${fmtDay(f.day)} abgeschlossen ${fmtHour(n.finished_at)}` : `Nacht ${fmtDay(f.day)}`) + (f.end && f.end.text ? ` · ${f.end.label || ""}: ${f.end.text}` : "") + (f.runs > 1 ? ` · ${f.runs} Durchgänge` : "")));
+    if (f.repeats && f.repeats.length) stamp.append(el("span", "muted", "Wiederholt: " + f.repeats.map(r => `${r.step_id} (Idee #${r.idea_id}) ${r.attempts}×`).join(", ")));
+  }
+  // The fault card: evidence (redacted log line), cause confirmed / suspected / unknown, the steps it
+  // holds up, the concrete repair proposal and the repair run's note on the same fault (alerts[].repair).
+  function renderFlowError(f) {
+    const box = $("flow-err"); box.replaceChildren();
+    const errs = f.errors || [];
+    if (!errs.length) { box.hidden = true; return; }
+    box.hidden = false;
+    const e = errs[errs.length - 1], d = state.data;
+    const blocked = f.nodes.filter(n => n.state === "blocked").map(n => n.label);
+    const run = e.run_id && /^\d{4}-/.test(e.run_id) ? `Lauf ${fmtHour(e.run_id)}` : e.run_id && e.run_id.startsWith("log:") ? "aus dem Log" : "";
+    box.append(el("b", "title", `Fehler: ${e.step_id}${e.idea_id ? ` · Idee #${e.idea_id}` : ""} · Versuch ${e.attempt}${run ? " · " + run : ""}` + (errs.length > 1 ? ` (${errs.length} fehlgeschlagene Versuche in dieser Nacht)` : "")));
+    const dl = el("dl");
+    const row = (k, v) => { dl.append(el("dt", null, k)); const dd = el("dd"); if (typeof v === "string") dd.textContent = v; else dd.append(v); dl.append(dd); };
+    const ev = el("span"); ev.append(el("code", null, e.evidence_ref || "—"), " ", e.message || "");
+    row("Beleg", ev);
+    const cs = { confirmed: ["ok", "bestätigt"], hypothesis: ["", "vermutet"], unknown: ["off", "unbekannt"] }[e.cause_status] || ["off", e.cause_status];
+    const cause = el("span"); cause.append(el("span", "tag " + cs[0], cs[1]), ` ${({ code: "Fehler im Code", extern: "außerhalb (Login, Guthaben, Konto)", voruebergehend: "vorübergehend (Dienst, Netz)", unklar: "Ursache noch offen" })[e.code] || e.code}`);
+    row("Ursache", cause);
+    row("Betroffen", blocked.length ? blocked.join(" → ") : "keine Folgeschritte offen");
+    row("Vorschlag", e.suggested_action || "—");
+    const rep = ((d && d.alerts) || []).map(a => a.repair).find(Boolean);
+    const runs = (d && d.repair) || [];
+    const fix = el("span");
+    if (rep) fix.append(el("span", "tag " + (FIXED.includes(rep.result) ? "ok" : ""), rep.result), ` ${rep.day || ""} ${rep.text || ""}`.trim());
+    else if (runs.length && runs[0].day === f.day) fix.append(`Reparaturlauf ${fmtDay(runs[0].day)}: `, (runs[0].lines || []).join("; ") || "nichts dazu vermerkt");
+    else fix.append(`noch keiner (Reparatur täglich ${REPAIR_AT} Uhr)`);
+    const a = el("a", "small", " Störungen"); a.href = "#s-incidents"; a.addEventListener("click", (ev2) => { ev2.preventDefault(); showTab("s-incidents"); }); fix.append(" ·", a);
+    row("Reparatur", fix);
+    box.append(dl);
   }
 
   // Welle 2 Nr. 11: per coming video "now -> next step with the time -> upload" (data: ytauto next, dashboard.roadmap)
@@ -1441,7 +1671,8 @@ details.yppmore .grid4 { margin-top: 8px; }
     setNum($("g-spent"), "spent", b.spent_eur, (x) => Math.round(x).toLocaleString("de-DE") + " €"); $("g-limit").textContent = int(b.limit_eur);
     const fc = Math.min(100, b.forecast_eur / b.limit_eur * 100);
     ring("r-budget", b.spent_eur / b.limit_eur * 100, b.forecast_eur > b.limit_eur ? "bad" : fc > 90 ? "warn" : "");
-    $("g-budget-sub").textContent = `Prognose ${eur(b.forecast_eur)} €` + (b.stop && b.stop.length ? " · gestoppt" : "");
+    // Phase 5 (05.11.): the API credit pays first; what it still holds is no real money and is shown as such
+    $("g-budget-sub").textContent = `Prognose ${eur(b.forecast_eur)} €` + (b.credit_left_usd != null ? ` · API-Guthaben noch ${eur(b.credit_left_usd)} $ (eigene Zählung)` : "") + (b.stop && b.stop.length ? " · gestoppt" : "");
     $("r-budget").title = `${eur(b.spent_eur)} € von ${int(b.limit_eur)} € ausgegeben, Prognose Monatsende ${eur(b.forecast_eur)} €`;
   }
 
@@ -1452,7 +1683,9 @@ details.yppmore .grid4 { margin-top: 8px; }
     setNum($("g-credits"), "credits", left, int);
     const pct = left == null ? 0 : Math.max(0, Math.min(100, left / total_ * 100));
     ring("r-credits", pct, pct < 10 ? "bad" : pct < 25 ? "warn" : "");
-    if (b) $("g-credit-sub").textContent = `von ${int(total_)} · Stufe ${b.level}`
+    // Phase 5 (05.11.): say where the number is from and from when (budget.credits_at: "jetzt" or the stamp)
+    const when = !b ? "" : b.credits_at === "jetzt" ? "gemessen beim Lauf" : b.credits_measured && b.credits_at ? `gemessen ${fmtTime(b.credits_at)}` : "geschätzt aus Aufträgen";
+    if (b) $("g-credit-sub").textContent = `von ${int(total_)} · Stufe ${b.level} · ${when}`
       + (b.side_credits != null ? ` · daneben ${int(b.side_credits)}` : "");      // Nr. 12: not from the pipeline
     if (b) $("r-credits").title = `Abo ${int(total_)} je Monat · je Langvideo bis ${int(b.week_credits_share)}` + (b.longs ? ` · ${b.longs} Langvideo${b.longs > 1 ? "s" : ""}/Woche` : "") + ` · Stand der Nacht (${b.credits_at === "jetzt" ? "beim Schreiben gemessen" : b.credits_measured ? "gemessen" : "geschätzt"})`
       + (b.side_credits != null ? ` · Nebenverbrauch seit ${b.credit_since ? fmtDay(b.credit_since) : "Zyklusbeginn"}: ${int(b.side_credits)} Credits (gemessen minus Aufträge der Pipeline ${int(b.pipeline_credits)}), gelb ab 50` : "");
@@ -1482,14 +1715,17 @@ details.yppmore .grid4 { margin-top: 8px; }
     big.append(el("div", "muted small", `Partnerprogramm mit Werbegeld` + (y.rule_from ? ` (Regel ab ${fmtDay(y.rule_from)})` : "")));
     big.append(quota("Abonnenten", subs, y.subs_needed),
       quota("Wiedergabestunden Langvideos, 365 Tage", y.hours, y.hours_needed, "h", y.reached ? `bei jetzigem Tempo (${dec(y.hours_per_week)} h/Woche) am ${fmtDay(y.reached)}` : `Tempo ${dec(y.hours_per_week)} h je Woche`));
-    box.append(small, big);
-    $("ypp-note").textContent = "· Stunden aus YouTube Analytics (Stand der Nacht), Abos live";
-    // ring: the small tier needs the subscribers and either the hours or the Shorts views
+    // Phase 5 (05.11.): the ad-revenue tier first; the fan-funding tier is the smaller step on the way
+    box.append(big, small);
+    $("ypp-note").textContent = "· Stunden aus YouTube Analytics (Stand der Nacht), Abos live · offiziell heute 4.000 h oder 10 Mio. Shorts-Aufrufe, ab 01.02.2027 8.000 h oder 20 Mio. (Shorts-Weg hier nicht gerechnet)";
+    // ring: the ad-revenue tier needs the subscribers and the long-video hours; the smaller of the two shares
     const p = (have, need) => need ? Math.min(100, (have || 0) / need * 100) : 0;
-    const pct = fan.reached ? 100 : Math.min(p(subs, fan.subs_needed), Math.max(p(y.hours, fan.hours_needed), p(fan.shorts_90, fan.shorts_needed)));
+    const done = subs != null && y.subs_needed && subs >= y.subs_needed && y.hours >= y.hours_needed;
+    const pct = done ? 100 : Math.min(p(subs, y.subs_needed), p(y.hours, y.hours_needed));
     setNum($("g-ypp"), "ypp", pct, (x) => dec(x, x < 10 ? 1 : 0));
-    ring("r-ypp", pct, fan.reached ? "ok" : "");
-    $("g-ypp-sub").textContent = fan.reached ? "kleine Stufe erreicht" : `kleine Stufe · ${int(subs)} / ${int(fan.subs_needed)} Abos`;
+    ring("r-ypp", pct, done ? "ok" : "");
+    $("g-ypp-sub").textContent = done ? "Werbeumsatz: Voraussetzungen erreicht" : `Werbeumsatz · ${int(subs)} / ${int(y.subs_needed)} Abos · ${dec(y.hours, 0)} / ${int(y.hours_needed)} h`;
+    $("r-ypp").title = `Beteiligung am Werbeumsatz: ${int(y.subs_needed)} Abonnenten und ${int(y.hours_needed)} Stunden öffentliche Wiedergabezeit der Langvideos in 365 Tagen` + (y.rule_from ? ` (Regel ab ${fmtDay(y.rule_from)})` : "") + (fan.reached ? " · kleine Stufe erreicht" : ` · kleine Stufe (Fan-Funding): ${int(subs)} / ${int(fan.subs_needed)} Abos`);
   }
 
   // ---------- U2: the next three posts with picture and countdown ----------
@@ -1716,12 +1952,19 @@ details.yppmore .grid4 { margin-top: 8px; }
       const wrap = el("div", "run"), head = el("div", "run-head");
       const usd = (r.steps || []).reduce((a, s) => a + (s.usd || 0), 0), secs = (r.steps || []).reduce((a, s) => a + (s.seconds || 0), 0);
       head.append(el("b", null, `Durchgang ${k + 1}`), el("span", "mono muted", r.from_log ? `${(r.steps || []).length} Schritte · aus dem Log, ohne Dauer und Kosten` : `ab ${fmtTime(r.started_at).slice(-5)} · ${(r.steps || []).length} Schritte · ${dur(secs)} · ${usd.toFixed(2)} $`));
+      if (r.started_at) head.title = `run_id ${r.started_at}`;
       wrap.append(head);
       const ul = el("ul", "psteps");
+      // Phase 5: the attempt of each step that night (events.py), so a repeated step says so
+      const evs = ((d.events || []).filter(e => e.kind === "step" && e.day === p.day && (r.started_at ? e.run_id === r.started_at : String(e.run_id).startsWith("log:"))));
+      let seen = 0;
       for (const s of r.steps || []) {
         const bad = s.exit !== 0 && s.exit !== 3 && s.exit !== 4, li = el("li");
         li.append(el("span", "dot" + (bad ? " bad" : s.exit === 3 || s.exit === 4 ? " warn" : "")));
-        const what = el("span", "what"); what.append(el("span", null, s.label + (s.idea_id ? ` · Idee #${s.idea_id}` : "")), el("code", null, s.command)); li.append(what);
+        const ev = evs[seen++];
+        const what = el("span", "what"); what.append(el("span", null, s.label + (s.idea_id ? ` · Idee #${s.idea_id}` : "")));
+        if (ev && ev.attempt > 1) { const t = el("span", "try", `Versuch ${ev.attempt}`); t.title = `step_id ${ev.step_id}, attempt ${ev.attempt}, run_id ${ev.run_id}`; what.append(t); }
+        what.append(el("code", null, s.command)); li.append(what);
         li.append(el("span", "facts", [dur(s.seconds), s.usd ? s.usd.toFixed(2) + " $" : "", "Exit " + s.exit].filter(Boolean).join(" · ")));
         if (s.cause) li.append(el("div", "cause" + (bad ? "" : " warn"), (bad ? "Ursache: " : "") + s.cause));
         ul.append(li);
@@ -2171,6 +2414,9 @@ details.yppmore .grid4 { margin-top: 8px; }
   document.querySelectorAll("nav.jump a").forEach(a => a.addEventListener("click", (e) => { e.preventDefault(); showTab(a.getAttribute("href").slice(1)); }));
   try { showTab(localStorage.getItem(TAB_STORE)); } catch (_) { showTab(null); }
 
+  // Smoke test (tests/test_leitstand.py, Phase 5): with window.LEITSTAND_TEST set, the page hands out
+  // its state and render functions and starts no timers and no network.
+  if (window.LEITSTAND_TEST) { Object.assign(window.LEITSTAND_TEST, { state, render, renderProduction, renderProdSteps }); return; }
   render();
   loadFiles();
   setInterval(render, 60000);   // time-based alerts move on while the page stays open
