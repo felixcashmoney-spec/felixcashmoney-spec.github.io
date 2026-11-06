@@ -682,6 +682,21 @@ details.yppmore .grid4 { margin-top: 8px; }
   .seg button, .tabs button, .tlnav button, #reload, #keyform button { min-height: 44px; }
   .daycol { flex-basis: calc(100vw - 64px); }
 }
+/* Phone (Felix 06.11.): the tabs sit at the bottom like an app's tab bar, icon above the name,
+   translucent over the content. Tablets keep the sticky bar at the top (block above). */
+@media (max-width: 700px) {
+  .sidebar { position: static; padding-bottom: 20px; }
+  .sidebar.stuck { box-shadow: none; border-radius: 6px; }
+  .wrap { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  nav.jump, .sidebar.stuck nav.jump { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; gap: 2px; margin: 0;
+    padding: 6px max(8px, env(safe-area-inset-left, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
+    background: color-mix(in srgb, var(--side) 86%, transparent); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
+    border-top: 1px solid var(--line); scrollbar-width: none; }
+  nav.jump::-webkit-scrollbar { display: none; }
+  nav.jump a { flex: 1 0 auto; min-width: 68px; min-height: 52px; flex-direction: column; justify-content: center; gap: 3px; padding: 6px 8px; font-size: 11px; border-radius: 10px; }
+  nav.jump svg { display: block; width: 22px; height: 22px; }
+  nav.jump a[aria-current="page"] { box-shadow: none; }
+}
 </style>
 </head>
 <body>
