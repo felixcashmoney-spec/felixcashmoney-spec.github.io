@@ -588,10 +588,12 @@ details.yppmore .grid4 { margin-top: 8px; }
      each one sharpens out of a blur, rises a little and settles with a slight spring. --d per tile
      is set in animateIn from its position. */
   section.area.enter.from-right { --dx: 56px; } section.area.enter.from-left { --dx: -56px; }
+  /* MacBook trackpad: the same glide, up or down, a little farther for the taller tab */
+  section.area.enter.from-below { --dy: 72px; } section.area.enter.from-above { --dy: -72px; }
   section.area.enter { animation: tab-in 700ms cubic-bezier(.18, 1, .04, 1) both; }
   section.area.enter .tile-in { animation: tile-fade 720ms cubic-bezier(.25, .8, .25, 1) both, tile-rise 900ms cubic-bezier(.34, 1.36, .64, 1) both;
     animation-delay: var(--d, 0ms); transform-origin: 50% 100%; }
-  @keyframes tab-in { from { transform: translateX(var(--dx, 0)); filter: blur(3px); } }
+  @keyframes tab-in { from { transform: translate(var(--dx, 0), var(--dy, 0)); filter: blur(3px); } }
   @keyframes tile-fade { from { opacity: 0; filter: blur(8px) saturate(.6); } }
   @keyframes tile-rise { from { transform: translateY(18px) scale(.94); } }
   @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
@@ -607,24 +609,36 @@ details.yppmore .grid4 { margin-top: 8px; }
   .sidebar { grid-area: side; border: 0; border-right: 1px solid var(--line); border-radius: 0; padding: 32px 16px; display: flex; flex-direction: column; gap: 32px; overflow-y: auto; }
   nav.jump { display: grid; align-content: start; overflow: visible; padding: 0; }
   nav.jump svg { display: block; }
-  header.top { grid-area: head; margin-bottom: 20px; padding-top: 28px; }
+  /* MacBook (Felix 06.11.): a tighter head so every tab fits a 14" window; head and foot sit above
+     the tab so its vertical glide slides in underneath them */
+  header.top { grid-area: head; margin-bottom: 12px; padding-top: 20px; padding-bottom: 12px; }
+  header.top, footer { position: relative; z-index: 1; background: var(--bg); }
   #nodata { grid-area: notice; margin-bottom: 16px; }
   section.area.on { grid-area: content; min-height: 0; overflow: auto; align-content: start; }
-  footer { grid-area: foot; padding: 12px 0; }
+  footer { grid-area: foot; padding: 8px 0; }
   .pane > .scroll { flex: 0 1 auto; min-height: 0; overflow: auto; }
   .pane > .grow { flex: 1 1 0; min-height: 0; }
   #alerts { max-height: 24vh; overflow: auto; }
   #s-overview > .title { display: none; }
-  #s-overview.on { gap: 8px; }
-  #s-overview .kpi { padding: 12px 16px; gap: 2px; } #s-overview .kpi svg.spark { height: 24px; }
-  .today > div { padding-block: 8px; }
+  /* Übersicht fills the window: the production row keeps its height, the bottom row takes what is
+     left and scrolls inside a card only on small windows */
+  #s-overview.on { gap: 6px; display: flex; flex-direction: column; overflow: hidden; }
+  #s-overview .ovgrid { flex: 1 1 0; min-height: 0; grid-template-rows: minmax(0, auto) minmax(0, 1fr); }
+  #s-overview .ovgrid > .card { min-height: 0; overflow: auto; }
+  header.top h1 { font-size: 1.6rem; } header.top .eyebrow { margin-bottom: 2px; }
+  #o-rings { grid-template-columns: minmax(0, 1fr); }
+  #s-overview .kpi .from, #yppmore > summary { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ring .dial { width: 56px; height: 56px; }
+  #s-overview .kpi { padding: 10px 16px; gap: 2px; } #s-overview .kpi svg.spark { height: 24px; }
+  .today > div { padding-block: 4px; }
   details.morealerts > summary { padding-block: 8px; }
-  #s-overview .ovgrid { gap: 12px; } #s-overview .ovgrid > .card { gap: 8px; padding: 12px 16px; }
-  .ring .dial { width: 74px; height: 74px; } .ring .mid b { font-size: .95rem; }
+  #s-overview .ovgrid { gap: 6px 12px; } #s-overview .ovgrid > .card { gap: 8px; padding: 10px 16px; }
+  .ring .mid b { font-size: .88rem; } .ring .mid small { font-size: .64rem; }
   .ring { gap: 2px; } .flow { padding-top: 0; }
   #s-overview .kpi svg.bars { height: 24px; }
   #s-overview .ovgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "flow flow posts" "rings latest ticker"; }
-  #o-flow { grid-area: flow; } #o-posts { grid-area: posts; } #o-latest { grid-area: latest; } #o-rings { grid-area: rings; } #o-ticker { grid-area: ticker; overflow: hidden; }
+  #o-flow { grid-area: flow; } #o-posts { grid-area: posts; } #o-latest { grid-area: latest; } #o-rings { grid-area: rings; } #o-ticker { grid-area: ticker; }
+  #s-overview #o-ticker { overflow: hidden; }
   #s-overview .nextposts > :nth-child(n+3) { display: none; }
   #kpis-chan .kpi, #kpis-cost .kpi { padding: 12px 16px; gap: 2px; } #kpis-chan .kpi svg.spark, #kpis-cost .kpi svg.spark { height: 24px; }
   #s-overview .nextposts { grid-template-columns: minmax(0, 1fr); gap: 8px; }
@@ -655,8 +669,10 @@ details.yppmore .grid4 { margin-top: 8px; }
   #s-compare .cmptop > .card { max-height: 34vh; overflow: auto; }
   #s-compare #p-ctbl { min-height: 0; }
   #s-channel.on { align-content: stretch; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-    grid-template-rows: auto auto auto minmax(160px, 1fr) auto; grid-template-areas: "t t" "selector selector" "k k" "views rank" "vids vids"; overflow: auto; }
-  #channel-controls { grid-area: selector; }
+    grid-template-rows: auto auto auto minmax(180px, 1fr) minmax(0, auto); grid-template-areas: "t t" "selector selector" "k k" "views rank" "vids vids"; overflow: hidden; }
+  #p-views, #p-vids { min-height: 0; overflow: auto; }
+  #channel-controls { grid-area: selector; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; }
+  #s-channel .vrow { grid-auto-columns: minmax(172px, 184px); }
   #s-channel > .title { grid-area: t; } #kpis-chan { grid-area: k; } #p-views { grid-area: views; } #rank { grid-area: rank; overflow: auto; align-content: start; } #p-vids { grid-area: vids; }
   #views-chart svg { height: 100%; }
   #s-costs.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
@@ -1216,30 +1232,34 @@ details.yppmore .grid4 { margin-top: 8px; }
     if (end.at - start.at > 650 || Math.abs(dx) < 56 || Math.abs(dy) > 60 || Math.abs(dx) < Math.abs(dy) * 1.6) return 0;
     return dx < 0 ? 1 : -1;
   }
-  function showTab(id, dir) {
+  function showTab(id, dir, vertical) {
     if (!id || !/^s-/.test(id) || !$(id)) id = "s-overview";
     const fresh = !$(id).classList.contains("on");
     document.querySelectorAll("section.area").forEach(s => s.classList.toggle("on", s.id === id));
-    if (fresh) animateIn($(id), dir);
+    if (fresh) animateIn($(id), dir, vertical);
     document.querySelectorAll("nav.jump a").forEach(a => { if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     try { localStorage.setItem(TAB_STORE, id); } catch (_) { /* private mode: starts on Übersicht */ }
     if (id === "s-plan" && !state.planAt) planToToday(false);
   }
 
-  // dir: +1 swipe to the next tab (comes in from the right), -1 from the left, none = tap
-  function animateIn(sec, dir) {
-    sec.classList.remove("enter", "from-left", "from-right");
+  // dir: +1 swipe to the next tab (comes in from the right), -1 from the left, none = tap.
+  // vertical (MacBook trackpad, Felix 06.11.): the next tab rises from below, the previous one drops
+  // in from above, and the wave runs down the page (or up, going back), slightly left to right.
+  const ENTER = ["enter", "from-left", "from-right", "from-below", "from-above"];
+  function animateIn(sec, dir, vertical) {
+    sec.classList.remove(...ENTER);
     const tiles = [...sec.querySelectorAll(".card, .kpi")].filter(n => !n.parentElement.closest(".card, .kpi"));
     const box = sec.getBoundingClientRect(), w = Math.max(box.width, 1), h = Math.max(Math.min(box.height, window.innerHeight || 800), 1);
     tiles.forEach(n => {
       const r = n.getBoundingClientRect(), x = (r.left - box.left + r.width / 2) / w, y = Math.min(Math.max((r.top - box.top) / h, 0), 1.2);
       const across = dir > 0 ? 1 - x : x;   // the wave starts where the swipe came from
-      n.classList.add("tile-in"); n.style.setProperty("--d", Math.round(120 + across * 260 + y * 320) + "ms");
+      const d = vertical ? 100 + (dir < 0 ? 1.2 - y : y) * 380 + x * 140 : 120 + across * 260 + y * 320;
+      n.classList.add("tile-in"); n.style.setProperty("--d", Math.round(d) + "ms");
     });
     void sec.offsetWidth;   // restart the animation when the same tab comes back quickly
-    sec.classList.add("enter"); if (dir) sec.classList.add(dir > 0 ? "from-right" : "from-left");
+    sec.classList.add("enter"); if (dir) sec.classList.add(vertical ? (dir > 0 ? "from-below" : "from-above") : (dir > 0 ? "from-right" : "from-left"));
     clearTimeout(sec.enterTimer);
-    sec.enterTimer = setTimeout(() => { sec.classList.remove("enter", "from-left", "from-right"); tiles.forEach(n => n.classList.remove("tile-in")); }, 1800);
+    sec.enterTimer = setTimeout(() => { sec.classList.remove(...ENTER); tiles.forEach(n => n.classList.remove("tile-in")); }, 1800);
   }
 
   function channelGroups() {
@@ -2524,13 +2544,38 @@ details.yppmore .grid4 { margin-top: 8px; }
     if (!start || e.touches.length) return;
     const t = [...e.changedTouches].find(t => t.identifier === start.id);
     if (!t) return;
-    const direction = swipeDirection(start, { x: t.clientX, y: t.clientY, at: performance.now() });
+    if (stepTab(swipeDirection(start, { x: t.clientX, y: t.clientY, at: performance.now() }))) window.scrollTo({ top: 0, behavior: "auto" });
+  }, { passive: true });
+  function stepTab(direction, vertical) {
     const links = [...document.querySelectorAll("nav.jump a")], index = links.findIndex(a => a.getAttribute("aria-current") === "page");
     const next = links[index + direction];
-    if (!direction || index < 0 || !next) return;
-    showTab(next.getAttribute("href").slice(1), direction);
+    if (!direction || index < 0 || !next) return false;
+    showTab(next.getAttribute("href").slice(1), direction, vertical);
     next.scrollIntoView({ block: "nearest", inline: "nearest" });
-    window.scrollTo({ top: 0, behavior: "auto" });
+    return true;
+  }
+  // MacBook (Felix 06.11.): two fingers up or down on the trackpad (or the mouse wheel) move one tab
+  // down or up the sidebar, only in the one-screen desktop layout. A gesture is everything until the
+  // wheel has been quiet for 260 ms, so the trackpad's momentum never flips a second tab. Lists that
+  // can still scroll that way scroll first; a gesture that scrolled something never changes the tab.
+  const DESKTOP = matchMedia("(min-width: 1000px) and (min-height: 620px)");
+  let wheel = null;
+  document.addEventListener("wheel", e => {
+    if (!DESKTOP.matches || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    clearTimeout(wheel && wheel.timer);
+    wheel = wheel || { sum: 0, done: false };
+    wheel.timer = setTimeout(() => { wheel = null; }, 260);
+    if (wheel.done) return;
+    const down = e.deltaY > 0;
+    if (e.target.closest && e.target.closest("input, textarea, select")) { wheel.done = true; return; }
+    for (let n = e.target; n && n.nodeType === 1 && n !== document.body; n = n.parentElement) {
+      const oy = getComputedStyle(n).overflowY;
+      if (/auto|scroll/.test(oy) && (down ? n.scrollTop + n.clientHeight < n.scrollHeight - 1 : n.scrollTop > 0)) { wheel.done = true; return; }
+    }
+    wheel.sum += e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+    if (Math.abs(wheel.sum) < 40) return;
+    wheel.done = true;
+    stepTab(wheel.sum > 0 ? 1 : -1, true);
   }, { passive: true });
   try { showTab(localStorage.getItem(TAB_STORE)); } catch (_) { showTab(null); }
 
