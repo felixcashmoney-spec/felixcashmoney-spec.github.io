@@ -68,7 +68,7 @@ html[data-palette="orca"] { color-scheme: dark; --bg: #272a36; --panel: #2b2c36;
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(56px + env(safe-area-inset-top, 0px)); }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.5; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
-.wrap { max-width: 1200px; margin: 0 auto; padding-block: 20px 48px;
+.wrap { max-width: 1200px; margin: 0 auto; overflow-x: clip; padding-block: 20px 48px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: grid; gap: 16px; }
 h1, h2, h3 { margin: 0; text-wrap: balance; }
@@ -582,6 +582,13 @@ details.yppmore .grid4 { margin-top: 8px; }
   .flow:not(.board) .node.now i, .flow.board .dseg i.now { animation: active-step 1.8s cubic-bezier(.22, 1, .36, 1) infinite alternate; }
   @keyframes active-step { to { opacity: .45; } }
   .intro { animation: rise 320ms cubic-bezier(.22, 1, .36, 1) both; }
+  /* Tab change (Felix 06.11.): a swipe slides the new tab in from its side, then every tile fades
+     up from invisible one after another. Opacity and a hint of scale only, cheap on phones. */
+  section.area.enter.from-right { --dx: 32px; } section.area.enter.from-left { --dx: -32px; }
+  section.area.enter { animation: tab-in 380ms cubic-bezier(.22, 1, .36, 1) both; }
+  section.area.enter .tile-in { animation: tile-in 460ms cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--n, 0) * 50ms + 40ms); }
+  @keyframes tab-in { from { transform: translateX(var(--dx, 0)); } }
+  @keyframes tile-in { from { opacity: 0; transform: scale(.975); } }
   @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 }
 
@@ -1180,12 +1187,24 @@ details.yppmore .grid4 { margin-top: 8px; }
     if (end.at - start.at > 650 || Math.abs(dx) < 56 || Math.abs(dy) > 60 || Math.abs(dx) < Math.abs(dy) * 1.6) return 0;
     return dx < 0 ? 1 : -1;
   }
-  function showTab(id) {
+  function showTab(id, dir) {
     if (!id || !/^s-/.test(id) || !$(id)) id = "s-overview";
+    if (!$(id).classList.contains("on")) animateIn($(id), dir);
     document.querySelectorAll("section.area").forEach(s => s.classList.toggle("on", s.id === id));
     document.querySelectorAll("nav.jump a").forEach(a => { if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     try { localStorage.setItem(TAB_STORE, id); } catch (_) { /* private mode: starts on Übersicht */ }
     if (id === "s-plan" && !state.planAt) planToToday(false);
+  }
+
+  // dir: +1 swipe to the next tab (comes in from the right), -1 from the left, none = tap
+  function animateIn(sec, dir) {
+    sec.classList.remove("enter", "from-left", "from-right");
+    const tiles = [...sec.querySelectorAll(".card, .kpi")].filter(n => !n.parentElement.closest(".card, .kpi"));
+    tiles.forEach((n, i) => { n.classList.add("tile-in"); n.style.setProperty("--n", Math.min(i, 10)); });
+    void sec.offsetWidth;   // restart the animation when the same tab comes back quickly
+    sec.classList.add("enter"); if (dir) sec.classList.add(dir > 0 ? "from-right" : "from-left");
+    clearTimeout(sec.enterTimer);
+    sec.enterTimer = setTimeout(() => { sec.classList.remove("enter", "from-left", "from-right"); tiles.forEach(n => n.classList.remove("tile-in")); }, 1100);
   }
 
   function channelGroups() {
@@ -2474,7 +2493,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     const links = [...document.querySelectorAll("nav.jump a")], index = links.findIndex(a => a.getAttribute("aria-current") === "page");
     const next = links[index + direction];
     if (!direction || index < 0 || !next) return;
-    showTab(next.getAttribute("href").slice(1));
+    showTab(next.getAttribute("href").slice(1), direction);
     next.scrollIntoView({ block: "nearest", inline: "nearest" });
     window.scrollTo({ top: 0, behavior: "auto" });
   }, { passive: true });
