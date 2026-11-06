@@ -14,6 +14,7 @@
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
 <title>Dashboard</title>
+<script id="palette-boot">try { var p = localStorage.getItem("leitstand-palette"); if (p) document.documentElement.dataset.palette = p; } catch (_) { /* private mode: default colors */ }</script>
 <style>
 /* Burgarchiv (Felix' Wahl C, 06.11.): slate, warm ink, brass and restrained serif headings.
    The seven existing tabs and their data stay intact; the space band and video are retired. */
@@ -30,6 +31,37 @@
   --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-title: Georgia, "Times New Roman", serif;
   --font-data: ui-monospace, "SF Mono", Menlo, monospace;
+}
+/* Palette switcher (06.11.): the dot top left swaps these sets live; the choice stays in localStorage.
+   Without a choice the Burgarchiv colors above apply. Light sets bring their own status colors. */
+html[data-palette="lavendel"] { color-scheme: dark; --bg: #1d1b23; --panel: #25222d; --side: #19171e; --ink: #ede9f2; --muted: #b8b0c2; --faint: #b8b0c2; --line: #403948; --track: #403948; --accent: #c3b1dc; --accent-ink: #c3b1dc; --accent-soft: #373041; --ok: #b5c6ae; --ok-mark: #b5c6ae; --ok-soft: #30392e; --tip-bg: #ede9f2; --tip-ink: #1d1b23; --none: #373041; }
+html[data-palette="flieder"] { color-scheme: light; --bg: #efecf2; --panel: #fbf9fd; --side: #e6e0eb; --ink: #312b39; --muted: #696071; --faint: #696071; --line: #d3cbdc; --track: #d3cbdc; --accent: #6e597f; --accent-ink: #6e597f; --accent-soft: #e4dbea; --ok: #41613e; --ok-mark: #41613e; --ok-soft: #e4ebdf; --tip-bg: #312b39; --tip-ink: #efecf2; --warn: #7a5a14; --warn-mark: #b38a2e; --warn-soft: #f2e7cc; --bad: #9a3326; --bad-mark: #c4604f; --bad-soft: #f5dfda; --yt: #a8392c; --tt: #2f6b55; --none: #ddd5e3; }
+html[data-palette="abendrot"] { color-scheme: dark; --bg: #252125; --panel: #30292f; --side: #1e1a1e; --ink: #f2e9e5; --muted: #c5b5b9; --faint: #c5b5b9; --line: #493e46; --track: #493e46; --accent: #d5ae96; --accent-ink: #d5ae96; --accent-soft: #443540; --ok: #b7c5a5; --ok-mark: #b7c5a5; --ok-soft: #333d2f; --tip-bg: #f2e9e5; --tip-ink: #252125; --none: #3a3238; }
+html[data-palette="sandrose"] { color-scheme: light; --bg: #f3eee9; --panel: #fcfaf7; --side: #ebe2dc; --ink: #3b3034; --muted: #6e5c62; --faint: #6e5c62; --line: #d8ccc6; --track: #d8ccc6; --accent: #8a5459; --accent-ink: #8a5459; --accent-soft: #efdfd9; --ok: #486140; --ok-mark: #486140; --ok-soft: #e6ebdf; --tip-bg: #3b3034; --tip-ink: #f3eee9; --warn: #7a5a14; --warn-mark: #b38a2e; --warn-soft: #f2e7cc; --bad: #9a3326; --bad-mark: #c4604f; --bad-soft: #f5dfda; --yt: #a8392c; --tt: #2f6b55; --none: #e3d9d2; }
+html[data-palette="pflaume"] { color-scheme: dark; --bg: #231c2f; --panel: #292335; --side: #1e1828; --ink: #eee9f4; --muted: #b5abc4; --faint: #b5abc4; --line: #3f384d; --track: #3f384d; --accent: #c4b2ea; --accent-ink: #c4b2ea; --accent-soft: #463d5a; --ok: #9fd3b4; --ok-mark: #9fd3b4; --ok-soft: #2c3533; --tip-bg: #eee9f4; --tip-ink: #231c2f; --none: #383145; }
+html[data-palette="orca"] { color-scheme: dark; --bg: #272a36; --panel: #2b2c36; --side: #21222c; --ink: #e6e7ee; --muted: #a3a6b5; --faint: #a3a6b5; --line: #3f4350; --track: #3f4350; --accent: #d98bff; --accent-ink: #d98bff; --accent-soft: #353746; --ok: #4cd97b; --ok-mark: #4cd97b; --ok-soft: #25352d; --tip-bg: #e6e7ee; --tip-ink: #272a36; --none: #353746; --bad-mark: #f85a7a; --font-title: ui-monospace, "SF Mono", Menlo, monospace; }
+.pal { position: fixed; z-index: 30; top: calc(env(safe-area-inset-top, 0px) + 4px); left: calc(env(safe-area-inset-left, 0px) + 4px);
+  display: flex; align-items: center; padding: 2px; border-radius: 999px; border: 1px solid transparent; }
+.pal.open { background: color-mix(in srgb, var(--panel) 90%, transparent); border-color: var(--line);
+  box-shadow: 0 10px 30px rgb(0 0 0 / .3); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.pal button { padding: 0; border-radius: 50%; }
+.pal-dot { width: 32px; height: 32px; border: 0; background: none; display: grid; place-items: center; }
+.pal-dot:hover { border: 0; }
+.pal-dot i { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, var(--panel) 50%, var(--accent) 50%); box-shadow: 0 0 0 1.5px var(--accent); }
+.pal-list { display: flex; gap: 6px; max-width: 0; padding: 4px 0; overflow: hidden; opacity: 0; }
+.pal.open .pal-list { max-width: 360px; padding: 4px 6px 4px 2px; opacity: 1; }
+.pal-list button { width: 30px; height: 30px; flex: none; border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent);
+  background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); transform: scale(.2) rotate(-90deg); opacity: 0; }
+.pal.open .pal-list button { transform: none; opacity: 1; }
+.pal-list button:hover { border-color: var(--ink); }
+.pal-list button[aria-checked="true"] { box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--accent); }
+@media (prefers-reduced-motion: no-preference) {
+  .pal { transition: background-color 240ms ease-out, border-color 240ms ease-out, box-shadow 240ms ease-out; }
+  .pal-dot i { transition: transform 420ms cubic-bezier(.3, 1.5, .5, 1); }
+  .pal.open .pal-dot i { transform: rotate(180deg) scale(1.25); }
+  .pal-list { transition: max-width 460ms cubic-bezier(.2, .9, .25, 1), padding 460ms cubic-bezier(.2, .9, .25, 1), opacity 160ms ease-out; }
+  .pal-list button { transition: transform 420ms cubic-bezier(.3, 1.6, .5, 1) calc(var(--i) * 45ms), opacity 200ms ease-out calc(var(--i) * 45ms); }
+  body, .card, .sidebar { transition: background-color 300ms ease-out, color 300ms ease-out; }
 }
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -173,6 +205,11 @@ button.kpi:hover { color: inherit; }
 .legend { display: grid; gap: 4px; font-size: .78rem; color: var(--muted); }
 .legend span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 8px; background: var(--c); vertical-align: 0; }
 
+.channel-controls { display: grid; gap: 8px; min-width: 0; }
+.channel-choices { display: flex; gap: 8px; overflow-x: auto; padding: 4px; scrollbar-width: thin; }
+.channel-choices button { flex: none; min-height: 44px; }
+.channel-choices button[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+button:disabled { cursor: default; color: var(--muted); opacity: .65; }
 /* stages */
 .stages { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; margin: 0; padding: 0; }
 .stages li { font-size: .76rem; padding: 4px 8px; border-radius: 5px; background: var(--panel); color: var(--muted); border: 1px solid var(--line); }
@@ -605,8 +642,9 @@ details.yppmore .grid4 { margin-top: 8px; }
   #s-compare.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto auto minmax(0, 1fr); }
   #s-compare .cmptop > .card { max-height: 34vh; overflow: auto; }
   #s-compare #p-ctbl { min-height: 0; }
-  #s-channel.on { overflow: hidden; align-content: stretch; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-    grid-template-rows: auto auto minmax(0, 1fr) auto; grid-template-areas: "t t" "k k" "views rank" "vids vids"; }
+  #s-channel.on { align-content: stretch; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(160px, 1fr) auto; grid-template-areas: "t t" "selector selector" "k k" "views rank" "vids vids"; overflow: auto; }
+  #channel-controls { grid-area: selector; }
   #s-channel > .title { grid-area: t; } #kpis-chan { grid-area: k; } #p-views { grid-area: views; } #rank { grid-area: rank; overflow: auto; align-content: start; } #p-vids { grid-area: vids; }
   #views-chart svg { height: 100%; }
   #s-costs.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
@@ -769,8 +807,12 @@ details.yppmore .grid4 { margin-top: 8px; }
 
   <!-- ===================== Kanal ===================== -->
   <section class="area" id="s-channel" aria-labelledby="h-channel">
-    <div class="title"><h2 id="h-channel">Kanal</h2><span class="muted small" id="chan"></span></div>
-    <div class="grid4" id="kpis-chan" aria-label="Abonnenten und Aufrufe mit Vergleich zur Vorwoche"></div>
+    <div class="title"><h2 id="h-channel">Kanäle</h2><span class="muted small" id="chan"></span></div>
+    <div class="channel-controls" id="channel-controls">
+      <div class="channel-choices" id="account-tabs" role="group" aria-label="Accountgruppe"></div>
+      <div class="channel-choices" id="channel-tabs" role="group" aria-label="Kanal innerhalb der Accountgruppe"></div>
+    </div>
+    <div class="grid4" id="kpis-chan" aria-label="Kennzahlen des ausgewählten Kanals"></div>
 
     <div class="card block pane" id="p-views">
       <div class="head">
@@ -857,7 +899,7 @@ details.yppmore .grid4 { margin-top: 8px; }
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const NS = "http://www.w3.org/2000/svg";
   const sv = (t, a, text) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (text != null) e.textContent = text; return e; };
-  const state = { openAlerts: new Set(), openSteps: new Set(), logs: {}, thumbs: {}, prodDay: null, data: null, status: null, live: null, hist: null, range: "48h", kpi: "views", cell: null, trigger: null, balance: null, base: null, planAt: false, cmpMetric: "views", cmpKind: "all", cmpSort: { k: "views", dir: -1 } };
+  const state = { openAlerts: new Set(), openSteps: new Set(), logs: {}, thumbs: {}, prodDay: null, data: null, status: null, live: null, hist: null, range: "48h", kpi: "views", cell: null, trigger: null, balance: null, base: null, planAt: false, cmpMetric: "views", cmpKind: "all", accountId: null, channelId: null, cmpSort: { k: "views", dir: -1 } };
 
   // Berlin wall clock, independent of the viewer's own zone.
   function berlinParts(d) {
@@ -1133,6 +1175,11 @@ details.yppmore .grid4 { margin-top: 8px; }
   }
 
   const TAB_STORE = "leitstand-tab";
+  function swipeDirection(start, end) {
+    const dx = end.x - start.x, dy = end.y - start.y;
+    if (end.at - start.at > 650 || Math.abs(dx) < 56 || Math.abs(dy) > 60 || Math.abs(dx) < Math.abs(dy) * 1.6) return 0;
+    return dx < 0 ? 1 : -1;
+  }
   function showTab(id) {
     if (!id || !/^s-/.test(id) || !$(id)) id = "s-overview";
     document.querySelectorAll("section.area").forEach(s => s.classList.toggle("on", s.id === id));
@@ -1140,6 +1187,49 @@ details.yppmore .grid4 { margin-top: 8px; }
     try { localStorage.setItem(TAB_STORE, id); } catch (_) { /* private mode: starts on Übersicht */ }
     if (id === "s-plan" && !state.planAt) planToToday(false);
   }
+
+  function channelGroups() {
+    const d = state.data;
+    if (Array.isArray(d && d.accounts) && d.accounts.some(g => Array.isArray(g.channels) && g.channels.length)) return d.accounts.filter(g => Array.isArray(g.channels) && g.channels.length);
+    const videos = (d && d.videos) || [], tt = videos.filter(v => v.platform === "tiktok");
+    const sum = field => { const values = tt.map(v => v[field]).filter(Number.isFinite); return values.length ? values.reduce((a, b) => a + b, 0) : null; };
+    return [{ id: "primary", name: (d && d.channel && d.channel.title) || "Aktueller Account", channels: [
+      { id: "youtube", platform: "youtube", name: (d && d.channel && d.channel.title) || "YouTube", stats: (d && d.channel && d.channel.stats) || {}, videos: videos.filter(v => v.platform === "youtube"), history: {} },
+      { id: "tiktok", platform: "tiktok", name: "TikTok", stats: { subscribers: null, views: sum("views"), likes: sum("likes"), videos: tt.length }, videos: tt, history: {}, scope: "tracked_posts" }
+    ] }];
+  }
+  function channelContext() {
+    const groups = channelGroups(), group = groups.find(g => g.id === state.accountId) || groups[0];
+    const channel = group.channels.find(c => c.id === state.channelId) || group.channels[0];
+    state.accountId = group.id; state.channelId = channel.id;
+    const primary = group.id === "primary" && channel.id === "youtube";
+    const live = primary ? state.live : null;
+    const stats = { ...(channel.stats || {}), ...((live && live.channel) || {}) };
+    if (live) stats.views = chanViews(live.channel, live.videos);
+    for (const k of ["views", "subscribers", "likes", "videos"]) if (!Number.isFinite(stats[k])) stats[k] = null;
+    const history = (primary && state.hist) || channel.history || {};
+    const points = rows => (Array.isArray(rows) ? rows : []).filter(p => p && typeof p.t === "string" && Number.isFinite(Date.parse(p.t)) && p.v && typeof p.v === "object").map(p => ({ ...p, s: Number.isFinite(p.s) ? p.s : null, v: Object.fromEntries(Object.entries(p.v).filter(([, v]) => Number.isFinite(v))) }));
+    return { ...channel, group, stats, live, primary, thumbs: group.id === "primary" && !String(channel.id).includes(":") ? state.thumbs : {},
+      videos: (Array.isArray(channel.videos) ? channel.videos : []).filter(v => v && v.platform === channel.platform),
+      history: { ...history, hourly: points(history.hourly), daily: points(history.daily) } };
+  }
+  function renderChannelSelectors() {
+    const groups = channelGroups(), ctx = channelContext();
+    const options = (id, rows, selected, choose) => {
+      const box = $(id); box.replaceChildren();
+      for (const row of rows) {
+        const b = el("button", null, row.label); b.type = "button"; b.setAttribute("aria-pressed", String(row.id === selected));
+        b.addEventListener("click", () => { choose(row.id); renderChannel(); $(id).querySelector('button[aria-pressed="true"]').focus({ preventScroll: true }); }); box.append(b);
+      }
+    };
+    options("account-tabs", groups.map(g => ({ id: g.id, label: g.name })), ctx.group.id, id => { state.accountId = id; state.channelId = null; });
+    const names = { youtube: "YouTube", tiktok: "TikTok" };
+    options("channel-tabs", ctx.group.channels.map(c => ({ id: c.id, label: (names[c.platform] || "Kanal") + (ctx.group.channels.filter(x => x.platform === c.platform).length > 1 ? ` · ${c.name}` : "") })), ctx.id, id => { state.channelId = id; });
+    const hourly = ctx.history.hourly.length > 1;
+    if (!hourly && state.range === "48h") state.range = "30d";
+    $("p-views").querySelectorAll(".tabs button").forEach(b => { b.disabled = b.dataset.r === "48h" && !hourly; b.title = b.disabled ? "Diese Quelle liefert keine stündlichen Werte" : ""; });
+  }
+  function renderChannel() { renderChannelSelectors(); renderKpis(); renderViews(); renderVideoRow(); renderRank(); }
 
   // ---------- live history helpers ----------
   const total = (p) => Object.values(p.v || {}).reduce((a, b) => a + b, 0);
@@ -1192,15 +1282,15 @@ details.yppmore .grid4 { margin-top: 8px; }
     }
     return svg;
   }
-  function weekCompare() {                // numbers now, 7 and 14 days ago from the daily history
-    const h = state.hist, live = state.live;
+  function weekCompare(ctx) {                // numbers now, 7 and 14 days ago from this channel's history
+    const h = ctx.history, live = ctx.live;
     if (!h || !(h.daily || []).length) return null;
     const now = live && live.at ? live.at : h.daily[h.daily.length - 1].t;
     const iso = (days) => new Date(new Date(now).getTime() - days * 86400000).toISOString();
     const all = [...(h.daily || []), ...(h.hourly || [])].sort((a, b) => a.t < b.t ? -1 : 1);
     // "now" is the live check itself (every 5 minutes), not the last hourly history point
-    const lv = livePoint();
-    const young = !!lv && Object.values(live.videos).every(x => x.published && x.published >= iso(7));
+    const lv = ctx.primary ? livePoint() : null;
+    const young = !!lv && Object.keys(live.videos).length > 0 && Object.values(live.videos).every(x => x.published && x.published >= iso(7));
     return { now: lv || all[all.length - 1], w1: pointAt(all, iso(7)), w2: pointAt(all, iso(14)), first: all[0], young };
   }
   function deltaBadge(now, before, cost) {
@@ -1247,7 +1337,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     $("t-day").textContent = "Heute, " + fmtDay(berlinParts(new Date()).day);
     $("t-state-sub").textContent = d ? `Letzter Lauf ${fmtTime(d.generated_at)}` : "";
 
-    const parts = [renderKpis, renderLatest, renderTodo, renderFresh, () => renderTab(tsCls || "idle"), renderNightGauge, renderProduction, renderBudget, renderCredits, renderYpp, renderNextPosts, renderLive, renderTicker, renderChecks, renderGrid, renderSteps, renderRepair, renderProdSteps, renderPlan, renderViews, renderVideoRow, renderRank, renderCompare, renderMonth, renderSpend, renderIncidents];
+    const parts = [renderChannelSelectors, renderKpis, renderLatest, renderTodo, renderFresh, () => renderTab(tsCls || "idle"), renderNightGauge, renderProduction, renderBudget, renderCredits, renderYpp, renderNextPosts, renderLive, renderTicker, renderChecks, renderGrid, renderSteps, renderRepair, renderProdSteps, renderPlan, renderViews, renderVideoRow, renderRank, renderCompare, renderMonth, renderSpend, renderIncidents];
     for (const f of parts) { try { f(); } catch (e) { console.error(f.name, e); } }
     $("foot-gen").textContent = (d ? `Produktion, Budget und Credits vom letzten Lauf ${fmtTime(d.generated_at)} (für den ${fmtDay(d.day)}).` : "")
       + (state.live ? ` YouTube-Zahlen live ${fmtTime(state.live.at)}: öffentliche Zahlen je Video, YouTube Studio zählt oft etwas früher.` : "");
@@ -1261,30 +1351,33 @@ details.yppmore .grid4 { margin-top: 8px; }
   function renderKpis() {
     for (const id of ["kpis", "kpis-chan", "kpis-cost"]) $(id).replaceChildren();
     let box = $("kpis-chan");
-    const d = state.data, live = state.live, wk = weekCompare();
+    const d = state.data, live = state.live;
     const chan = (live && live.channel) || (d && d.channel && d.channel.stats) || null;
-    const daily = ((state.hist && state.hist.daily) || []).slice(-14);
-    const hourly = ((state.hist && state.hist.hourly) || []).filter(p => hoursSince(p.t) <= 49);
     const steps = (pts, f) => pts.map(f).map((v, i, a) => i ? Math.max(0, v - a[i - 1]) : null).slice(1);   // gain per point
     const card = (key, label, value, unit, delta, from, series, color, raw, fmt, extra = {}) => {
       const b = el(key ? "button" : "div", "card kpi" + (key ? " pick" : ""));
-      if (key) { b.type = "button"; b.title = "Im Diagramm unter „Kanal“ zeigen"; b.setAttribute("aria-pressed", String(state.kpi === key)); b.addEventListener("click", () => { state.kpi = key; renderKpis(); renderViews(); showTab("s-channel"); }); }
+      if (key) { b.type = "button"; b.title = "Im Diagramm unter „Kanal“ zeigen"; b.setAttribute("aria-pressed", String(state.kpi === key)); b.addEventListener("click", () => { if (!extra.channel) { state.accountId = "primary"; state.channelId = "youtube"; } state.kpi = key; renderChannel(); showTab("s-channel"); }); }
       const l = el("div", "label"); l.append(el("span", null, label)); if (delta) l.append(delta); if (extra.fresh) l.append(freshTag(extra.fresh));
       const v = el("div", "value"), n = el("span", null, value); v.append(n); if (unit) v.append(el("small", null, " " + unit));
       if (typeof raw === "number") setNum(n, label, raw, fmt || int);
       b.append(l, v, el("div", "from", from || "")); if (extra.chart) b.append(extra.chart); else if (series) b.append(spark(series, color));
       box.append(b);
     };
-    const subsNow = chan ? chan.subscribers : null;
-    card("subs", "Abonnenten", int(subsNow), "", wk && wk.w1 ? deltaBadge(subsNow, wk.w1.s) : null,
-      wk && wk.w1 ? `vor einer Woche ${int(wk.w1.s)}` : wk ? `Vergleich ab ${fmtDay(dayShift(wk.first.t.slice(0, 10), 7))}` : "Verlauf startet mit dem nächsten Abgleich",
-      daily.length > 2 ? daily.map(p => p.s) : hourly.map(p => p.s), "var(--accent)", subsNow);
-    let gained = null, before = null;
-    if (wk && wk.w1) { gained = total(wk.now) - total(wk.w1); if (wk.w2) before = total(wk.w1) - total(wk.w2); }
-    else if (wk && wk.young) gained = total(wk.now);      // every video is younger than 7 days: all its views count
-    card("views", "Aufrufe, 7 Tage", gained == null ? int(chan ? chan.views : null) : int(gained), gained == null ? "gesamt" : "", deltaBadge(gained, before),
-      before != null ? `Vorwoche ${int(before)}` : wk && wk.young ? "alle Videos jünger als 7 Tage" : wk ? `gesamt ${int(total(wk.now))}, Vergleich ab ${fmtDay(dayShift(wk.first.t.slice(0, 10), 14))}` : "",
-      hourly.length > 2 ? steps(hourly, total) : steps(daily, total), "var(--accent)", gained == null ? (chan ? chan.views : null) : gained);
+    const ctx = channelContext(), cs = ctx.stats, wk = weekCompare(ctx), newest = wk && wk.now;
+    const prior = wk && wk.w1, previous = wk && wk.w2;
+    const gained = newest && prior && newest !== prior ? Math.max(0, total(newest) - total(prior)) : wk && wk.young ? total(newest) : null;
+    const before = prior && previous && prior !== previous ? Math.max(0, total(prior) - total(previous)) : null;
+    const tracked = ctx.scope === "tracked_posts", source = ctx.live ? `YouTube live · ${fmtTime(ctx.live.at)}` : ctx.observed_at ? `Stand ${fmtTime(ctx.observed_at)}` : "Noch keine Messung";
+    card(cs.subscribers == null ? null : "subs", ctx.platform === "tiktok" ? "Follower" : "Abonnenten", int(cs.subscribers), "", !ctx.history.subscriber_deltas && prior && prior.s != null ? deltaBadge(cs.subscribers, prior.s) : null,
+      cs.subscribers == null ? "Von dieser Quelle nicht verfügbar" : source, null, "var(--accent)", cs.subscribers, int, { channel: true });
+    card("views", gained == null ? "Aufrufe erfasst" : "Aufrufe, 7 Tage", int(gained == null ? cs.views : gained), gained == null ? "gesamt" : "", deltaBadge(gained, before),
+      tracked ? "Tagesstände erfasster TikTok-Posts" : gained == null ? "7-Tage-Vergleich noch nicht verfügbar" : source,
+      null, "var(--accent)", gained == null ? cs.views : gained, int, { channel: true });
+    card(null, tracked ? "Posts mit Zahlen" : "Videos", int(cs.videos == null ? ctx.videos.length : cs.videos), "", null,
+      tracked ? "Nur Posts der vorhandenen Anbindung" : source, null, null, null);
+    const likes = ctx.videos.map(v => v.likes).filter(Number.isFinite);
+    card(null, "Likes erfasst", int(cs.likes == null ? (likes.length ? likes.reduce((a, b) => a + b, 0) : null) : cs.likes), "", null,
+      "Auf den erfassten Videos", null, null, null);
     box = $("kpis-cost");
     const sd = (d && d.spend_days) || [];
     const last7 = sd.slice(-7).reduce((a, r) => a + r.usd, 0), prev7 = sd.length >= 14 ? sd.slice(-14, -7).reduce((a, r) => a + r.usd, 0) : null;
@@ -2157,28 +2250,29 @@ details.yppmore .grid4 { margin-top: 8px; }
   // Aufrufe: 48 hours per hour, or 30 days per day, with markers for changes (F4, F5).
   function renderViews() {
     const svg = $("views"); svg.replaceChildren();
-    const h = state.hist, tip = $("views-tip"), box = $("views-chart");
+    const ctx = channelContext(), h = ctx.history, tip = $("views-tip"), box = $("views-chart");
     document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.r === state.range)));
     const subs = state.kpi === "subs";
-    $("h-views").textContent = subs ? "Abonnenten" : "Aufrufe";
+    $("h-views").textContent = subs ? (ctx.platform === "tiktok" ? "Follower" : "Abonnenten") : "Aufrufe";
     const W = 640, H = 190, L = 38, B = 22, T = 10;
     let bars = [];
     if (h && state.range === "48h") {
       const pts = (h.hourly || []).filter(p => hoursSince(p.t) <= 49);
-      for (let i = 1; i < pts.length; i++) bars.push({ label: fmtHour(pts[i].t), key: berlinParts(new Date(pts[i].t)).day, v: subs ? pts[i].s - pts[i - 1].s : total(pts[i]) - total(pts[i - 1]), tip: `${fmtTime(pts[i].t)}: ` });
+      for (let i = 1; i < pts.length; i++) bars.push({ label: fmtHour(pts[i].t), key: berlinParts(new Date(pts[i].t)).day, v: subs ? (Number.isFinite(pts[i].s) && Number.isFinite(pts[i - 1].s) ? pts[i].s - pts[i - 1].s : null) : total(pts[i]) - total(pts[i - 1]), tip: `${fmtTime(pts[i].t)}: ` });
     } else if (h) {
       const pts = (h.daily || []).slice(-31);
-      for (let i = 1; i < pts.length; i++) bars.push({ label: pts[i].t.slice(8, 10) + ".", key: pts[i].t.slice(0, 10), v: subs ? pts[i].s - pts[i - 1].s : total(pts[i]) - total(pts[i - 1]), tip: `${fmtDay(pts[i].t.slice(0, 10))}: ` });
+      for (let i = 1; i < pts.length; i++) bars.push({ label: pts[i].t.slice(8, 10) + ".", key: pts[i].t.slice(0, 10), v: subs ? (Number.isFinite(pts[i].s) && Number.isFinite(pts[i - 1].s) ? pts[i].s - pts[i - 1].s : null) : total(pts[i]) - total(pts[i - 1]), tip: `${fmtDay(pts[i].t.slice(0, 10))}: ` });
     }
-    bars = bars.map(b => ({ ...b, v: Math.max(0, b.v) }));
+    bars = bars.filter(b => b.v != null).map(b => ({ ...b, v: Math.max(0, b.v) }));
     const unit = subs ? "neue Abos" : "Aufrufe";
     if (bars.length < 2) {
-      svg.append(sv("text", { x: W / 2, y: H / 2, "text-anchor": "middle" }, h ? "Der Verlauf sammelt sich gerade (ein Punkt je Stunde)." : "Noch kein Verlauf: kommt mit dem nächsten Abgleich der Webseite."));
-      $("views-note").textContent = h && (h.hourly || []).length ? `Erster Messpunkt ${fmtTime(h.hourly[0].t)}.` : "";
+      svg.append(sv("text", { x: W / 2, y: H / 2, "text-anchor": "middle" }, subs && ctx.stats.subscribers == null ? "Diese Quelle liefert keine Followerzahlen." : "Noch zu wenige Messpunkte für einen Verlauf."));
+      const points = state.range === "48h" ? h.hourly : h.daily;
+      $("views-note").textContent = points.length ? `Erster Messpunkt ${fmtTime(points[0].t)} · ${h.source || (ctx.primary ? "YouTube" : "Kanalexport")}.` : "Der Verlauf erscheint nach weiteren Abgleichen dieser Quelle.";
     } else {
       const { top, step } = niceTop(Math.max(...bars.map(b => b.v)));
       axis(svg, W, H, L, B, T, top, step);
-      const bw = (W - L) / bars.length, marks = changesByDay(), marked = new Set();
+      const bw = (W - L) / bars.length, marks = ctx.primary ? changesByDay() : {}, marked = new Set();
       bars.forEach((b, i) => {
         const hh = b.v / top * (H - B - T), x = L + i * bw + bw * 0.15, y = H - B - hh;
         const r = sv("rect", { x, y, width: Math.max(1, bw * 0.7), height: Math.max(hh, b.v > 0 ? 1 : 0), rx: 2, fill: "var(--accent)", opacity: i === bars.length - 1 ? 1 : .75 });
@@ -2193,35 +2287,35 @@ details.yppmore .grid4 { margin-top: 8px; }
         }
       });
       const sum = bars.reduce((a, b) => a + b.v, 0);
-      $("views-note").textContent = `${int(sum)} ${unit} ${state.range === "48h" ? "in den letzten 48 Stunden (je Stunde)" : "in den letzten 30 Tagen (je Tag)"}. Nur öffentliche Videos, Zahlen von YouTube mit kurzer Verzögerung.`;
+      $("views-note").textContent = `${int(sum)} ${unit} ${state.range === "48h" ? "in den letzten 48 Stunden (je Stunde)" : "in den letzten 30 Tagen (je Tag)"}. ${ctx.scope === "tracked_posts" ? "Veränderung erfasster Postwerte seit der vorherigen Messung, kein vollständiger TikTok-Kanalbericht." : ctx.live ? "Öffentliche Videos, Zahlen von YouTube mit kurzer Verzögerung." : "Aus dem gespeicherten Kanalexport."}`;
     }
-    const ch = (state.data && state.data.changes) || [], list = $("changes-list"); list.replaceChildren();
+    const ch = ctx.primary ? ((state.data && state.data.changes) || []) : [], list = $("changes-list"); list.replaceChildren();
     for (const c of ch.slice(0, 40)) { const li = el("li"); li.append(el("span", "mono muted", fmtTime(c.at) + " "), document.createTextNode((c.pr ? `#${c.pr} ` : "") + c.title)); list.append(li); }
     $("changes").hidden = !ch.length;
   }
 
   // Glance-style row of the newest videos with thumbnail, age, factor against the normal (F3) and curve (F4).
   function videoCurve(id) {
-    const h = state.hist; if (!h) return [];
+    const h = channelContext().history; if (!h) return [];
     return [...(h.daily || []).slice(-14)].map(p => (p.v || {})[id]).filter(x => x != null);
   }
   const ICONS = { clock: "M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0", cal: "M8 3v4M16 3v4M4 10h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1",
     eye: "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6", heart: "M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z" };
   const ico = (name) => { const s = sv("svg", { viewBox: "0 0 24 24", "aria-hidden": "true" }); s.append(sv("path", { d: ICONS[name] })); return s; };
   function renderVideoRow() {
-    const d = state.data, row = $("vrow"); if (!d) return;
+    const ctx = channelContext(), row = $("vrow");
     row.replaceChildren();
     const out = (v) => !v.publish_at || new Date(v.publish_at) <= new Date();      // published first, then the planned ones
-    const vids = [...(d.videos || []).filter(out), ...(d.videos || []).filter(v => !out(v)).reverse()].slice(0, 12);
+    const vids = [...ctx.videos.filter(out), ...ctx.videos.filter(v => !out(v)).reverse()].slice(0, 12);
     if (!vids.length) { row.append(el("span", "empty", "Noch keine Videos.")); return; }
     for (let v of vids) {
-      const lv = v.platform === "youtube" && state.live && state.live.videos && state.live.videos[v.video_id];
+      const lv = v.platform === "youtube" && ctx.live && ctx.live.videos && ctx.live.videos[v.video_id];
       if (lv) v = { ...v, views: lv.views, likes: lv.likes };
       // TikTok: Buffer's link to the post once it is sent (video_id is the Buffer post id).
       const href = v.platform === "tiktok" ? (v.link && /^https:\/\//.test(v.link) ? v.link : null) : v.video_id ? `https://youtu.be/${encodeURIComponent(v.video_id)}` : null;
       const a = el(href ? "a" : "div", "vcard");
       if (href) { a.href = href; a.target = "_blank"; a.rel = "noopener"; }
-      const th = el("div", "thumb"), pic = state.thumbs[v.id];
+      const th = el("div", "thumb"), pic = ctx.thumbs[v.id];
       th.append(el("span", null, "kein Vorschaubild"));
       if (pic) for (const cls of ["fill", "fit"]) { const img = el("img", cls); img.alt = ""; img.src = pic; th.append(img); }   // own copy, sealed (Felix 30.10.)
       else if (v.platform === "youtube" && v.video_id) { const img = el("img"); img.alt = ""; img.loading = "lazy"; img.src = `https://i.ytimg.com/vi/${encodeURIComponent(v.video_id)}/mqdefault.jpg`; img.addEventListener("error", () => img.remove()); img.addEventListener("load", () => { if (img.naturalWidth <= 120) img.remove(); }); th.append(img); }
@@ -2238,7 +2332,7 @@ details.yppmore .grid4 { margin-top: 8px; }
         : n ? "Faktor: Normalwert ist 0" : v.platform === "youtube" ? "Faktor kommt ab 3 Videos gleicher Art" : "TikTok: ohne Faktor";
       st.append(badge);
       a.append(st);
-      const curve = v.platform === "youtube" ? videoCurve(v.video_id) : [];
+      const curve = videoCurve(v.video_id);
       if (curve.length > 1) a.append(spark(curve, "var(--accent)"));
       row.append(a);
     }
@@ -2246,9 +2340,9 @@ details.yppmore .grid4 { margin-top: 8px; }
 
   // Plausible-style rank list: videos by views, bar behind the title.
   function renderRank() {
-    const d = state.data, box = $("rank"); if (!d) return;
+    const ctx = channelContext(), box = $("rank");
     box.replaceChildren();
-    const vids = (d.videos || []).map(v => { const lv = v.platform === "youtube" && state.live && state.live.videos && state.live.videos[v.video_id]; return lv ? { ...v, views: lv.views } : v; })
+    const vids = ctx.videos.map(v => { const lv = v.platform === "youtube" && ctx.live && ctx.live.videos && ctx.live.videos[v.video_id]; return lv ? { ...v, views: lv.views } : v; })
       .filter(v => v.views != null).sort((a, b) => b.views - a.views).slice(0, 10);
     const rh = el("div", "rh"); rh.append(el("span", null, "Videos nach Aufrufen"), el("span", null, "Aufrufe")); box.append(rh);
     if (!vids.length) { box.append(el("span", "empty", "Noch keine Zahlen.")); }
@@ -2258,8 +2352,8 @@ details.yppmore .grid4 { margin-top: 8px; }
       const t = el("span"); t.append(el("span", "tag " + v.platform, v.platform === "youtube" ? (v.kind === "long" ? "Lang" : "Short") : "TikTok")); t.append(document.createTextNode(" " + v.title));
       l.append(bar, t); r.append(l, el("span", "n", int(v.views))); box.append(r);
     }
-    const live = state.live && state.live.channel, cs = live || (d.channel && d.channel.stats);
-    $("chan").textContent = cs ? `${int(cs.subscribers)} Abonnenten · ${int(live ? chanViews(cs, state.live.videos) : cs.views)} Aufrufe gesamt · ` + (live ? `YouTube live, ${fmtTime(state.live.at)}` : "Stand der Nacht") : "Kanalzahlen kommen mit dem ersten Abruf der Statistik";
+    const cs = ctx.stats, label = ctx.platform === "tiktok" ? "TikTok" : ctx.platform === "youtube" ? "YouTube" : "Kanal";
+    $("chan").textContent = ctx.error || `${ctx.name} · ${label} · ${int(cs.views)} ${ctx.scope === "tracked_posts" ? "Postaufrufe erfasst" : "Aufrufe gesamt"} · ` + (ctx.live ? `live ${fmtTime(ctx.live.at)}` : ctx.observed_at ? `Stand ${fmtTime(ctx.observed_at)}` : "Noch keine Messung");
   }
 
   // F6: the month's spending as a curve against the limit, forecast dashed.
@@ -2356,11 +2450,39 @@ details.yppmore .grid4 { margin-top: 8px; }
   // Tabs (Felix 30.10.): one area at a time, remembered in the browser. They must not drop the key
   // from the address (bookmarks keep #k=), so the choice does not go into the hash.
   document.querySelectorAll("nav.jump a").forEach(a => a.addEventListener("click", (e) => { e.preventDefault(); showTab(a.getAttribute("href").slice(1)); }));
+  let swipeStart = null;
+  document.addEventListener("touchstart", e => {
+    swipeStart = null;
+    if (e.touches.length !== 1 || !matchMedia("(max-width: 700px)").matches) return;
+    const t = e.touches[0], target = e.target;
+    if (t.clientX < 24 || t.clientX > innerWidth - 24 || target.closest("input, textarea, select, button, a, summary, [contenteditable], nav, .channel-controls, .chart, svg")) return;
+    for (let n = target; n && n !== document.body; n = n.parentElement) {
+      if (/auto|scroll/.test(getComputedStyle(n).overflowX) && n.scrollWidth > n.clientWidth + 1) return;
+    }
+    swipeStart = { x: t.clientX, y: t.clientY, at: performance.now(), id: t.identifier };
+  }, { passive: true });
+  document.addEventListener("touchmove", e => {
+    if (e.touches.length !== 1 || (swipeStart && Math.abs(e.touches[0].clientY - swipeStart.y) > 60)) swipeStart = null;
+  }, { passive: true });
+  document.addEventListener("touchcancel", () => { swipeStart = null; }, { passive: true });
+  document.addEventListener("touchend", e => {
+    const start = swipeStart; swipeStart = null;
+    if (!start || e.touches.length) return;
+    const t = [...e.changedTouches].find(t => t.identifier === start.id);
+    if (!t) return;
+    const direction = swipeDirection(start, { x: t.clientX, y: t.clientY, at: performance.now() });
+    const links = [...document.querySelectorAll("nav.jump a")], index = links.findIndex(a => a.getAttribute("aria-current") === "page");
+    const next = links[index + direction];
+    if (!direction || index < 0 || !next) return;
+    showTab(next.getAttribute("href").slice(1));
+    next.scrollIntoView({ block: "nearest", inline: "nearest" });
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, { passive: true });
   try { showTab(localStorage.getItem(TAB_STORE)); } catch (_) { showTab(null); }
 
   // Smoke test (tests/test_leitstand.py, Phase 5): with window.LEITSTAND_TEST set, the page hands out
   // its state and render functions and starts no timers and no network.
-  if (window.LEITSTAND_TEST) { Object.assign(window.LEITSTAND_TEST, { state, render, renderProduction, renderProdSteps }); return; }
+  if (window.LEITSTAND_TEST) { Object.assign(window.LEITSTAND_TEST, { state, render, renderProduction, renderProdSteps, swipeDirection, channelGroups, channelContext, renderChannel }); return; }
   render();
   loadFiles();
   setInterval(render, 60000);   // time-based alerts move on while the page stays open
@@ -2388,6 +2510,30 @@ details.yppmore .grid4 { margin-top: 8px; }
   const pageCheck = () => { if (document.visibilityState === "visible" && Date.now() - checked > 300000) { checked = Date.now(); checkPage(); } };
   setInterval(pageCheck, 60000);
   document.addEventListener("visibilitychange", pageCheck);
+})();
+</script>
+<div class="pal" id="pal"><button type="button" class="pal-dot" aria-expanded="false" aria-controls="pal-list" aria-label="Farben wählen"><i></i></button><div class="pal-list" id="pal-list" role="radiogroup" aria-label="Farbpalette" inert><button type="button" role="radio" data-palette="" aria-label="Burgarchiv" title="Burgarchiv" style="--a:#22251f;--b:#cfb482;--i:0"></button><button type="button" role="radio" data-palette="lavendel" aria-label="Lavendelgrau" title="Lavendelgrau" style="--a:#25222d;--b:#c3b1dc;--i:1"></button><button type="button" role="radio" data-palette="flieder" aria-label="Fliedernebel" title="Fliedernebel" style="--a:#fbf9fd;--b:#6e597f;--i:2"></button><button type="button" role="radio" data-palette="abendrot" aria-label="Abendrot" title="Abendrot" style="--a:#30292f;--b:#d5ae96;--i:3"></button><button type="button" role="radio" data-palette="sandrose" aria-label="Sandrose" title="Sandrose" style="--a:#fcfaf7;--b:#8a5459;--i:4"></button><button type="button" role="radio" data-palette="pflaume" aria-label="Pflaume &amp; Lila" title="Pflaume &amp; Lila" style="--a:#292335;--b:#c4b2ea;--i:5"></button><button type="button" role="radio" data-palette="orca" aria-label="Orca" title="Orca" style="--a:#2b2c36;--b:#d98bff;--i:6"></button></div></div>
+<script id="palette-switch">
+(() => {
+  const box = document.getElementById("pal"), dot = box.querySelector(".pal-dot"), list = document.getElementById("pal-list");
+  const meta = document.querySelector('meta[name="theme-color"]'), root = document.documentElement;
+  function mark() {
+    const cur = root.dataset.palette || "";
+    list.querySelectorAll("button").forEach(b => b.setAttribute("aria-checked", String(b.dataset.palette === cur)));
+    meta.content = getComputedStyle(root).getPropertyValue("--bg").trim() || meta.content;
+  }
+  function toggle(on) { box.classList.toggle("open", on); dot.setAttribute("aria-expanded", String(on)); list.inert = !on; }
+  dot.addEventListener("click", () => toggle(!box.classList.contains("open")));
+  list.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.palette) root.dataset.palette = b.dataset.palette; else delete root.dataset.palette;
+    try { localStorage.setItem("leitstand-palette", b.dataset.palette); } catch (_) { /* private mode: only this visit */ }
+    mark();
+  });
+  document.addEventListener("click", e => { if (!box.contains(e.target)) toggle(false); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && box.classList.contains("open")) { toggle(false); dot.focus(); } });
+  if (!list.querySelector(`[data-palette="${root.dataset.palette || ""}"]`)) delete root.dataset.palette;
+  mark();
 })();
 </script>
 </body>
