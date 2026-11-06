@@ -665,6 +665,15 @@ details.yppmore .grid4 { margin-top: 8px; }
   #s-costs .two > .card { overflow: auto; }
 }
 /* Phone (Felix 01.11.): a smaller head, bigger tab targets, one day of the Sendeplan per screen width */
+/* Phone and tablet (Felix 06.11.): the brand scrolls away, then the tab bar stays at the top of the
+   screen. --brand-h (set by the script at the end) is the part above the tabs; .stuck makes room for
+   the palette dot and lifts the bar with a shadow. On desktop the page does not scroll, nothing changes. */
+@media not all and (min-width: 1000px) and (min-height: 620px) {
+  .sidebar { position: sticky; z-index: 9; top: calc(env(safe-area-inset-top, 0px) - var(--brand-h, 80px)); }
+  .sidebar.stuck { border-top-left-radius: 0; border-top-right-radius: 0; box-shadow: 0 12px 24px -14px rgb(0 0 0 / .55); }
+  .sidebar.stuck nav.jump { padding-left: 36px; }
+}
+@media (prefers-reduced-motion: no-preference) { nav.jump { transition: padding-left 240ms cubic-bezier(.22, 1, .36, 1); } }
 @media (max-width: 700px) {
   header.top { padding: 0 0 16px; gap: 12px; }
   header.top .meta { gap: 8px; }
@@ -2543,6 +2552,25 @@ details.yppmore .grid4 { margin-top: 8px; }
 })();
 </script>
 <div class="pal" id="pal"><button type="button" class="pal-dot" aria-expanded="false" aria-controls="pal-list" aria-label="Farben wählen"><i></i></button><div class="pal-list" id="pal-list" role="radiogroup" aria-label="Farbpalette" inert><button type="button" role="radio" data-palette="" aria-label="Burgarchiv" title="Burgarchiv" style="--a:#22251f;--b:#cfb482;--i:0"></button><button type="button" role="radio" data-palette="lavendel" aria-label="Lavendelgrau" title="Lavendelgrau" style="--a:#25222d;--b:#c3b1dc;--i:1"></button><button type="button" role="radio" data-palette="flieder" aria-label="Fliedernebel" title="Fliedernebel" style="--a:#fbf9fd;--b:#6e597f;--i:2"></button><button type="button" role="radio" data-palette="abendrot" aria-label="Abendrot" title="Abendrot" style="--a:#30292f;--b:#d5ae96;--i:3"></button><button type="button" role="radio" data-palette="sandrose" aria-label="Sandrose" title="Sandrose" style="--a:#fcfaf7;--b:#8a5459;--i:4"></button><button type="button" role="radio" data-palette="pflaume" aria-label="Pflaume &amp; Lila" title="Pflaume &amp; Lila" style="--a:#292335;--b:#c4b2ea;--i:5"></button><button type="button" role="radio" data-palette="orca" aria-label="Orca" title="Orca" style="--a:#2b2c36;--b:#d98bff;--i:6"></button></div></div>
+<script id="sticky-tabs">
+(() => {
+  const side = document.querySelector(".sidebar"), nav = side.querySelector("nav.jump");
+  const desk = matchMedia("(min-width: 1000px) and (min-height: 620px)");
+  let queued = false;
+  function check() {
+    queued = false;
+    const safe = parseFloat(getComputedStyle(document.body, "::before").height) || 0;
+    side.classList.toggle("stuck", !desk.matches && nav.getBoundingClientRect().top <= safe + 1);
+  }
+  function measure() {
+    if (!desk.matches) side.style.setProperty("--brand-h", Math.round(nav.getBoundingClientRect().top - side.getBoundingClientRect().top) + "px");
+    check();
+  }
+  addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(check); } }, { passive: true });
+  addEventListener("resize", measure); desk.addEventListener("change", measure); addEventListener("load", measure);
+  measure();
+})();
+</script>
 <script id="palette-switch">
 (() => {
   const box = document.getElementById("pal"), dot = box.querySelector(".pal-dot"), list = document.getElementById("pal-list");
