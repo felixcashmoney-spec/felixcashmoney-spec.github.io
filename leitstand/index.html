@@ -1248,10 +1248,19 @@ details.yppmore .grid4 { margin-top: 8px; }
   const ENTER = ["enter", "from-left", "from-right", "from-below", "from-above"];
   function animateIn(sec, dir, vertical) {
     sec.classList.remove(...ENTER);
-    const tiles = [...sec.querySelectorAll(".card, .kpi")].filter(n => !n.parentElement.closest(".card, .kpi"));
+    // every visible piece takes part (Felix 06.11.): the tiles, the Sendeplan days and video cards, and
+    // whatever else sits beside them (titles, bars, the channel picker), so nothing stands still
+    const TILE = ".card, .kpi, .daycol, .vcard";
+    const tiles = [...sec.querySelectorAll(TILE)].filter(n => !n.parentElement.closest(TILE) && n.getClientRects().length);
+    (function rest(n) {
+      for (const c of n.children) {
+        if (c.matches(TILE) || !c.getClientRects().length) continue;
+        if (c.querySelector(TILE)) rest(c); else tiles.push(c);
+      }
+    })(sec);
     const box = sec.getBoundingClientRect(), w = Math.max(box.width, 1), h = Math.max(Math.min(box.height, window.innerHeight || 800), 1);
     tiles.forEach(n => {
-      const r = n.getBoundingClientRect(), x = (r.left - box.left + r.width / 2) / w, y = Math.min(Math.max((r.top - box.top) / h, 0), 1.2);
+      const r = n.getBoundingClientRect(), x = Math.min(Math.max((r.left - box.left + r.width / 2) / w, 0), 1), y = Math.min(Math.max((r.top - box.top) / h, 0), 1.2);
       const across = dir > 0 ? 1 - x : x;   // the wave starts where the swipe came from
       const d = vertical ? 100 + (dir < 0 ? 1.2 - y : y) * 380 + x * 140 : 120 + across * 260 + y * 320;
       n.classList.add("tile-in"); n.style.setProperty("--d", Math.round(d) + "ms");
