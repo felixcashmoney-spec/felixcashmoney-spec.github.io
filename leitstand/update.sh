@@ -59,11 +59,21 @@ for i in 1 2 3; do git push -q -f origin "$commit:refs/heads/live" && echo "live
 # main only hourly (no Pages build every 5 minutes; GitHub allows about 10 an hour), a new page right away
 last=$(git log -1 --format=%ct origin/main -- leitstand/live.json 2>/dev/null || echo 0)
 if git diff --quiet -- leitstand/index.html && [ $(( $(date +%s) - ${last:-0} )) -lt 3300 ]; then exit 0; fi
-git add $FILES leitstand/index.html 2>/dev/null || true
-if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
-git -c user.name="leitstand-bot" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-  commit -q -m "$stamp"
-for i in 1 2 3; do git pull -q --rebase origin main && git push -q && break; sleep 5; done
+# Felix 06.11.: commit on top of the current main, never rebase. A run lasts ~6 h; a hand commit to
+# leitstand/index.html in between made every rebase conflict and main stayed stuck for 3 hours.
+# reset (mixed) takes main's tree into the index and keeps our freshly written files in the work tree.
+git rebase --abort 2>/dev/null || true
+pushed=0
+for i in 1 2 3; do
+  git fetch -q origin main && git reset -q FETCH_HEAD || { sleep 5; continue; }
+  git add $FILES leitstand/index.html 2>/dev/null || true
+  if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+  git -c user.name="leitstand-bot" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+    commit -q -m "$stamp"
+  git push -q origin HEAD:main && pushed=1 && break
+  sleep 5
+done
+[ "$pushed" = 1 ] || echo "::warning::main nicht aktualisiert, nächster Versuch in 5 Minuten"
 # pushes with the workflow token may not start a Pages build by themselves
 curl -sS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
   "https://api.github.com/repos/$GITHUB_REPOSITORY/pages/builds" -o /dev/null -w "Pages build: %{http_code}\n" || true
