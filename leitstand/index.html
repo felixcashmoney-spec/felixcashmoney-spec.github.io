@@ -2581,7 +2581,13 @@ details.yppmore .grid4 { margin-top: 8px; }
   document.addEventListener("wheel", e => {
     if (!DESKTOP.matches || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
     clearTimeout(wheel && wheel.timer);
-    wheel = wheel || { sum: 0, done: false };
+    // The trackpad keeps sending a fading momentum tail for 1-2 s after the fingers lift. A new swipe
+    // inside that tail (Felix 06.11.: "without moving the mouse first") shows as a delta that grows
+    // again or turns around; that starts a fresh gesture instead of being swallowed by the old one.
+    const size = Math.abs(e.deltaY), sign = Math.sign(e.deltaY);
+    if (wheel && wheel.done && performance.now() - wheel.at > 180 && (sign !== wheel.sign || size > Math.max(8, wheel.last * 1.6))) wheel = null;
+    wheel = wheel || { sum: 0, done: false, at: performance.now() };
+    wheel.last = size; wheel.sign = sign;
     wheel.timer = setTimeout(() => { wheel = null; }, 260);
     if (wheel.done) return;
     const down = e.deltaY > 0;
@@ -2592,7 +2598,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     }
     wheel.sum += e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
     if (Math.abs(wheel.sum) < 40) return;
-    wheel.done = true;
+    wheel.done = true; wheel.at = performance.now();
     stepTab(wheel.sum > 0 ? 1 : -1, true);
   }, { passive: true });
   try { showTab(localStorage.getItem(TAB_STORE)); } catch (_) { showTab(null); }
