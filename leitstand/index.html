@@ -2610,23 +2610,33 @@ details.yppmore .grid4 { margin-top: 8px; }
   setInterval(() => { if (Date.now() - fetched > 180000) refresh(); }, 30000);
   document.addEventListener("visibilitychange", refresh);
   window.addEventListener("pageshow", (e) => { if (e.persisted) refresh(); });   // iOS back from the app switcher
-  // New page version (Felix 02.11.): the home-screen app on iOS keeps the page in memory for days and
-  // never reloads it. When the page online has a different script, reload once (at most every 10 min.).
-  // ponytail: compares only the script, a change of markup or CSS alone waits for the next script change.
-  const SELF = document.currentScript.textContent;
+  // New page version (Felix 02.11., 06.11.): the home-screen app on iOS keeps the page in memory for days.
+  // While visible the page asks every minute, and at once when it comes back to the front, whether the
+  // page online differs: any change to the CSS or to one of the inline scripts counts (06.11.: before,
+  // only the main script did, so a pure design change never arrived). Check and reload both go to
+  // ?v=<time>, past GitHub Pages' 10-minute cache; the stamp is taken out of the address again on load.
+  // At most one reload a minute, so a flaky answer cannot loop.
+  // ponytail: a change to the static markup alone (no CSS/JS) is not seen; such changes come with CSS.
+  const blocks = (doc) => [doc.querySelector("head style"), ...doc.querySelectorAll("script")].map(n => n ? n.textContent.trim() : "").join("\n\u0000\n");
+  let OWN = null;   // read at the first check: the scripts after this one are not parsed yet right now
   async function checkPage() {
     try {
-      const html = await (await fetch(location.pathname, { cache: "no-cache" })).text();
+      const res = await fetch(`${location.pathname}?v=${Date.now()}`, { cache: "no-store" });
+      const html = res.ok ? await res.text() : "";
       const last = Number(localStorage.getItem("leitstand-reloaded") || 0);
-      if (html.includes("</html>") && !html.includes(SELF) && Date.now() - last > 600000) {
-        localStorage.setItem("leitstand-reloaded", String(Date.now())); location.reload();
+      OWN = OWN || blocks(document);   // compared whole, not "still contained": appended CSS must count too
+      if (html.includes("</html>") && blocks(new DOMParser().parseFromString(html, "text/html")) !== OWN && Date.now() - last > 60000) {
+        localStorage.setItem("leitstand-reloaded", String(Date.now()));
+        location.replace(`${location.pathname}?v=${Date.now()}${location.hash}`);
       }
     } catch (_) { /* offline or no storage: keep the page */ }
   }
+  if (/[?&]v=\d/.test(location.search)) history.replaceState(null, "", location.pathname + location.hash);
   let checked = 0;
-  const pageCheck = () => { if (document.visibilityState === "visible" && Date.now() - checked > 300000) { checked = Date.now(); checkPage(); } };
+  const pageCheck = (soon) => { if (document.visibilityState === "visible" && Date.now() - checked > (soon === true ? 5000 : 55000)) { checked = Date.now(); checkPage(); } };
   setInterval(pageCheck, 60000);
-  document.addEventListener("visibilitychange", pageCheck);
+  document.addEventListener("visibilitychange", () => pageCheck(true));
+  window.addEventListener("pageshow", (e) => { if (e.persisted) pageCheck(true); });
 })();
 </script>
 <div class="pal" id="pal"><button type="button" class="pal-dot" aria-expanded="false" aria-controls="pal-list" aria-label="Farben wählen"><i></i></button><div class="pal-list" id="pal-list" role="radiogroup" aria-label="Farbpalette" inert><button type="button" role="radio" data-palette="" aria-label="Burgarchiv" title="Burgarchiv" style="--a:#22251f;--b:#cfb482;--i:0"></button><button type="button" role="radio" data-palette="lavendel" aria-label="Lavendelgrau" title="Lavendelgrau" style="--a:#25222d;--b:#c3b1dc;--i:1"></button><button type="button" role="radio" data-palette="flieder" aria-label="Fliedernebel" title="Fliedernebel" style="--a:#fbf9fd;--b:#6e597f;--i:2"></button><button type="button" role="radio" data-palette="abendrot" aria-label="Abendrot" title="Abendrot" style="--a:#30292f;--b:#d5ae96;--i:3"></button><button type="button" role="radio" data-palette="sandrose" aria-label="Sandrose" title="Sandrose" style="--a:#fcfaf7;--b:#8a5459;--i:4"></button><button type="button" role="radio" data-palette="pflaume" aria-label="Pflaume &amp; Lila" title="Pflaume &amp; Lila" style="--a:#292335;--b:#c4b2ea;--i:5"></button><button type="button" role="radio" data-palette="orca" aria-label="Orca" title="Orca" style="--a:#2b2c36;--b:#d98bff;--i:6"></button></div></div>
