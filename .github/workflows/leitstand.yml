@@ -1,5 +1,5 @@
 # Dashboard (formerly Leitstand of the Strange Knowns automation), https://felixcashmoney-spec.github.io/leitstand/
-# Every 5 minutes (Felix 30.10.: live, before every 15): the sealed data of the last night/repair run from the private repo's data branch,
+# Every 5 minutes, a page change within about a minute (Felix 30.10.: live, before every 15; 06.11.): the sealed data of the last night/repair run from the private repo's data branch,
 # and the channel's public YouTube numbers (leitstand/update.sh). Commits only when something changed.
 #
 # GitHub's schedule never fired for this workflow (30.10.: only manual runs), so one run stays up
@@ -44,7 +44,18 @@ jobs:
             bash leitstand/update.sh || echo "::warning::Abgleich fehlgeschlagen, nächster Versuch in 5 Minuten"
             next=$(( ($(date +%s) / 300 + 1) * 300 + 60 ))       # :01, :06, :11, ...
             [ "$next" -ge "$end" ] && break
-            sleep $(( next - $(date +%s) ))
+            # Felix 06.11.: a merged page change must not wait for the next 5-minute round. Every 30 s
+            # one API call (read token, 5,000/h) asks for the last commit to the page; a new one starts
+            # the round right away, so the page is online about 1-2 minutes after the merge.
+            while [ "$(date +%s)" -lt "$next" ]; do
+              sleep $(( next - $(date +%s) < 30 ? next - $(date +%s) : 30 ))
+              [ -n "${TOKEN:-}" ] || continue
+              sha=$(curl -sf -H "Authorization: Bearer $TOKEN" \
+                "https://api.github.com/repos/felixcashmoney-spec/Youtube-Automation/commits?sha=main&path=web/leitstand/index.html&per_page=1" \
+                | python3 -c 'import sys, json; print(json.load(sys.stdin)[0]["sha"])' 2>/dev/null) || continue
+              if [ -n "${page_sha:-}" ] && [ "$sha" != "$page_sha" ]; then page_sha=$sha; echo "Seite geändert, Runde sofort"; break; fi
+              page_sha=$sha
+            done
           done
 
       - name: Start the next run
