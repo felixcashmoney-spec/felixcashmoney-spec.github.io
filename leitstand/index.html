@@ -210,12 +210,6 @@ button.kpi:hover { color: inherit; }
 .channel-choices button { flex: none; min-height: 44px; }
 .channel-choices button[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
 button:disabled { cursor: default; color: var(--muted); opacity: .65; }
-/* stages */
-.stages { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; margin: 0; padding: 0; }
-.stages li { font-size: .76rem; padding: 4px 8px; border-radius: 5px; background: var(--panel); color: var(--muted); border: 1px solid var(--line); }
-.stages li.done { color: var(--ok); border-color: transparent; background: var(--ok-soft); }
-.stages li.now { color: var(--panel); background: var(--accent); border-color: var(--accent); font-weight: 500; }
-.stages li.stop { color: var(--panel); background: var(--bad); border-color: var(--bad); font-weight: 500; }
 
 /* deadlines with heartbeat (Healthchecks + Uptime Kuma) */
 table.checks { width: 100%; border-collapse: collapse; font-size: .84rem; }
@@ -312,6 +306,20 @@ a.pcard:hover { border-color: var(--accent); text-decoration: none; }
 .st.ok { color: var(--ok); background: var(--ok-soft); border-color: transparent; }
 .st.bad { color: var(--bad); background: var(--bad-soft); border-color: transparent; }
 .st.plan { color: var(--accent-ink); background: var(--accent-soft); border-color: transparent; }
+.st.warn { color: var(--warn); background: var(--warn-soft); border-color: transparent; }
+/* Kachelcheck 07.11.: the next seven days as squares (Abgesichert), the live dot in the head, the posts' ready tag */
+.days7 { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; margin-top: 6px; }
+.days7 i { height: 10px; border-radius: 3px; background: var(--none, var(--line)); }
+.days7 i.ok { background: var(--ok-mark); } .days7 i.warn { background: var(--warn-mark); } .days7 i.bad { background: var(--bad-mark); }
+.vsep { display: grid; align-content: center; gap: 2px; padding: 0 4px 0 12px; border-left: 1px dashed var(--line); font-size: .8rem; color: var(--muted); }
+.vsep b { color: var(--ink); font-weight: 500; }
+.vcard.prep { opacity: .8; } .vcard.prep .thumb { outline: 1px dashed var(--muted); outline-offset: -1px; }
+.livehead { display: inline-flex; align-items: center; color: var(--muted); }
+.livehead #t-live { display: none; }      /* the dot alone; #stamp already names the live time */
+.ready-tag:empty { display: none; }
+.ready-tag .st, .npost .w .st { font-size: .7rem; padding: 0 6px; }
+#p-ypp .ypp { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+#p-log .ticker { max-height: 320px; overflow: auto; }
 .pempty { font-size: .8rem; color: var(--faint); border: 1px dashed var(--line); border-radius: 8px; padding: 12px; text-align: center; }
 
 /* video comparison (Felix 31.10.) */
@@ -409,7 +417,7 @@ footer details > div { margin-top: 4px; }
 /* ---------- Übersicht (Felix 30.10. abends) ---------- */
 #s-overview { grid-template-columns: minmax(0, 1fr); }
 /* U1: today bar */
-.today { display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(4, minmax(0, 1fr)); gap: 0; padding: 0; }
+.today { display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; }
 .today > div { padding: 12px 16px; display: grid; gap: 2px; align-content: start; min-width: 0; }
 .today > div + div { border-left: 1px solid var(--line); }
 .today .label { font-size: .75rem; letter-spacing: 0; font-weight: 500; color: var(--muted); }
@@ -423,7 +431,7 @@ footer details > div { margin-top: 4px; }
 .today button.big-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 .livedot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); margin-right: 8px; vertical-align: 1px; }
 .livedot.on { background: var(--ok-mark); }
-@media (max-width: 760px) { .today { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .today > div:nth-child(3) { border-left: 0; } .today > div:nth-child(n+3) { border-top: 1px solid var(--line); } .today > div:nth-child(5) { grid-column: 1 / -1; border-left: 0; } }
+@media (max-width: 760px) { .today { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .today > div:nth-child(3) { border-left: 0; } .today > div:nth-child(n+3) { border-top: 1px solid var(--line); } }
 
 /* U6: yellow notes behind one line */
 details.morealerts { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
@@ -561,9 +569,6 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
 .ring .mid small { font-size: .75rem; color: var(--muted); }
 .ring .name { font-size: .8rem; font-weight: 500; }
 .ring .note { font-size: .75rem; color: var(--muted); line-height: 1.3; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-details.yppmore > summary { cursor: pointer; font-size: .78rem; color: var(--accent-ink); list-style: none; }
-details.yppmore > summary::-webkit-details-marker { display: none; }
-details.yppmore .grid4 { margin-top: 8px; }
 
 /* L2: live ticker */
 .ticker { list-style: none; margin: 0; padding: 0; display: grid; }
@@ -627,7 +632,7 @@ details.yppmore .grid4 { margin-top: 8px; }
   #s-overview .ovgrid > .card { min-height: 0; overflow: auto; }
   header.top h1 { font-size: 1.6rem; } header.top .eyebrow { margin-bottom: 2px; }
   #o-rings { grid-template-columns: minmax(0, 1fr); }
-  #s-overview .kpi .from, #yppmore > summary { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #s-overview .kpi .from { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ring .dial { width: 56px; height: 56px; }
   #s-overview .kpi { padding: 10px 16px; gap: 2px; } #s-overview .kpi svg.spark { height: 24px; }
   .today > div { padding-block: 4px; }
@@ -636,10 +641,14 @@ details.yppmore .grid4 { margin-top: 8px; }
   .ring .mid b { font-size: .88rem; } .ring .mid small { font-size: .64rem; }
   .ring { gap: 2px; } .flow { padding-top: 0; }
   #s-overview .kpi svg.bars { height: 24px; }
-  #s-overview .ovgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "flow flow posts" "rings latest ticker"; }
-  #o-flow { grid-area: flow; } #o-posts { grid-area: posts; } #o-latest { grid-area: latest; } #o-rings { grid-area: rings; } #o-ticker { grid-area: ticker; }
-  #s-overview #o-ticker { overflow: hidden; }
-  #s-overview .nextposts > :nth-child(n+3) { display: none; }
+  #kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }      /* one row, so the overview stays one screen */
+  #kpis .kpi { min-width: 0; overflow: hidden; grid-template-columns: minmax(0, 1fr); }
+  #kpis .from { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #kpis .label > span:first-child, #kpis .value { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  #kpis .label .delta { white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; flex-shrink: 10; }
+  #s-overview .ovgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "flow flow posts" "rings latest posts"; }
+  #o-flow { grid-area: flow; } #o-posts { grid-area: posts; } #o-latest { grid-area: latest; } #o-rings { grid-area: rings; }
+  #s-overview .nextposts > :nth-child(n+4) { display: none; }
   #kpis-chan .kpi, #kpis-cost .kpi { padding: 12px 16px; gap: 2px; } #kpis-chan .kpi svg.spark, #kpis-cost .kpi svg.spark { height: 24px; }
   #s-overview .nextposts { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   #s-overview .npost { grid-template-columns: 112px minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 12px; align-items: start; }
@@ -647,21 +656,23 @@ details.yppmore .grid4 { margin-top: 8px; }
   #s-overview .npost .t { -webkit-line-clamp: 2; }
   .card.block { align-content: start; }
   #s-runs.on { overflow: hidden; align-content: stretch; grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: auto auto minmax(0, 1.1fr) minmax(0, 1fr);
-    grid-template-areas: "t t t" "flow flow flow" "checks checks grid" "night repair prod"; }
+    grid-template-rows: auto minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, .7fr);
+    grid-template-areas: "t t t" "checks checks grid" "night repair prod" "log log log"; }
+  #p-log { grid-area: log; min-height: 0; } #s-runs #p-log { overflow: auto; } #p-log .ticker { max-height: none; flex: 1 1 0; min-height: 3.6em; overflow: auto; }
   table.checks td { padding-block: 4px; }
-  #p-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
   #s-runs .two { display: contents; }
-  #s-runs > .title { grid-area: t; } #p-flow { grid-area: flow; } #p-checks { grid-area: checks; } #p-grid { grid-area: grid; }
+  #s-runs > .title { grid-area: t; } #p-checks { grid-area: checks; } #p-grid { grid-area: grid; }
   #p-night { grid-area: night; } #p-repair { grid-area: repair; } #p-prod { grid-area: prod; }
   #p-night > .card, #p-repair > .card, #p-prod > .card { flex: 1 1 0; }
+  #s-runs .pane { overflow: hidden; }      /* a short window never lets one card run into the next */
+  #p-prod .days { flex-wrap: nowrap; overflow-x: auto; flex: none; }
   pre.log { max-height: none; }
   #s-plan.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
   #s-plan .tl { min-height: 0; }
   /* everything of a day on screen (Felix 31.10.): pictures shrink when the column is short, text and numbers stay */
   #s-plan .daycol .body { overflow: hidden; }
   #s-plan .daycol .body > * { flex: none; }
-  #s-plan .daycol .body > .pcard { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  #s-plan .daycol .body > .pcard { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
   #s-plan .pcard > * { flex: none; }
   #s-plan .pcard > .thumb:not(.noimg) { flex: 0 1 auto; min-height: 36px; }
   #s-plan .pcard .ttl { -webkit-line-clamp: 2; }
@@ -669,11 +680,12 @@ details.yppmore .grid4 { margin-top: 8px; }
   #s-compare .cmptop > .card { max-height: 34vh; overflow: auto; }
   #s-compare #p-ctbl { min-height: 0; }
   #s-channel.on { align-content: stretch; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-    grid-template-rows: auto auto auto minmax(180px, 1fr) minmax(0, auto); grid-template-areas: "t t" "selector selector" "k k" "views rank" "vids vids"; overflow: hidden; }
+    grid-template-rows: auto auto auto minmax(180px, 1fr) minmax(0, auto); grid-template-areas: "t t" "selector selector" "k k" "views ypp" "vids vids"; overflow: hidden; }
   #p-views, #p-vids { min-height: 0; overflow: auto; }
   #channel-controls { grid-area: selector; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; }
   #s-channel .vrow { grid-auto-columns: minmax(172px, 184px); }
-  #s-channel > .title { grid-area: t; } #kpis-chan { grid-area: k; } #p-views { grid-area: views; } #rank { grid-area: rank; overflow: auto; align-content: start; } #p-vids { grid-area: vids; }
+  #s-channel .vstats { gap: 8px; overflow: hidden; } #s-channel .vstats > span[title="Likes"], #s-channel .vstats > span:first-child svg { display: none; }      /* 172px cards: age, views, factor fit; likes stay in the comparison tab */
+  #s-channel > .title { grid-area: t; } #kpis-chan { grid-area: k; } #p-views { grid-area: views; } #p-ypp { grid-area: ypp; overflow: auto; align-content: start; } #p-ypp .ypp { grid-template-columns: minmax(0, 1fr); } #p-vids { grid-area: vids; }
   #views-chart svg { height: 100%; }
   #s-costs.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
   #s-costs .two { min-height: 0; }
@@ -683,6 +695,14 @@ details.yppmore .grid4 { margin-top: 8px; }
 /* Phone (Felix 01.11.): a smaller head, bigger tab targets, one day of the Sendeplan per screen width */
 /* Phone and tablet (Felix 06.11.): the brand scrolls away, then the tab bar stays at the top of the
    screen. --brand-h (set by the script at the end) is the part above the tabs; .stuck lifts the bar with a shadow. On desktop the page does not scroll, nothing changes. */
+@media (min-width: 1000px) and (min-height: 620px) and (max-height: 799px) {
+  #p-grid .head .muted, #p-prod .head .muted { display: none; }      /* short window: drop the explanations, keep the data */
+  #p-grid .gridkey { display: none; }
+}
+@media (min-width: 1000px) and (max-width: 1299px) and (min-height: 620px) {
+  #kpis .fresh { font-size: 0; gap: 0; }      /* narrow window: freshness as the dot only, text stays in the tooltip */
+  #kpis .value { font-size: 1.5rem; }
+}
 @media not all and (min-width: 1000px) and (min-height: 620px) {
   .sidebar { position: sticky; z-index: 9; top: calc(env(safe-area-inset-top, 0px) - var(--brand-h, 80px)); }
   .sidebar.stuck { border-top-left-radius: 0; border-top-right-radius: 0; box-shadow: 0 12px 24px -14px rgb(0 0 0 / .55); }
@@ -737,6 +757,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     <div><div class="eyebrow">YouTube und TikTok</div><h1>Dashboard</h1></div>
     <div class="meta">
       <span id="overall" class="pill idle">Lädt …</span>
+      <span class="small livehead" id="t-livewrap"><span class="livedot" id="t-livedot"></span><span id="t-live">YouTube</span></span>
       <span class="muted small" id="stamp">Daten werden gelesen</span>
       <button type="button" id="reload">Neu laden</button>
     </div>
@@ -750,12 +771,11 @@ details.yppmore .grid4 { margin-top: 8px; }
 
     <div class="card today" id="today" aria-label="Heute">
       <div><span class="label" id="t-day">Heute</span><span class="val state" id="t-state"><i></i><span>Lädt …</span></span><span class="sub" id="t-state-sub"></span></div>
-      <div><span class="label">Nächster Post</span><span class="val" id="cd-post">—</span><span class="sub" id="cd-post-what"></span></div>
+      <div><span class="label">Für dich zu tun</span><span class="val state" id="t-todo"><i></i><span>—</span></span><span class="sub" id="t-todo-sub"></span></div>
+      <div><span class="label">Nächster Post</span><span class="val" id="cd-post">—</span><span class="sub" id="cd-post-what"></span><span class="sub ready-tag" id="cd-post-ready"></span></div>
       <div><span class="label">Nächster Nachtlauf</span><span class="val" id="cd-night">—</span>
         <button type="button" class="big-btn" id="g-night-btn" aria-label="Fehler der Nacht ansehen"><span id="g-night">—</span><span id="g-night-hint" hidden></span></button>
-        <span class="sub" id="g-night-sub" hidden></span></div>
-      <div><span class="label">Für dich zu tun</span><span class="val state" id="t-todo"><i></i><span>—</span></span><span class="sub" id="t-todo-sub"></span></div>
-      <div><span class="label">Live</span><span class="val"><span class="livedot" id="t-livedot"></span><span id="t-live">YouTube</span></span><span class="sub" id="t-live-sub">Zahlen alle 5 Minuten</span></div>
+        <span class="sub" id="g-night-sub"></span></div>
     </div>
 
     <ul class="alerts" id="alerts"></ul>
@@ -782,17 +802,11 @@ details.yppmore .grid4 { margin-top: 8px; }
         <div class="latest" id="latest"><span class="empty">—</span></div>
       </div>
       <div class="card" id="o-rings">
-        <div class="head"><h3>Budget, Credits, Partnerprogramm</h3><span class="muted small" id="g-month"></span><span class="fresh" data-fresh="run"></span></div>
+        <div class="head"><h3>Budget und Credits</h3><span class="muted small" id="g-month"></span><span class="fresh" data-fresh="run"></span></div>
         <div class="rings">
           <div class="ring" id="r-budget"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-spent">—</b><small>von <span id="g-limit">100</span> €</small></div></div><span class="name">Budget</span><span class="note" id="g-budget-sub"></span></div>
           <div class="ring cred" id="r-credits"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-credits">—</b><small>frei</small></div></div><span class="name">Higgsfield-Credits</span><span class="note" id="g-credit-sub"></span></div>
-          <button type="button" class="ring" id="r-ypp" aria-controls="yppmore"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-ypp">—</b><small id="g-ypp-unit">%</small></div></div><span class="name">Partnerprogramm</span><span class="note" id="g-ypp-sub">kleine Stufe</span></button>
         </div>
-        <details class="yppmore" id="yppmore"><summary>Weg zum Partnerprogramm im Detail <span class="muted" id="ypp-note"></span></summary><div class="grid4" id="ypp"><span class="empty">Kommt mit dem nächsten Nachtlauf.</span></div></details>
-      </div>
-      <div class="card" id="o-ticker">
-        <div class="head"><h3>Gerade passiert</h3><span class="muted small">neueste oben</span></div>
-        <ul class="ticker" id="ticker"><li><time></time><i class="k night"></i><span class="x muted">Ereignisse erscheinen, sobald die Daten gelesen sind.</span></li></ul>
       </div>
     </div>
   </section>
@@ -825,10 +839,12 @@ details.yppmore .grid4 { margin-top: 8px; }
       </div>
     </div>
 
-    <div class="block" id="p-flow">
-      <div class="head"><h3 id="h-flow">Ablauf der Produktion</h3><span class="muted small" id="flow-week"></span></div>
-      <ol class="stages" id="stages"></ol>
-      <div class="muted small" id="flow-why"></div>
+    <!-- Kachelcheck 07.11.: the log of what happened (was „Gerade passiert“ on the Übersicht), the
+         system changes (were under the Kanal chart) and the idea pipeline (was under the costs) -->
+    <div class="card block pane" id="p-log">
+      <div class="head"><h3 title="Veröffentlichungen, Läufe, Reparaturen, Änderungen · neueste oben">Protokoll</h3><span class="muted small" id="ideas"></span></div>
+      <ul class="ticker scroll" id="ticker"><li><time></time><i class="k night"></i><span class="x muted">Ereignisse erscheinen, sobald die Daten gelesen sind.</span></li></ul>
+      <details class="changes" id="changes"><summary>Änderungen am System</summary><ul id="changes-list"></ul></details>
     </div>
 
     <div class="block pane" id="p-prod">
@@ -883,15 +899,19 @@ details.yppmore .grid4 { margin-top: 8px; }
       </div>
       <div class="chart grow" id="views-chart"><svg id="views" viewBox="0 0 640 190" role="img" aria-label="Aufrufe im Verlauf"></svg><div class="tip" id="views-tip" hidden></div></div>
       <div class="muted small" id="views-note"></div>
-      <details class="changes" id="changes"><summary>Änderungen am System (Markierungen ▾ im Diagramm)</summary><ul id="changes-list"></ul></details>
     </div>
 
     <div class="block" id="p-vids">
-      <div class="head"><h3>Neueste Videos</h3><span class="muted small">Faktor = Aufrufe gegen den Normalwert der eigenen Videos gleicher Art</span></div>
+      <div class="head"><h3>Neueste Videos</h3><span class="muted small">Faktor = Aufrufe gegen den Normalwert der eigenen Videos gleicher Art · <a href="#s-compare" id="to-compare">alle vergleichen</a></span></div>
       <div class="vrow" id="vrow"><span class="empty">—</span></div>
     </div>
 
-    <div class="card rank" id="rank"></div>
+    <!-- Kachelcheck 07.11.: the way to the Partner Program moved here from the Übersicht -->
+    <div class="card block" id="p-ypp">
+      <div class="head"><h3>Partnerprogramm</h3><span class="muted small" id="g-ypp-sub"></span></div>
+      <div class="ypp" id="ypp"><span class="empty">Kommt mit dem nächsten Nachtlauf.</span></div>
+      <div class="muted small" id="ypp-note"></div>
+    </div>
   </section>
 
   <!-- ===================== Kosten ===================== -->
@@ -900,7 +920,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     <div class="grid4" id="kpis-cost" aria-label="Kosten und Credits mit Vergleich zur Vorwoche"></div>
     <div class="two">
       <div class="card block">
-        <div class="head"><h3>Monatsbudget</h3><span class="muted small">bisher, Prognose gestrichelt, Grenze rot</span></div>
+        <div class="head"><h3>Monatsbudget</h3><span class="muted small">bisher, Prognose gestrichelt, Grenze rot · Endstand genau, Tagesverlauf geschätzt</span></div>
         <div class="chart" id="month-chart"><svg id="month" viewBox="0 0 520 200" role="img" aria-label="Kosten im Monat bis heute und Prognose"></svg><div class="tip" id="month-tip" hidden></div></div>
         <div class="stack" id="cost-stack"></div>
         <div class="legend" id="cost-legend"></div>
@@ -909,7 +929,6 @@ details.yppmore .grid4 { margin-top: 8px; }
         <div class="head"><h3>Claude-Kosten je Tag</h3><span class="muted small">USD, 14 Tage</span></div>
         <div class="chart" id="spend-chart"><svg id="spend" viewBox="0 0 400 160" role="img" aria-label="Claude-Kosten je Tag"></svg><div class="tip" id="tip" hidden></div></div>
         <div class="rank" id="stages-cost"></div>
-        <div class="muted small" id="ideas"></div>
       </div>
     </div>
   </section>
@@ -952,11 +971,6 @@ details.yppmore .grid4 { margin-top: 8px; }
   const REPAIR_AT = "06:00";
   const REPAIR_RUN = toHm(REPAIR_AT), REPAIR_DONE_BY = REPAIR_RUN + 90 + 30;
   const WD = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-  const STAGES = [
-    ["Recherche", ["research"]], ["Auswahl", ["pick", "reject"]], ["Skript", ["script"]],
-    ["Ableger", ["spinoffs"]], ["Storyboard", ["storyboard", "media_plan"]], ["Medien", ["media"]],
-    ["Thumbnail", ["thumbs_plan", "thumbs_make"]], ["Schnitt", ["render"]], ["Prüfung", ["review"]],
-    ["Einplanen", ["publish"]], ["Woche fertig", ["done"]]];
   const $ = (id) => document.getElementById(id);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const NS = "http://www.w3.org/2000/svg";
@@ -1145,7 +1159,7 @@ details.yppmore .grid4 { margin-top: 8px; }
         out.push(now.hm > NIGHT_DONE_BY ? { level: "rot", area: "Nachtlauf", text: "Der Nachtlauf ist heute nicht zu Ende gelaufen (Abschluss fehlt)." }
                                  : { level: "info", area: "Nachtlauf", text: "Der Nachtlauf läuft gerade." });
     }
-    if (state.live && state.live.at && hoursSince(state.live.at) > 1.5)
+    if (liveLevel() === "bad")
       out.push({ level: "gelb", area: "Webseite", text: `YouTube-Zahlen seit ${Math.round(hoursSince(state.live.at))} Stunden nicht abgeglichen (Abgleich alle 5 Min. läuft nicht).` });
     for (const x of missedPosts())
       out.push({ level: "rot", area: "Veröffentlichung", text: `${x.platform === "tiktok" ? "TikTok" : "YouTube"}-${x.kind === "long" ? "Video" : "Short"} vom ${fmtDay(x.day)} ${x.time} ${x.why}: ${x.title}`, impact: x.why === "nicht hochgeladen" ? "Der nächste Nachtlauf holt verpasste Termine der letzten 7 Tage nach (neuer Termin)." : "Steht in YouTube Studio noch auf privat oder wurde entfernt: dort prüfen." });
@@ -1342,12 +1356,20 @@ details.yppmore .grid4 { margin-top: 8px; }
     if (lv && (!pts.length || lv.t > pts[pts.length - 1].t)) pts.push(lv);
     return pts;
   }
+  // Kachelcheck 07.11.: one rule for the live numbers everywhere (dot, tags, deadline row, alert):
+  // fresh under 15 minutes (under 1.4 h when only the hourly copies next to the page answer), late
+  // under 1.5 h, after that failed.
+  function liveLevel() {
+    const at = state.live && state.live.at; if (!at) return "none";
+    const h = hoursSince(at);
+    return h < (state.base ? 0.25 : 1.4) ? "ok" : h < 1.5 ? "warn" : "bad";
+  }
   // S4 (Felix 31.10.): a dot and a time that say where a number comes from.
   function freshTag(kind, node) {
     const s = node || el("span"), d = state.data, at = state.live && state.live.at; s.className = "fresh"; s.replaceChildren(el("i"));
     if (kind === "live") {
       if (!at) { s.classList.add("late"); s.append("keine Live-Zahlen"); s.title = "Der 5-Minuten-Abgleich hat noch nichts geliefert."; return s; }
-      s.classList.add(hoursSince(at) < 0.25 ? "live" : "late"); const x = el("span"); x.dataset.since = at; s.append("live · ", x);
+      s.classList.add(liveLevel() === "ok" ? "live" : "late"); const x = el("span"); x.dataset.since = at; s.append("live · ", x);
       s.title = `Von YouTube, abgeglichen ${fmtTime(at)} (alle 5 Minuten)`;
     } else {
       if (!d) return s;
@@ -1360,8 +1382,12 @@ details.yppmore .grid4 { margin-top: 8px; }
   function bars(values, color) {          // S1: gain per hour as small bars
     const svg = sv("svg", { class: "bars", viewBox: "0 0 200 40", preserveAspectRatio: "none", "aria-hidden": "true" });
     if (!values || !values.length) return svg;
-    const max = Math.max(1, ...values), w = 200 / values.length;
-    values.forEach((v, i) => { const h = v / max * 36; svg.append(sv("rect", { x: i * w + w * .15, y: 40 - Math.max(h, v ? 1.5 : .5), width: w * .7, height: Math.max(h, v ? 1.5 : .5), fill: color, opacity: v ? 1 : .25 })); });
+    // Kachelcheck 07.11.: YouTube's corrections (fewer views than an hour before) go below the line in red
+    const max = Math.max(1, ...values), min = Math.min(0, ...values), w = 200 / values.length, scale = 38 / (max - min), base = 40 + min * scale;
+    values.forEach((v, i) => {
+      const h = Math.max(Math.abs(v) * scale, v ? 1.5 : .5);
+      svg.append(sv("rect", { x: i * w + w * .15, y: v < 0 ? base : base - h, width: w * .7, height: h, fill: v < 0 ? "var(--bad-mark)" : color, opacity: v ? 1 : .25 }));
+    });
     return svg;
   }
   function twoLines(today, yesterday, color) {     // S3: today against yesterday, x = share of the day
@@ -1446,7 +1472,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     let box = $("kpis-chan");
     const d = state.data, live = state.live;
     const chan = (live && live.channel) || (d && d.channel && d.channel.stats) || null;
-    const steps = (pts, f) => pts.map(f).map((v, i, a) => i ? Math.max(0, v - a[i - 1]) : null).slice(1);   // gain per point
+    const steps = (pts, f) => pts.map(f).map((v, i, a) => i ? v - a[i - 1] : null).slice(1);   // gain per point
     const card = (key, label, value, unit, delta, from, series, color, raw, fmt, extra = {}) => {
       const b = el(key ? "button" : "div", "card kpi" + (key ? " pick" : ""));
       if (key) { b.type = "button"; b.title = "Im Diagramm unter „Kanal“ zeigen"; b.setAttribute("aria-pressed", String(state.kpi === key)); b.addEventListener("click", () => { if (!extra.channel) { state.accountId = "primary"; state.channelId = "youtube"; } state.kpi = key; renderChannel(); showTab("s-channel"); }); }
@@ -1458,29 +1484,42 @@ details.yppmore .grid4 { margin-top: 8px; }
     };
     const ctx = channelContext(), cs = ctx.stats, wk = weekCompare(ctx), newest = wk && wk.now;
     const prior = wk && wk.w1, previous = wk && wk.w2;
-    const gained = newest && prior && newest !== prior ? Math.max(0, total(newest) - total(prior)) : wk && wk.young ? total(newest) : null;
-    const before = prior && previous && prior !== previous ? Math.max(0, total(prior) - total(previous)) : null;
+    const gained = newest && prior && newest !== prior ? total(newest) - total(prior) : wk && wk.young ? total(newest) : null;
+    const before = prior && previous && prior !== previous ? total(prior) - total(previous) : null;
     const tracked = ctx.scope === "tracked_posts", source = ctx.live ? `YouTube live · ${fmtTime(ctx.live.at)}` : ctx.observed_at ? `Stand ${fmtTime(ctx.observed_at)}` : "Noch keine Messung";
-    card(cs.subscribers == null ? null : "subs", ctx.platform === "tiktok" ? "Follower" : "Abonnenten", int(cs.subscribers), "", !ctx.history.subscriber_deltas && prior && prior.s != null ? deltaBadge(cs.subscribers, prior.s) : null,
+    // Kachelcheck 07.11.: the week's gain as a number (+1 of 2 is no "+50 %" worth a badge)
+    const subGain = !ctx.history.subscriber_deltas && prior && prior.s != null && cs.subscribers != null ? cs.subscribers - prior.s : null;
+    const gainTag = subGain == null ? null : el("span", "delta" + (subGain > 0 ? " up" : subGain < 0 ? " down" : ""), `${subGain > 0 ? "+" : subGain < 0 ? "−" : "±"}${int(Math.abs(subGain))} in 7 Tagen`);
+    card(cs.subscribers == null ? null : "subs", ctx.platform === "tiktok" ? "Follower" : "Abonnenten", int(cs.subscribers), "", gainTag,
       cs.subscribers == null ? "Von dieser Quelle nicht verfügbar" : source, null, "var(--accent)", cs.subscribers, int, { channel: true });
     card("views", gained == null ? "Aufrufe erfasst" : "Aufrufe, 7 Tage", int(gained == null ? cs.views : gained), gained == null ? "gesamt" : "", deltaBadge(gained, before),
       tracked ? "Tagesstände erfasster TikTok-Posts" : gained == null ? "7-Tage-Vergleich noch nicht verfügbar" : source,
       null, "var(--accent)", gained == null ? cs.views : gained, int, { channel: true });
+    if (ctx.primary && d && d.calendar) {     // this Berlin week (Mon–Sun): online of planned, the main channel's plan
+      const today = berlinParts(new Date()).day, mon = dayShift(today, -((new Date(today + "T12:00:00Z").getUTCDay() + 6) % 7)), sun = dayShift(mon, 6);
+      const items = d.calendar.filter(c => c.day >= mon && c.day <= sun).flatMap(c => c.items.map(x => ({ ...x, at: berlinAt(c.day, x.time || "00:00") })));
+      const on = items.filter(x => x.status === "uploaded" && isOnline(x.platform, x.video_id, x.at)).length;
+      const bad = items.filter(x => x.status === "failed").length + missedPosts().filter(x => x.day >= mon).length;
+      card(null, "Uploads diese Woche", `${on} / ${items.length}`, "", bad ? el("span", "delta down", `${bad} ausgefallen`) : null,
+        `${fmtDay(mon).slice(3)}–${fmtDay(sun).slice(3)} · online von geplant`, null, null, null);
+    }
     card(null, tracked ? "Posts mit Zahlen" : "Videos", int(cs.videos == null ? ctx.videos.length : cs.videos), "", null,
       tracked ? "Nur Posts der vorhandenen Anbindung" : source, null, null, null);
-    const likes = ctx.videos.map(v => v.likes).filter(Number.isFinite);
-    card(null, "Likes erfasst", int(cs.likes == null ? (likes.length ? likes.reduce((a, b) => a + b, 0) : null) : cs.likes), "", null,
-      "Auf den erfassten Videos", null, null, null);
     box = $("kpis-cost");
     const sd = (d && d.spend_days) || [];
     const last7 = sd.slice(-7).reduce((a, r) => a + r.usd, 0), prev7 = sd.length >= 14 ? sd.slice(-14, -7).reduce((a, r) => a + r.usd, 0) : null;
-    card(null, "Claude-Kosten, 7 Tage", d ? eur(last7) : "—", "$", deltaBadge(last7, prev7, true), prev7 != null ? `Vorwoche ${eur(prev7)} $` : "", sd.map(r => r.usd), "var(--warn-mark)", d ? last7 : null, eur);
-    const hist = ((d && d.history) || []).filter(h => typeof h.credits === "number");
-    const cNow = hist[0], cWeek = hist.find(h => h.day <= dayShift(cNow ? cNow.day : "", -7)), cTwo = hist.find(h => h.day <= dayShift(cNow ? cNow.day : "", -14));
-    const used = cNow && cWeek && cWeek.credits >= cNow.credits ? cWeek.credits - cNow.credits : null;
-    const usedBefore = cWeek && cTwo && cTwo.credits >= cWeek.credits ? cTwo.credits - cWeek.credits : null;
+    card(null, "Claude-Kosten, 7 Tage", d ? eur(last7) : "—", "$", deltaBadge(last7, prev7, true), (prev7 != null ? `Vorwoche ${eur(prev7)} $ · ` : "") + "heute bis jetzt", sd.slice(-7).map(r => r.usd), "var(--warn-mark)", d ? last7 : null, eur);
+    // Kachelcheck 07.11.: use per night = how much the balance fell since the night before; a rise (monthly
+    // reset, top-up) is no use and is skipped, so a reset inside the week no longer breaks the number
+    const hist = ((d && d.history) || []).filter(h => typeof h.credits === "number").slice(0, 15).reverse();     // oldest first
+    const use = hist.slice(1).map((h, i) => ({ day: h.day, n: hist[i].day === dayShift(h.day, -1) ? Math.max(0, hist[i].credits - h.credits) : null }))
+      .filter(u => u.n != null);      // a gap of several days is not one night's use (Codex-Review 07.11.)
+    const lastDay = use.length ? use[use.length - 1].day : "";
+    const sumUse = (from, to) => { const xs = use.filter(u => u.day > from && u.day <= to); return xs.length ? xs.reduce((a, u) => a + u.n, 0) : null; };
+    const used = lastDay ? sumUse(dayShift(lastDay, -7), lastDay) : null, usedBefore = lastDay ? sumUse(dayShift(lastDay, -14), dayShift(lastDay, -7)) : null;
     card(null, "Credits verbraucht, 7 Tage", used == null ? "—" : int(used), "", deltaBadge(used, usedBefore, true),
-      used == null ? "Verlauf ab der nächsten Nacht" : usedBefore != null ? `Vorwoche ${int(usedBefore)}` : "", hist.slice(0, 14).reverse().map(h => h.credits), "var(--tt)", used);
+      used == null ? "Verlauf ab der nächsten Nacht" : (usedBefore != null ? `Vorwoche ${int(usedBefore)} · ` : "") + "je Nacht, ohne Aufladungen", null, null, used, int,
+      { chart: bars(use.slice(-7).map(u => u.n), "var(--tt)") });
 
     // Start page (Felix 31.10., S1/S3/S6/S7): the numbers YouTube Studio shows first
     box = $("kpis");
@@ -1491,7 +1530,7 @@ details.yppmore .grid4 { margin-top: 8px; }
       const p60 = pointAt(pts, at(nowMs - 3600000)) || pts[0], g60 = total(nowP) - total(p60);
       const late = new Date(base.t).getTime() > nowMs - 47 * 3600000;
       card("views", "Echtzeit, 48 Stunden", int(total(nowP) - total(base)), "Aufrufe", null,
-        `+${int(g60)} seit ${fmtHour(p60.t)}` + (late ? ` · Verlauf ab ${fmtTime(base.t)}` : ""), null, "var(--accent)", total(nowP) - total(base), int,
+        `${g60 < 0 ? "−" + int(-g60) : "+" + int(g60)} seit ${fmtHour(p60.t)}` + (late ? ` · Verlauf ab ${fmtTime(base.t)}` : ""), null, "var(--accent)", total(nowP) - total(base), int,
         { fresh: "live", chart: bars(steps(since48, total), "var(--accent)") });
     } else card("views", "Echtzeit, 48 Stunden", "—", "", null, "Zahlen kommen mit dem 5-Minuten-Abgleich", null, "var(--accent)", null, int, { fresh: "live" });
     // S3 today against yesterday until the same time (Berlin days)
@@ -1508,32 +1547,49 @@ details.yppmore .grid4 { margin-top: 8px; }
     // S6 the last 28 days like YouTube Studio's channel analytics (YouTube Analytics, from the night)
     const l28 = d && d.last_28;
     card(null, "Letzte 28 Tage", l28 ? int(l28.views) : "—", l28 ? "Aufrufe" : "",
-      null, l28 ? `${dec(l28.hours)} Std. Wiedergabe · ${l28.subs >= 0 ? "+" : ""}${int(l28.subs)} Abos · ${fmtDay(l28.from).slice(3)}–${fmtDay(l28.to).slice(3)}` : "kommt mit dem nächsten Nachtlauf",
+      null, l28 ? `${dec(l28.hours)} Std. Wiedergabe · ${l28.subs >= 0 ? "+" : ""}${int(l28.subs)} Abos · ${l28.latest ? "Daten bis " + fmtDay(l28.latest).slice(3) : "noch keine Analytics-Daten"}` : "kommt mit dem nächsten Nachtlauf",
       l28 ? l28.days : null, "var(--accent)", l28 ? l28.views : null, int, { fresh: "run" });
-    // S7 YouTube and TikTok together
-    const yt = live && live.channel ? chanViews(live.channel, live.videos) : chan ? chan.views : null;
-    const tts = ((d && d.videos) || []).filter(v => v.platform === "tiktok" && v.views != null), tt = tts.reduce((a, v) => a + v.views, 0);
-    const split = el("div", "split"); split.setAttribute("aria-hidden", "true");
-    if (yt != null && yt + tt) { const a = el("i", "yt"), b2 = el("i", "tt"); a.style.width = yt / (yt + tt) * 100 + "%"; b2.style.width = tt / (yt + tt) * 100 + "%"; split.append(a, b2); }
-    card(null, "Alle Plattformen", yt == null ? "—" : int(yt + tt), "Aufrufe", null,
-      `YouTube ${int(yt)} live · TikTok ${tts.length ? int(tt) : "—"} vom Lauf`, null, "var(--accent)", yt == null ? null : yt + tt, int, { fresh: "live", chart: split });
+    // Kachelcheck 07.11. (replaces „Alle Plattformen“): how far ahead the posts are safe. ready_until =
+    // the last day up to which every YouTube post is already at YouTube; one square per day of the next
+    // week; below, the first post that is not ready and the finished videos on stock (reserve).
+    if (d) {
+      const today = berlinParts(new Date()).day, now = Date.now(), cal = d.calendar || [];
+      const week = Array.from({ length: 7 }, (_, k) => dayShift(today, k)).map(day => {
+        const items = ((cal.find(c => c.day === day) || {}).items || []).filter(x => berlinAt(day, x.time || "00:00").getTime() > now || day > today);
+        const st = !items.length ? "" : items.some(x => x.status === "failed") ? "bad" : items.every(x => x.status === "uploaded") ? "ok" : "warn";
+        return [day, st, items];
+      });
+      const gap = week.flatMap(([day, , items]) => items.filter(x => x.status !== "uploaded").map(x => ({ ...x, day })))
+        .sort((a, b) => (a.day + a.time) < (b.day + b.time) ? -1 : 1)[0];
+      const empty = week.filter(([day, st]) => !st && day > today).length;     // days without any plan are not safe either
+      const strip = el("div", "days7"); strip.setAttribute("aria-hidden", "true");
+      for (const [day, st] of week) { const i = el("i", st); i.title = `${fmtDay(day)}: ${{ ok: "alles bei YouTube/Buffer", warn: "noch nicht hochgeladen", bad: "fehlgeschlagen", "": "nichts geplant" }[st]}`; strip.append(i); }
+      const r = d.reserve || {}, tgt = r.target || {};
+      const stock = Object.keys(tgt).map(k => `${int(r[k] || 0)}/${int(tgt[k])} ${({ long: "Lang", shorts: "Shorts", tiktoks: "TikTok" })[k] || k}`).join(" · ");
+      const ru = d.ready_until;
+      card(null, "Abgesichert", ru ? "bis " + fmtDay(ru) : "offen", "", gap ? el("span", "delta " + (gap.status === "failed" ? "down" : ""), gap.status === "failed" ? "Lücke" : "Upload fehlt") : empty ? el("span", "delta", "ohne Plan") : null,
+        (gap ? `erste Lücke ${fmtDay(gap.day).slice(0, 2)} ${gap.time} ${gap.platform === "tiktok" ? "TikTok" : gap.kind === "long" ? "Lang" : "Short"}` : empty ? `${empty} Tag${empty > 1 ? "e" : ""} ohne Plan` : "nächste 7 Tage komplett") + (stock ? ` · Vorrat ${stock}` : ""),
+        null, null, null, null, { chart: strip });
+    }
   }
 
   // ---------- S2: the newest video with its views, rank and factor ----------
   function renderLatest() {
     const d = state.data, box = $("latest"); if (!d) return;
     const live = (state.live && state.live.videos) || {}, now = new Date().toISOString();
-    const vids = (d.videos || []).filter(v => v.platform === "youtube" && v.video_id && v.publish_at && v.publish_at <= now)
+    const vids = (d.videos || []).filter(v => v.platform === "youtube" && v.video_id && v.publish_at && v.publish_at <= now && isOnline("youtube", v.video_id, v.publish_at))
       .map(v => ({ ...v, views: live[v.video_id] && live[v.video_id].views != null ? live[v.video_id].views : v.views }));
     box.replaceChildren();
     if (!vids.length) { box.append(el("span", "empty", "Noch kein Video online.")); return; }
     const v = [...vids].sort((a, b) => a.publish_at < b.publish_at ? 1 : -1)[0];
-    const rank = [...vids].sort((a, b) => (b.views || 0) - (a.views || 0)).indexOf(v) + 1;
+    // rank among videos of the same kind only (a Short is not measured against a long video)
+    const same = vids.filter(x => x.kind === v.kind), kindName = v.kind === "long" ? "Langvideos" : "Shorts";
+    const rank = [...same].sort((a, b) => (b.views || 0) - (a.views || 0)).indexOf(v) + 1;
     const th = el("a", "thumb"), pic = state.thumbs[v.id]; th.href = v.link || `https://youtu.be/${v.video_id}`; th.target = "_blank"; th.rel = "noopener";
     if (pic) for (const cls of ["fill", "fit"]) { const img = el("img", cls); img.alt = ""; img.src = pic; th.append(img); }
     else th.classList.add("blank");
     th.append(el("span", "tag youtube", v.kind === "long" ? "YT Lang" : "YT Short"));
-    const n = el("div", "n"), b = el("b"); setNum(b, "latest", v.views, int); n.append(b, "Aufrufe", el("span", null, `· Rang ${rank} von ${vids.length}`));
+    const n = el("div", "n"), b = el("b"); setNum(b, "latest", v.views, int); n.append(b, "Aufrufe", el("span", null, `· Rang ${rank} von ${same.length} ${kindName}`));
     const f = v.normal && v.normal.factor;
     if (f != null) { const x = el("span", "delta " + (f >= 1.05 ? "up" : f <= 0.95 ? "down" : ""), `${dec(f, 1)}×`); x.title = `${int(v.normal.views)} Aufrufe nach ${v.normal.days} Tag${v.normal.days > 1 ? "en" : ""}, normal ${int(v.normal.median)}`; n.append(x); }
     const w = el("div", "w"), s = el("span"); s.dataset.since = v.publish_at; w.append("online ", s);
@@ -1544,12 +1600,15 @@ details.yppmore .grid4 { margin-top: 8px; }
 
   // ---------- S8: only what Felix has to do himself ----------
   function renderTodo() {
-    const todo = allAlerts().filter(a => !a.resolved && a.repair && ["gemeldet", "eskaliert"].includes(a.repair.result));
+    // Kachelcheck 07.11.: everything the repair run handed to Felix, plus every red fault it has not
+    // fixed (a missed upload the page found itself has no repair note and still needs him)
+    const todo = allAlerts().filter(a => !a.resolved && (a.repair ? ["gemeldet", "eskaliert"].includes(a.repair.result) : a.level === "rot"));
     const t = $("t-todo"), sub = $("t-todo-sub");
     t.className = "val state " + (!state.data ? "" : todo.length ? (todo.some(a => a.level === "rot") ? "bad" : "warn") : "ok");
     t.lastChild.textContent = !state.data ? "—" : todo.length ? (todo.length === 1 ? "1 Punkt" : `${todo.length} Punkte`) : "Nichts zu tun";
-    sub.textContent = !state.data ? "" : todo.length ? `${todo[0].area}: ${todo[0].repair.text}` : "läuft ohne dich";
-    sub.title = todo.map(a => `${a.area}: ${a.repair.text}`).join("\n");
+    const what = (a) => `${a.area}: ${(a.repair && a.repair.text) || a.text}`;
+    sub.textContent = !state.data ? "" : todo.length ? what(todo[0]) : "läuft ohne dich";
+    sub.title = todo.map(what).join("\n");
   }
 
   // ---------- S5: state and views in the browser tab and its icon ----------
@@ -1570,8 +1629,8 @@ details.yppmore .grid4 { margin-top: 8px; }
   function renderNightGauge() {
     const st = state.status;
     if (st) {
-      const failed = (st.steps || []).filter(s => s.exit !== 0 && s.exit !== 3).length;
-      const finished = (st.steps || []).some(s => s.name === "Budget");
+      const failed = (st.steps || []).filter(s => s.exit !== 0 && s.exit !== 3 && s.exit !== 4).length;
+      const finished = !!st.finished_at || (st.steps || []).some(s => s.name === "Budget");
       const night = ((state.data && state.data.alerts) || []).filter(a => a.area === "Nachtlauf" && a.step);
       const open = night.filter(a => !isFixed(a)).length, fixed = failed && night.length && !open;
       $("g-night").textContent = `Letzte Nacht: ` + (fixed ? `${failed} Fehler, behoben` : failed ? `${failed} Schritt${failed > 1 ? "e" : ""} fehlgeschlagen` : finished ? "ohne Fehler" : "unvollständig");
@@ -1611,17 +1670,8 @@ details.yppmore .grid4 { margin-top: 8px; }
       $("flow-stamp").hidden = true; $("flow-err").hidden = true;
     }
     $("flow-cause").hidden = !stopped || !n.why; $("flow-cause").textContent = n.why || "";
-    const ol = $("stages"); ol.replaceChildren();
-    const at = STAGES.findIndex(s => s[1].includes(n.step));
-    STAGES.forEach(([name], i) => {
-      let cls = at < 0 ? "" : i < at ? "done" : i === at ? (n.step === "reject" ? "stop" : "now") : "";
-      if (n.step === "done") cls = "done";
-      if (n.step === "stop" && i === 0) cls = "stop";
-      ol.append(el("li", cls, name));
-    });
+    // „Ablauf der Produktion“ (Läufe) is gone (Kachelcheck 07.11.): it repeated this card in coarse form
     renderRoadmap();
-    $("flow-week").textContent = `Woche ab ${fmtDay(d.week.monday)}`;
-    $("flow-why").textContent = n.why || "";
     const ideas = d.ideas || {};
     $("ideas").textContent = `Ideen für Langvideos: ${ideas.new || 0} offen, ${ideas.approved || 0} in Arbeit, ${ideas.published || 0} veröffentlicht, ${ideas.rejected || 0} verworfen.` + (d.batches && d.batches.n ? ` ${d.batches.n} Claude-Anfragen warten auf die Batch-API.` : "");
   }
@@ -1655,7 +1705,9 @@ details.yppmore .grid4 { margin-top: 8px; }
     fl.classList.add("full", "board");
     const live = beat === "running" && fresh;          // only then may a step glow
     const known = new Set(FLOW_GROUPS.flatMap(g => g[2]));
-    const groups = FLOW_GROUPS.map(([id, label, ids]) => [id, label, f.nodes.filter(n => ids.includes(n.id))]);
+    // "Idee verwerfen" is a side branch, not a step every video goes through: shown and counted only when it happened
+    const side = (n) => n.id === "reject" && n.state !== "succeeded" && n.state !== "failed";
+    const groups = FLOW_GROUPS.map(([id, label, ids]) => [id, label, f.nodes.filter(n => ids.includes(n.id) && !side(n))]);
     const rest = f.nodes.filter(n => !known.has(n.id));
     if (rest.length) groups.push(["more", "Weitere", rest]);
     const shown = groups.filter(g => g[2].length);
@@ -1750,7 +1802,11 @@ details.yppmore .grid4 { margin-top: 8px; }
   // holds up, the concrete repair proposal and the repair run's note on the same fault (alerts[].repair).
   function renderFlowError(f) {
     const box = $("flow-err"); box.replaceChildren();
-    const errs = f.errors || [];
+    // Kachelcheck 07.11.: only the faults of steps that are still failed; a step a later attempt got
+    // past is history (Läufe), not an obstacle
+    const failedNow = new Set(f.nodes.filter(n => n.state === "failed").map(n => n.id));
+    const nodeOf = (s) => ({ media_run: "media", Upload: "upload" })[s] || String(s).split(".")[0];   // as events.NODE_OF / parent_step_id
+    const errs = (f.errors || []).filter(e => failedNow.has(nodeOf(e.step_id)));
     if (!errs.length) { box.hidden = true; return; }
     box.hidden = false;
     const e = errs[errs.length - 1], d = state.data;
@@ -1766,7 +1822,10 @@ details.yppmore .grid4 { margin-top: 8px; }
     row("Ursache", cause);
     row("Betroffen", blocked.length ? blocked.join(" → ") : "keine Folgeschritte offen");
     row("Vorschlag", e.suggested_action || "—");
-    const rep = ((d && d.alerts) || []).map(a => a.repair).find(Boolean);
+    // the repair note of this fault only: an alert naming the same idea or step, never just the first one
+    const names = (a) => `${a.text || ""} ${a.detail || ""} ${a.step || ""}`;
+    const sameIdea = (a) => new RegExp(`#${e.idea_id}(?!\\d)`).test(names(a)), sameStep = (a) => names(a).includes(e.step_id);
+    const rep = ((d && d.alerts) || []).filter(a => a.repair && sameStep(a) && (!e.idea_id || sameIdea(a))).map(a => a.repair)[0];
     const runs = (d && d.repair) || [];
     const fix = el("span");
     if (rep) fix.append(el("span", "tag " + (FIXED.includes(rep.result) ? "ok" : ""), rep.result), ` ${rep.day || ""} ${rep.text || ""}`.trim());
@@ -1812,10 +1871,10 @@ details.yppmore .grid4 { margin-top: 8px; }
 
   function renderCredits() {
     const b = state.data && state.data.budget;
-    const total_ = (b && b.credits_total) || 1000;
+    const total_ = (b && b.credits_total) || null;        // unknown stays unknown (no assumed 1.000)
     const left = b ? b.credits_left : null;
     setNum($("g-credits"), "credits", left, int);
-    const pct = left == null ? 0 : Math.max(0, Math.min(100, left / total_ * 100));
+    const pct = left == null || !total_ ? 0 : Math.max(0, Math.min(100, left / total_ * 100));
     ring("r-credits", pct, pct < 10 ? "bad" : pct < 25 ? "warn" : "");
     // Phase 5 (05.11.): say where the number is from and from when (budget.credits_at: "jetzt" or the stamp)
     const when = !b ? "" : b.credits_at === "jetzt" ? "gemessen beim Lauf" : b.credits_measured && b.credits_at ? `gemessen ${fmtTime(b.credits_at)}` : "geschätzt aus Aufträgen";
@@ -1840,26 +1899,26 @@ details.yppmore .grid4 { margin-top: 8px; }
     box.replaceChildren();
     const subs = (state.live && state.live.channel && state.live.channel.subscribers) ?? y.subs;
     const fan = y.fan || {};
+    // Kachelcheck 07.11.: the rule that applies today (hours_needed), the coming one beside it
+    // (hours_needed_next from rule_from), the Shorts way where the night sends it, and the fan tier's
+    // three public uploads in 90 days; "erreicht" only says the numbers are met
     const small = el("div", "block");
-    small.append(el("div", "muted small", fan.reached ? "Kleine Stufe: erreicht, Antrag im Studio stellen" : "Kleine Stufe (Mitgliedschaften, Super Thanks)"));
+    small.append(el("div", "muted small", fan.reached ? "Kleine Stufe: Zahlen erfüllt, Rest im Studio prüfen" : "Kleine Stufe (Mitgliedschaften, Super Thanks)"));
     small.append(quota("Abonnenten", subs, fan.subs_needed),
       quota("Wiedergabestunden Langvideos", y.hours, fan.hours_needed, "h", fan.hours_date ? `bei jetzigem Tempo am ${fmtDay(fan.hours_date)}` : ""),
       quota("oder Shorts-Aufrufe, 90 Tage", fan.shorts_90, fan.shorts_needed));
+    if (fan.uploads_needed) small.append(quota("Öffentliche Uploads, 90 Tage", fan.uploads_90, fan.uploads_needed));
     const big = el("div", "block");
-    big.append(el("div", "muted small", `Partnerprogramm mit Werbegeld` + (y.rule_from ? ` (Regel ab ${fmtDay(y.rule_from)})` : "")));
+    const next = y.hours_needed_next && y.hours_needed_next !== y.hours_needed && y.rule_from ? ` · ab ${fmtDay(y.rule_from)} ${int(y.hours_needed_next)} h` : "";
+    big.append(el("div", "muted small", (y.qualified ? "Partnerprogramm: Zahlen erfüllt, Rest im Studio prüfen" : "Partnerprogramm mit Werbegeld") + next));
     big.append(quota("Abonnenten", subs, y.subs_needed),
-      quota("Wiedergabestunden Langvideos, 365 Tage", y.hours, y.hours_needed, "h", y.reached ? `bei jetzigem Tempo (${dec(y.hours_per_week)} h/Woche) am ${fmtDay(y.reached)}` : `Tempo ${dec(y.hours_per_week)} h je Woche`));
+      quota("Wiedergabestunden Langvideos, 365 Tage", y.hours, y.hours_needed, "h", `Schätzung: ${dec(y.hours_per_week)} h je Woche` + (y.reached ? `, damit am ${fmtDay(y.reached)}` : "")));
+    if (y.shorts_needed) big.append(quota("oder Shorts-Aufrufe, 90 Tage", y.shorts_90, y.shorts_needed));
     // Phase 5 (05.11.): the ad-revenue tier first; the fan-funding tier is the smaller step on the way
     box.append(big, small);
-    $("ypp-note").textContent = "· Stunden aus YouTube Analytics (Stand der Nacht), Abos live · offiziell heute 4.000 h oder 10 Mio. Shorts-Aufrufe, ab 01.02.2027 8.000 h oder 20 Mio. (Shorts-Weg hier nicht gerechnet)";
-    // ring: the ad-revenue tier needs the subscribers and the long-video hours; the smaller of the two shares
-    const p = (have, need) => need ? Math.min(100, (have || 0) / need * 100) : 0;
+    $("ypp-note").textContent = "Stunden aus YouTube Analytics (Stand der Nacht), Abos live. YouTube Studio ist maßgeblich.";
     const done = subs != null && y.subs_needed && subs >= y.subs_needed && y.hours >= y.hours_needed;
-    const pct = done ? 100 : Math.min(p(subs, y.subs_needed), p(y.hours, y.hours_needed));
-    setNum($("g-ypp"), "ypp", pct, (x) => dec(x, x < 10 ? 1 : 0));
-    ring("r-ypp", pct, done ? "ok" : "");
-    $("g-ypp-sub").textContent = done ? "Werbeumsatz: Voraussetzungen erreicht" : `Werbeumsatz · ${int(subs)} / ${int(y.subs_needed)} Abos · ${dec(y.hours, 0)} / ${int(y.hours_needed)} h`;
-    $("r-ypp").title = `Beteiligung am Werbeumsatz: ${int(y.subs_needed)} Abonnenten und ${int(y.hours_needed)} Stunden öffentliche Wiedergabezeit der Langvideos in 365 Tagen` + (y.rule_from ? ` (Regel ab ${fmtDay(y.rule_from)})` : "") + (fan.reached ? " · kleine Stufe erreicht" : ` · kleine Stufe (Fan-Funding): ${int(subs)} / ${int(fan.subs_needed)} Abos`);
+    $("g-ypp-sub").textContent = done ? "Werbeumsatz: Zahlen erreicht" : `Werbeumsatz · ${int(subs)} / ${int(y.subs_needed)} Abos · ${dec(y.hours, 0)} / ${int(y.hours_needed)} h`;
   }
 
   // ---------- U2: the next three posts with picture and countdown ----------
@@ -1884,40 +1943,47 @@ details.yppmore .grid4 { margin-top: 8px; }
       else { th.classList.add("blank"); th.append(el("span", null, x.status === "planned" ? "noch nicht hochgeladen" : "kein Vorschaubild")); }
       th.append(el("span", "tag " + x.platform, x.platform === "youtube" ? (x.kind === "long" ? "YT Lang" : "YT Short") : "TikTok"));
       const w = el("div", "w"), cd = el("b"); cd.dataset.until = x.at.toISOString();
-      w.append(cd, document.createTextNode(` · ${fmtDay(berlinParts(x.at).day)} ${x.time}`));
+      w.append(cd, document.createTextNode(` · ${fmtDay(berlinParts(x.at).day)} ${x.time} `), readyTag(x));
       c.append(th, el("div", "t", x.title || x.key), w); c.title = `${x.title || ""} · ${x.status}${x.note ? " · " + x.note : ""}`;
       box.append(c);
     }
     const first = list[0];
     $("cd-post").dataset.until = first.at.toISOString();
     $("cd-post-what").textContent = `${first.platform === "youtube" ? (first.kind === "long" ? "YouTube-Video" : "YouTube-Short") : "TikTok"} · ${first.title || first.key}`;
+    $("cd-post-ready").replaceChildren(readyTag(first));
+  }
+  // Kachelcheck 07.11.: a countdown alone looks the same whether the video is waiting at YouTube or not
+  // made yet. Ready = uploaded (YouTube private with its time, TikTok queued at Buffer); missing turns red
+  // 6 hours before the time.
+  function readyTag(x) {
+    const ok = x.status === "uploaded", soon = x.at.getTime() - Date.now() < 6 * 3600000;
+    return el("span", "st " + (ok ? "ok" : soon ? "bad" : "warn"), ok ? (x.platform === "youtube" ? "bei YouTube bereit" : "bei Buffer bereit") : "Upload fehlt");
   }
 
   // ---------- U1/L1: live state of the YouTube numbers ----------
   function renderLive() {
-    const at = state.live && state.live.at, fresh = at && hoursSince(at) < 0.5;
+    const at = state.live && state.live.at, fresh = liveLevel() === "ok";
     $("t-livedot").className = "livedot" + (fresh ? " on" : "");
     const t = $("t-live");
     if (at) { t.dataset.since = at; t.title = `YouTube-Zahlen vom ${fmtTime(at)}`; } else { delete t.dataset.since; t.textContent = "keine Live-Zahlen"; }
     const ch = state.live && state.live.channel;
-    $("t-live-sub").textContent = ch ? `${int(ch.subscribers)} Abos · ${int(chanViews(ch, state.live.videos))} Aufrufe gesamt` : "Zahlen alle 5 Minuten";
+    $("t-livewrap").title = ch ? `YouTube live: ${int(ch.subscribers)} Abos · ${int(chanViews(ch, state.live.videos))} Aufrufe gesamt · abgeglichen alle 5 Minuten` : "YouTube-Zahlen alle 5 Minuten";
   }
 
   // ---------- L2: what just happened, newest first ----------
   const seenTicks = new Set();
   function tickerEvents() {
     const d = state.data, st = state.status, h = state.hist, out = [];
-    const titles = Object.fromEntries(((d && d.videos) || []).filter(v => v.video_id).map(v => [v.video_id, v.title]));
     const hourly = ((h && h.hourly) || []).filter(p => hoursSince(p.t) <= 48);
     for (let i = 1; i < hourly.length; i++) {
       const a = hourly[i - 1], b = hourly[i];
-      for (const [id, v] of Object.entries(b.v || {})) { const g = v - ((a.v || {})[id] || 0); if (g > 0) out.push({ t: b.t, k: "up", b: `+${int(g)} Aufruf${g > 1 ? "e" : ""}`, s: titles[id] || id }); }
+      // views per hour are in the Kanal chart, not in the log (Kachelcheck 07.11.: they crowded out the events)
       if (b.s > a.s) out.push({ t: b.t, k: "up", b: `+${b.s - a.s} Abonnent${b.s - a.s > 1 ? "en" : ""}`, s: "Kanal" });
     }
-    for (const v of (d && d.videos) || []) if (v.publish_at && new Date(v.publish_at) <= new Date() && hoursSince(v.publish_at) < 24 * 7)
+    for (const v of (d && d.videos) || []) if (isOnline(v.platform, v.video_id, v.publish_at) && hoursSince(v.publish_at) < 24 * 7)
       out.push({ t: v.publish_at, k: v.platform === "tiktok" ? "tt" : "pub", b: v.platform === "tiktok" ? "TikTok online" : v.kind === "long" ? "Video online" : "Short online", s: v.title });
     if (st && st.started_at) out.push({ t: st.started_at, k: "night", b: "Nachtlauf gestartet", s: `${(st.steps || []).length} Schritte` });
-    if (st && st.finished_at) { const f = (st.steps || []).filter(s => s.exit !== 0 && s.exit !== 3); out.push({ t: st.finished_at, k: f.length ? "bad" : "night", b: "Nachtlauf fertig", s: f.length ? `${f.map(s => s.name).join(", ")} fehlgeschlagen` : "ohne Fehler" }); }
+    if (st && st.finished_at) { const f = (st.steps || []).filter(s => s.exit !== 0 && s.exit !== 3 && s.exit !== 4); out.push({ t: st.finished_at, k: f.length ? "bad" : "night", b: "Nachtlauf fertig", s: f.length ? `${f.map(s => s.name).join(", ")} fehlgeschlagen` : "ohne Fehler" }); }
     for (const r of (d && d.repair) || []) if (r.finished_at) out.push({ t: r.finished_at, k: "sys", b: "Reparatur", s: ((r.lines || [])[0] || "nichts zu reparieren").replace(/^- /, "") });
     for (const c of ((d && d.changes) || []).slice(0, 10)) out.push({ t: c.at, k: "sys", b: c.pr ? `Änderung #${c.pr}` : "Änderung", s: c.title });
     return out.filter(e => e.t && new Date(e.t) <= new Date()).sort((a, b) => a.t < b.t ? 1 : -1).slice(0, 9);
@@ -1952,31 +2018,37 @@ details.yppmore .grid4 { margin-top: 8px; }
     else if (!fin && now.hm > NIGHT_DONE_BY) { ns = "bad"; nt = "Nicht fertig"; }
     else if (!fin) { ns = "warn"; nt = "Läuft"; }
     else if ((st.problems || []).length) { ns = "warn"; nt = "Fertig, mit Fehlern"; }
+    else if (st.finished_at && berlinParts(new Date(st.finished_at)).hm > NIGHT_DONE_BY) { ns = "warn"; nt = "Fertig, zu spät"; }   // done is not on time
     rows.push({ name: "Nachtlauf", plan: `täglich ${NIGHT_START}, fertig bis ${fromHm(NIGHT_DONE_BY)}`, s: ns, t: nt, beats: nightBeats, last: st && (st.finished_at || st.started_at) });
     // repair
     const reps = (d && d.repair) || [], repByDay = Object.fromEntries(reps.map(r => [r.day, r]));
     const firstRep = Object.keys(repByDay).sort()[0] || today;
-    const repBeats = []; for (let k = 13; k >= 0; k--) { const day = dayShift(today, -k), r = repByDay[day]; if (day < firstRep) continue; repBeats.push([r ? (r.finished_at ? "ok" : "warn") : "", `${fmtDay(day)}: ` + (r ? (r.finished_at ? "gelaufen" : "nicht abgeschlossen") : "kein Lauf bekannt")]); }
+    // a day without a run counts as missed (Kachelcheck 07.11.), only today before its deadline stays open
+    const repBeats = []; for (let k = 13; k >= 0; k--) { const day = dayShift(today, -k), r = repByDay[day]; if (day < firstRep) continue; repBeats.push([r ? (r.finished_at ? "ok" : "warn") : k === 0 && now.hm <= REPAIR_DONE_BY ? "" : "bad", `${fmtDay(day)}: ` + (r ? (r.finished_at ? "gelaufen" : "nicht abgeschlossen") : "kein Lauf")]); }
     const rt = repByDay[today];
     const repLate = now.hm > REPAIR_DONE_BY, repPlan = `täglich ${REPAIR_AT}, fertig bis ${fromHm(REPAIR_DONE_BY)}`;
+    const repSlow = rt && rt.finished_at && berlinParts(new Date(rt.finished_at)).hm > REPAIR_DONE_BY;
     const repWait = now.hm < REPAIR_RUN ? `Wartet auf ${REPAIR_AT}` : `Seit ${REPAIR_AT} fällig, noch kein Stand`;
     if (!reps.length) rows.push({ name: "Reparatur am Morgen", plan: repPlan, s: "none", t: "Noch kein Lauf bekannt", beats: null, last: null });
-    else rows.push({ name: "Reparatur am Morgen", plan: repPlan, s: rt ? (rt.finished_at ? "ok" : repLate ? "bad" : "warn") : repLate ? "bad" : "none", t: rt ? (rt.finished_at ? "Pünktlich" : repLate ? "Nicht fertig" : "Läuft") : repLate ? "Ausgefallen" : repWait, beats: repBeats, last: rt ? (rt.finished_at || rt.started_at) : (reps[0] && (reps[0].finished_at || reps[0].started_at)) });
+    else rows.push({ name: "Reparatur am Morgen", plan: repPlan, s: rt ? (rt.finished_at ? (repSlow ? "warn" : "ok") : repLate ? "bad" : "warn") : repLate ? "bad" : "none", t: rt ? (rt.finished_at ? (repSlow ? "Fertig, zu spät" : "Pünktlich") : repLate ? "Nicht fertig" : "Läuft") : repLate ? "Ausgefallen" : repWait, beats: repBeats, last: rt ? (rt.finished_at || rt.started_at) : (reps[0] && (reps[0].finished_at || reps[0].started_at)) });
     // sealed data of the night on this page
     const gen = d && d.generated_at, gh = gen ? hoursSince(gen) : null;
-    rows.push({ name: "Daten fürs Dashboard", plan: "nach jedem Nacht- und Reparaturlauf, spätestens alle 28 h", s: gh == null ? "none" : gh < 28 ? "ok" : gh < 36 ? "warn" : "bad", t: gh == null ? "Keine Daten" : gh < 28 ? "Pünktlich" : gh < 36 ? "Spät" : "Ausgefallen", beats: null, last: gen });
+    rows.push({ name: "Daten fürs Dashboard", plan: "nach jedem Nacht- und Reparaturlauf, spätestens alle 28 h", s: gh == null ? "none" : gh < 28 ? "ok" : "bad", t: gh == null ? "Keine Daten" : gh < 28 ? "Pünktlich" : "Ausgefallen", beats: null, last: gen });
     // live sync: one beat per hour of the last 24 hours
     const hourly = (state.hist && state.hist.hourly) || [], la = state.live && state.live.at, lh = la ? hoursSince(la) : null;
     const syncBeats = []; const nowMs = Date.now();
     for (let k = 23; k >= 0; k--) { const a = new Date(nowMs - (k + 1) * 3600000).toISOString(), b = new Date(nowMs - k * 3600000).toISOString(); const hit = hourly.some(p => p.t > a && p.t <= b); syncBeats.push([hit ? "ok" : hourly.length && hourly[0].t <= b ? "bad" : "", `${fmtHour(b)}: ${hit ? "abgeglichen" : "kein Abgleich"}`]); }
-    rows.push({ name: "YouTube-Zahlen (Webseite)", plan: "alle 5 Min.", s: lh == null ? "none" : lh < (state.base ? 0.25 : 1.4) ? "ok" : lh < 3 ? "warn" : "bad", t: lh == null ? "Keine Zahlen" : lh < (state.base ? 0.25 : 1.4) ? "Pünktlich" : lh < 3 ? "Spät" : "Ausgefallen", beats: syncBeats, last: la });
+    const ll = liveLevel();
+    rows.push({ name: "YouTube-Zahlen (Webseite)", plan: "alle 5 Min.", s: ll === "none" ? "none" : ll, t: { none: "Keine Zahlen", ok: "Pünktlich", warn: "Spät", bad: "Ausgefallen" }[ll], beats: syncBeats, last: la });
     // publishing: posts of the last days by state
     const cal = (d && d.calendar) || [], past = cal.filter(c => c.day <= today && c.day >= shiftDay(today, -ALERT_DAYS_BACK));
     const missed = missedPosts(), missedOn = new Set(missed.map(x => x.day));
     const pubBeats = past.map(c => { const items = c.items.filter(x => x.platform === "youtube" || x.platform === "tiktok"); const bad = items.some(x => x.status === "failed") || missedOn.has(c.day); return [!items.length ? "" : bad ? "bad" : "ok", `${fmtDay(c.day)}: ${items.length} Posts${bad ? ", fehlgeschlagen oder ausgefallen" : ""}`]; });
     const failedPub = past.some(c => c.items.some(x => x.status === "failed")) || missed.length > 0;
-    const lastVid = ((d && d.videos) || []).map(v => v.publish_at).filter(t => t && new Date(t) <= new Date()).sort().pop();
-    rows.push({ name: "Veröffentlichung YouTube + TikTok", plan: "laut Sendeplan", s: !d ? "none" : failedPub ? "bad" : "ok", t: !d ? "—" : missed.length ? "Ausgefallen" : failedPub ? "Fehlgeschlagen" : "Wie geplant", beats: pubBeats, last: lastVid });
+    const lastVid = ((d && d.videos) || []).filter(v => isOnline(v.platform, v.video_id, v.publish_at)).map(v => v.publish_at).sort().pop();
+    const anyPast = pubBeats.some(b => b[0]);       // an empty plan is not "as planned"
+    // Kachelcheck 07.11.: the row Felix needs first, so it leads the table
+    rows.unshift({ name: "Veröffentlichung YouTube + TikTok", plan: "laut Sendeplan", s: !d ? "none" : failedPub ? "bad" : anyPast ? "ok" : "warn", t: !d ? "—" : missed.length ? "Ausgefallen" : failedPub ? "Fehlgeschlagen" : anyPast ? "Wie geplant" : "Nichts geplant", beats: pubBeats, last: lastVid });
 
     for (const r of rows) {
       const tr = el("tr");
@@ -2133,7 +2205,14 @@ details.yppmore .grid4 { margin-top: 8px; }
   // ---------- shared video helpers ----------
   const shiftDay = (iso, n) => new Date(Date.parse(iso + "T12:00:00Z") + n * 86400000).toISOString().slice(0, 10);
   const ALERT_DAYS_BACK = 2;      // older days are in the plan to look back on, not in the alerts (as dashboard.py)
-  const videoUrl = (platform, id) => !id ? null : platform === "tiktok" ? `https://www.tiktok.com/@strangeknowns/video/${encodeURIComponent(id)}` : `https://youtu.be/${encodeURIComponent(id)}`;
+  // TikTok's video_id is Buffer's post id, not TikTok's: no link is built from it (only a real link counts)
+  const videoUrl = (platform, id) => !id || platform !== "youtube" ? null : `https://youtu.be/${encodeURIComponent(id)}`;
+  // Kachelcheck 07.11.: "online" only when it is. A YouTube video past its time must be among the public
+  // videos of a fresh live.json (under 3 h); without fresh numbers the page cannot tell and trusts the time.
+  const liveFresh = () => !!(state.live && state.live.at && hoursSince(state.live.at) < 3);
+  // checkLive false for other channels: live.json only knows the main YouTube channel (Codex-Review 07.11.)
+  const isOnline = (platform, videoId, at, checkLive = true) => !!at && new Date(at) <= new Date()
+    && (!checkLive || platform !== "youtube" || !videoId || !liveFresh() || !!(state.live.videos || {})[videoId]);
   // The night's own picture (state.thumbs, also TikTok and not yet public videos), else YouTube's.
   function thumbBox(platform, id, empty, pic) {
     const th = el("div", "thumb");
@@ -2179,19 +2258,18 @@ details.yppmore .grid4 { margin-top: 8px; }
   }
   function planCard(x, day, now, missed, vids) {
     const v = (x.upload_id && vids.get("u" + x.upload_id)) || (x.video_id && vids.get(x.platform + x.video_id));
-    const url = x.status === "uploaded" ? (v && v.link) || videoUrl(x.platform, x.video_id) : null;
+    const url = x.status === "uploaded" ? (v && /^https:\/\//.test(v.link || "") ? v.link : null) || videoUrl(x.platform, x.video_id) : null;
     const card = el(url ? "a" : "div", "pcard");
     if (url) { card.href = url; card.target = "_blank"; card.rel = "noopener"; }
-    const [h, m] = (x.time || "00:00").split(":").map(Number);
-    const at = new Date(`${day}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`);   // the viewer's clock is Berlin in practice
-    const out = at <= now;
+    const at = berlinAt(day, x.time || "00:00");          // Berlin time on any device (Kachelcheck 07.11.)
+    const out = at <= now, online = x.status === "uploaded" && isOnline(x.platform, x.video_id, at);
     const thumbText = x.platform === "tiktok" ? "TikTok · kein Vorschaubild" : x.video_id ? "Vorschaubild ab Veröffentlichung" : x.status === "planned" ? "noch nicht hochgeladen" : "kein Vorschaubild";
     const pic = thumbFor(x), th = thumbBox(x.platform, x.video_id, thumbText, pic);
     if (!pic && !(x.platform === "youtube" && x.video_id)) th.classList.add("noimg");      // no picture to wait for: a slim strip
     th.append(el("span", "tag " + x.platform, x.platform === "youtube" ? (x.kind === "long" ? "YT Lang" : "YT Short") : "TikTok"));
     const isMissed = missed.has(day + x.platform + x.time + x.key);
     const [stc, stt] = x.status === "failed" ? ["bad", "fehlgeschlagen"] : isMissed ? ["bad", "ausgefallen"]
-      : x.status === "uploaded" ? (out ? ["ok", "online"] : ["plan", "hochgeladen"]) : x.status === "planned" ? ["", out ? "offen" : "geplant"] : ["", x.status || "—"];
+      : x.status === "uploaded" ? (online ? ["ok", "online"] : out ? ["", "nicht öffentlich"] : ["plan", "hochgeladen"]) : x.status === "planned" ? ["", out ? "offen" : "geplant"] : ["", x.status || "—"];
     const row = el("div", "row"); row.append(el("span", "time", x.time + (x.kind === "long" ? " · Lang" : "")), el("span", "st " + stc, stt));
     card.append(th, row, el("div", "ttl", x.title || x.key || "ohne Titel"));
     const n = withLive(v || { platform: x.platform, video_id: x.video_id });
@@ -2221,9 +2299,9 @@ details.yppmore .grid4 { margin-top: 8px; }
     const d = state.data; if (!d) return [];
     const now = new Date();
     return (d.videos || []).filter(v => !v.publish_at || new Date(v.publish_at) <= now).map(withLive).map(v => {
-      const days = v.days || [], upTo = (n) => days.length >= n ? days.slice(0, n).reduce((a, b) => a + b, 0) : null;
+      const days = v.days || [], upTo = (n) => days.length >= n && days.slice(0, n).every(x => x != null) ? days.slice(0, n).reduce((a, b) => a + b, 0) : null;   // a missing day (null) leaves the window open
       const art = v.platform === "tiktok" ? "tiktok" : v.kind === "long" ? "long" : "short";
-      return { ...v, art, rate: v.views ? (v.likes || 0) / v.views * 100 : null, factor: v.normal ? v.normal.factor : null,
+      return { ...v, art, rate: v.views && v.likes != null ? v.likes / v.views * 100 : null, factor: v.normal ? v.normal.factor : null,
         d1: upTo(1), d2: upTo(2), d7: upTo(7), topicDe: v.topic ? (TOPIC_DE[v.topic] || v.topic) : "ohne Thema" };
     }).filter(v => state.cmpKind === "all" || v.art === state.cmpKind);
   }
@@ -2287,8 +2365,8 @@ details.yppmore .grid4 { margin-top: 8px; }
   function renderSteps() {
     const st = state.status, d = state.data; const ul = $("steps"); ul.replaceChildren();
     if (st) (st.steps || []).forEach((s, k) => {
-      const li = el("li"); const bad = s.exit !== 0 && s.exit !== 3;
-      li.append(el("span", "dot" + (bad ? " bad" : s.exit === 3 ? " warn" : "")));
+      const li = el("li"); const bad = s.exit !== 0 && s.exit !== 3 && s.exit !== 4;
+      li.append(el("span", "dot" + (bad ? " bad" : s.exit === 3 || s.exit === 4 ? " warn" : "")));
       const mid = el("span"); mid.append(el("span", null, s.name + " "), el("code", null, s.command)); li.append(mid);
       li.append(el("span", "mono muted small", "Exit " + s.exit + (bad ? " ▾" : "")));
       if (bad) {
@@ -2315,7 +2393,7 @@ details.yppmore .grid4 { margin-top: 8px; }
       box.append(head);
       const ul = el("ul");
       for (const x of r.lines || []) ul.append(el("li", null, x.replace(/^- /, "")));
-      if (!(r.lines || []).length) ul.append(el("li", "muted", "Nichts zu reparieren"));
+      if (!(r.lines || []).length) ul.append(el("li", "muted", r.finished_at ? "Nichts zu reparieren" : "Keine Ergebnisse protokolliert"));
       box.append(ul);
     }
   }
@@ -2357,19 +2435,21 @@ details.yppmore .grid4 { margin-top: 8px; }
       const pts = (h.daily || []).slice(-31);
       for (let i = 1; i < pts.length; i++) bars.push({ label: pts[i].t.slice(8, 10) + ".", key: pts[i].t.slice(0, 10), v: subs ? (Number.isFinite(pts[i].s) && Number.isFinite(pts[i - 1].s) ? pts[i].s - pts[i - 1].s : null) : total(pts[i]) - total(pts[i - 1]), tip: `${fmtDay(pts[i].t.slice(0, 10))}: ` });
     }
-    bars = bars.filter(b => b.v != null).map(b => ({ ...b, v: Math.max(0, b.v) }));
+    bars = bars.filter(b => b.v != null);          // signed: a correction by YouTube stays visible (Kachelcheck 07.11.)
     const unit = subs ? "neue Abos" : "Aufrufe";
     if (bars.length < 2) {
       svg.append(sv("text", { x: W / 2, y: H / 2, "text-anchor": "middle" }, subs && ctx.stats.subscribers == null ? "Diese Quelle liefert keine Followerzahlen." : "Noch zu wenige Messpunkte für einen Verlauf."));
       const points = state.range === "48h" ? h.hourly : h.daily;
       $("views-note").textContent = points.length ? `Erster Messpunkt ${fmtTime(points[0].t)} · ${h.source || (ctx.primary ? "YouTube" : "Kanalexport")}.` : "Der Verlauf erscheint nach weiteren Abgleichen dieser Quelle.";
     } else {
-      const { top, step } = niceTop(Math.max(...bars.map(b => b.v)));
-      axis(svg, W, H, L, B, T, top, step);
-      const bw = (W - L) / bars.length, marks = ctx.primary ? changesByDay() : {}, marked = new Set();
+      const { top, step } = niceTop(Math.max(0, ...bars.map(b => b.v)));
+      // corrections (negative) hang below the zero line, on the same scale
+      const neg = -Math.min(0, ...bars.map(b => b.v)), scale = (H - B - T) / (top + neg), B0 = B + neg * scale;
+      axis(svg, W, H, L, B0, T, top, step);
+      const bw = (W - L) / bars.length, marks = {}, marked = new Set();        // system changes: in the Protokoll (Läufe), not on the growth chart
       bars.forEach((b, i) => {
-        const hh = b.v / top * (H - B - T), x = L + i * bw + bw * 0.15, y = H - B - hh;
-        const r = sv("rect", { x, y, width: Math.max(1, bw * 0.7), height: Math.max(hh, b.v > 0 ? 1 : 0), rx: 2, fill: "var(--accent)", opacity: i === bars.length - 1 ? 1 : .75 });
+        const hh = Math.abs(b.v) * scale, x = L + i * bw + bw * 0.15, y = b.v < 0 ? H - B0 : H - B0 - hh;
+        const r = sv("rect", { x, y, width: Math.max(1, bw * 0.7), height: Math.max(hh, b.v ? 1 : 0), rx: 2, fill: b.v < 0 ? "var(--bad-mark)" : "var(--accent)", opacity: i === bars.length - 1 ? 1 : .75 });
         svg.append(r); hoverTip(box, tip, r, b.tip + `${int(b.v)} ${unit}`);
         const every = Math.ceil(bars.length / 8);
         if (i % every === 0) svg.append(sv("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, b.label));
@@ -2381,9 +2461,10 @@ details.yppmore .grid4 { margin-top: 8px; }
         }
       });
       const sum = bars.reduce((a, b) => a + b.v, 0);
-      $("views-note").textContent = `${int(sum)} ${unit} ${state.range === "48h" ? "in den letzten 48 Stunden (je Stunde)" : "in den letzten 30 Tagen (je Tag)"}. ${ctx.scope === "tracked_posts" ? "Veränderung erfasster Postwerte seit der vorherigen Messung, kein vollständiger TikTok-Kanalbericht." : ctx.live ? "Öffentliche Videos, Zahlen von YouTube mit kurzer Verzögerung." : "Aus dem gespeicherten Kanalexport."}`;
+      const corr = bars.filter(b => b.v < 0).reduce((a, b) => a + b.v, 0);
+      $("views-note").textContent = `${int(sum)} ${unit} ${state.range === "48h" ? `in ${bars.length} Stunden (je Stunde)` : `in ${bars.length} Tagen (je Tag)`}` + (corr ? `, davon ${int(corr)} durch Korrekturen von YouTube (rot)` : "") + `. ${ctx.scope === "tracked_posts" ? "Veränderung erfasster Postwerte seit der vorherigen Messung, kein vollständiger TikTok-Kanalbericht." : ctx.live ? "Öffentliche Videos, Zahlen von YouTube mit kurzer Verzögerung." : "Aus dem gespeicherten Kanalexport."}`;
     }
-    const ch = ctx.primary ? ((state.data && state.data.changes) || []) : [], list = $("changes-list"); list.replaceChildren();
+    const ch = (state.data && state.data.changes) || [], list = $("changes-list");      // system-wide, shown under Läufe, not per channel list.replaceChildren();
     for (const c of ch.slice(0, 40)) { const li = el("li"); li.append(el("span", "mono muted", fmtTime(c.at) + " "), document.createTextNode((c.pr ? `#${c.pr} ` : "") + c.title)); list.append(li); }
     $("changes").hidden = !ch.length;
   }
@@ -2396,13 +2477,20 @@ details.yppmore .grid4 { margin-top: 8px; }
   const ICONS = { clock: "M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0", cal: "M8 3v4M16 3v4M4 10h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1",
     eye: "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6", heart: "M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z" };
   const ico = (name) => { const s = sv("svg", { viewBox: "0 0 24 24", "aria-hidden": "true" }); s.append(sv("path", { d: ICONS[name] })); return s; };
+  // Kachelcheck 07.11.: online videos first, then behind a divider the prepared ones (uploaded or
+  // planned, not public yet, dashed); "online" as everywhere else (isOnline)
   function renderVideoRow() {
     const ctx = channelContext(), row = $("vrow");
     row.replaceChildren();
-    const out = (v) => !v.publish_at || new Date(v.publish_at) <= new Date();      // published first, then the planned ones
-    const vids = [...ctx.videos.filter(out), ...ctx.videos.filter(v => !out(v)).reverse()].slice(0, 12);
-    if (!vids.length) { row.append(el("span", "empty", "Noch keine Videos.")); return; }
-    for (let v of vids) {
+    const out = (v) => !v.publish_at || isOnline(v.platform, v.video_id, v.publish_at, !!ctx.primary);
+    const online = ctx.videos.filter(out).slice(0, 12), coming = ctx.videos.filter(v => !out(v)).reverse().slice(0, 12);
+    if (!online.length && !coming.length) { row.append(el("span", "empty", "Noch keine Videos.")); return; }
+    for (const v of online) row.append(videoCard(ctx, v));
+    if (coming.length) { const sep = el("div", "vsep"); sep.append(el("b", null, "Vorbereitet"), el("span", null, "noch nicht öffentlich")); row.append(sep); }
+    for (const v of coming) { const c = videoCard(ctx, v); c.classList.add("prep"); row.append(c); }
+  }
+  function videoCard(ctx, v) {
+    {
       const lv = v.platform === "youtube" && ctx.live && ctx.live.videos && ctx.live.videos[v.video_id];
       if (lv) v = { ...v, views: lv.views, likes: lv.likes };
       // TikTok: Buffer's link to the post once it is sent (video_id is the Buffer post id).
@@ -2416,36 +2504,26 @@ details.yppmore .grid4 { margin-top: 8px; }
       th.append(el("span", "tag " + v.platform, v.platform === "youtube" ? (v.kind === "long" ? "YT Lang" : "YT Short") : "TikTok"));
       a.append(th, el("div", "t", v.title));
       // Key figures in one line (Felix 30.10.): time, views, likes, factor as a badge; details as tooltips.
-      const due = v.publish_at && new Date(v.publish_at) > new Date(), n = v.normal, st = el("div", "vstats");
+      const due = !(v.publish_at && isOnline(v.platform, v.video_id, v.publish_at, !!ctx.primary)), n = v.normal, st = el("div", "vstats");
       const item = (icon, text, title, cls) => { const s = el("span", cls); s.title = title; s.append(ico(icon), text); st.append(s); };
-      item(due ? "cal" : "clock", due ? fmtTime(v.publish_at) : ago(v.publish_at), due ? `geplant für ${fmtTime(v.publish_at)}` : `online seit ${fmtTime(v.publish_at)}`, due ? "plan" : null);
+      item(due ? "cal" : "clock", due ? fmtTime(v.publish_at) : ago(v.publish_at), due ? (new Date(v.publish_at) > new Date() ? `geplant für ${fmtTime(v.publish_at)}` : `Termin ${fmtTime(v.publish_at)} vorbei, bei YouTube noch nicht öffentlich`) : `online seit ${fmtTime(v.publish_at)}`, due ? "plan" : null);
       if (!due) { item("eye", el("b", null, int(v.views)), "Aufrufe"); item("heart", el("b", null, int(v.likes)), "Likes"); }
       const f = n && n.factor != null;
-      const badge = el("span", "delta" + (f && n.factor >= 1.5 ? " up" : f && n.factor < 0.67 ? " down" : ""), f ? dec(n.factor) + "×" : "–×");
+      const badge = el("span", "delta" + (f && n.factor >= 1.5 ? " up" : f && n.factor < 0.67 ? " down" : ""), f ? dec(n.factor) + "×" : "–");
       badge.title = f ? `Faktor: ${int(n.views)} Aufrufe nach ${n.days} Tag${n.days > 1 ? "en" : ""}, normal ${int(n.median)} (Median von ${n.peers} Videos)`
-        : n ? "Faktor: Normalwert ist 0" : v.platform === "youtube" ? "Faktor kommt ab 3 Videos gleicher Art" : "TikTok: ohne Faktor";
-      st.append(badge);
+        : n ? "Faktor: Normalwert ist 0" : v.platform === "youtube" ? "Noch kein Vergleich: braucht volle Tage und mindestens 2 andere Videos gleicher Art" : "TikTok: ohne Faktor";
+      if (!due) st.append(badge);          // a video not online yet has nothing to compare
       a.append(st);
       const curve = videoCurve(v.video_id);
       if (curve.length > 1) a.append(spark(curve, "var(--accent)"));
-      row.append(a);
+      return a;
     }
   }
 
-  // Plausible-style rank list: videos by views, bar behind the title.
+  // The channel line in the title. The rank list „Videos nach Aufrufen“ is gone (Kachelcheck 07.11.):
+  // the Videovergleich has the same ranking with filters.
   function renderRank() {
-    const ctx = channelContext(), box = $("rank");
-    box.replaceChildren();
-    const vids = ctx.videos.map(v => { const lv = v.platform === "youtube" && ctx.live && ctx.live.videos && ctx.live.videos[v.video_id]; return lv ? { ...v, views: lv.views } : v; })
-      .filter(v => v.views != null).sort((a, b) => b.views - a.views).slice(0, 10);
-    const rh = el("div", "rh"); rh.append(el("span", null, "Videos nach Aufrufen"), el("span", null, "Aufrufe")); box.append(rh);
-    if (!vids.length) { box.append(el("span", "empty", "Noch keine Zahlen.")); }
-    const max = Math.max(1, ...vids.map(v => v.views));
-    for (const v of vids) {
-      const r = el("div", "r"), l = el("div", "lbl"), bar = el("i"); bar.style.width = (v.views / max * 100) + "%";
-      const t = el("span"); t.append(el("span", "tag " + v.platform, v.platform === "youtube" ? (v.kind === "long" ? "Lang" : "Short") : "TikTok")); t.append(document.createTextNode(" " + v.title));
-      l.append(bar, t); r.append(l, el("span", "n", int(v.views))); box.append(r);
-    }
+    const ctx = channelContext();
     const cs = ctx.stats, label = ctx.platform === "tiktok" ? "TikTok" : ctx.platform === "youtube" ? "YouTube" : "Kanal";
     $("chan").textContent = ctx.error || `${ctx.name} · ${label} · ${int(cs.views)} ${ctx.scope === "tracked_posts" ? "Postaufrufe erfasst" : "Aufrufe gesamt"} · ` + (ctx.live ? `live ${fmtTime(ctx.live.at)}` : ctx.observed_at ? `Stand ${fmtTime(ctx.observed_at)}` : "Noch keine Messung");
   }
@@ -2497,7 +2575,7 @@ details.yppmore .grid4 { margin-top: 8px; }
     rows.forEach((r, i) => {
       const h = (r.usd / top) * (H - B - T), x = L + i * bw + bw * 0.18, y = H - B - h;
       const rect = sv("rect", { x, y, width: bw * 0.64, height: Math.max(h, r.usd > 0 ? 1 : 0), rx: 2, fill: "var(--warn-mark)", opacity: i === rows.length - 1 ? 1 : 0.6 });
-      hoverTip(box, tip, rect, `${fmtDay(r.day)}: ${r.usd.toFixed(2)} $ · ${r.calls} Aufrufe`);
+      hoverTip(box, tip, rect, `${fmtDay(r.day)}: ${r.usd.toFixed(2)} $ · ${r.calls} API-Anfragen`);
       svg.append(rect);
       if (marks[r.day]) { const mx = L + i * bw + bw / 2, g = sv("g", {}); g.append(sv("path", { d: `M${mx - 4},${T - 4}L${mx + 4},${T - 4}L${mx},${T + 2}Z`, fill: "var(--accent)" }), sv("title", {}, marks[r.day].map(c => (c.pr ? `#${c.pr} ` : "") + c.title).join("\n"))); svg.append(g); }
       if (i % 2 === rows.length % 2 || rows.length < 8) svg.append(sv("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, r.day.slice(8, 10) + "."));
@@ -2515,7 +2593,7 @@ details.yppmore .grid4 { margin-top: 8px; }
   $("reload").addEventListener("click", () => location.reload());   // Felix 02.11.: also a new page version (home-screen app on iOS)
   $("g-night-btn").addEventListener("click", () => { if (allAlerts().some(a => a.area === "Nachtlauf" && a.step)) openNightAlert(); else showTab("s-incidents"); });
   $("to-plan").addEventListener("click", (e) => { e.preventDefault(); showTab("s-plan"); });
-  $("r-ypp").addEventListener("click", () => { $("yppmore").open = !$("yppmore").open; });
+  $("to-compare").addEventListener("click", (e) => { e.preventDefault(); showTab("s-compare"); });
   setInterval(tick, 1000);
   document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { state.range = b.dataset.r; renderViews(); }));
   $("tl-prev").addEventListener("click", () => planStep(-1));
