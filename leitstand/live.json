@@ -1,11 +1,17 @@
 {
- "at": "2026-11-07T15:26:01Z",
+ "at": "2026-11-07T16:21:01Z",
  "channel": {
   "subscribers": 2,
-  "views": 3515,
-  "videos": 11
+  "views": 3516,
+  "videos": 12
  },
  "videos": {
+  "bMy5Lof4BP8": {
+   "views": 1,
+   "likes": 0,
+   "comments": 0,
+   "published": "2026-11-07T16:00:06Z"
+  },
   "84SvW_8K6Ys": {
    "views": 277,
    "likes": 4,
