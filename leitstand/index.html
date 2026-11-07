@@ -682,14 +682,15 @@ details.yppmore .grid4 { margin-top: 8px; }
 }
 /* Phone (Felix 01.11.): a smaller head, bigger tab targets, one day of the Sendeplan per screen width */
 /* Phone and tablet (Felix 06.11.): the brand scrolls away, then the tab bar stays at the top of the
-   screen. --brand-h (set by the script at the end) is the part above the tabs; .stuck makes room for
-   the palette dot and lifts the bar with a shadow. On desktop the page does not scroll, nothing changes. */
+   screen. --brand-h (set by the script at the end) is the part above the tabs; .stuck lifts the bar with a shadow. On desktop the page does not scroll, nothing changes. */
 @media not all and (min-width: 1000px) and (min-height: 620px) {
   .sidebar { position: sticky; z-index: 9; top: calc(env(safe-area-inset-top, 0px) - var(--brand-h, 80px)); }
   .sidebar.stuck { border-top-left-radius: 0; border-top-right-radius: 0; box-shadow: 0 12px 24px -14px rgb(0 0 0 / .55); }
-  .sidebar.stuck nav.jump { padding-left: 36px; }
+  /* Felix 07.11.: the palette dot stays where it sits at the top and scrolls away with the brand,
+     and the Dashboard head (status, reload) only shows on the Übersicht tab. */
+  .pal { position: absolute; }
+  body:has(#s-overview:not(.on)) header.top { display: none; }
 }
-@media (prefers-reduced-motion: no-preference) { nav.jump { transition: padding-left 240ms cubic-bezier(.22, 1, .36, 1); } }
 @media (max-width: 700px) {
   header.top { padding: 0 0 16px; gap: 12px; }
   header.top .meta { gap: 8px; }
