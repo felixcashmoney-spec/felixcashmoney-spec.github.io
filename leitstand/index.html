@@ -1592,7 +1592,8 @@ details.yppmore .grid4 { margin-top: 8px; }
     const label = { research: "Recherche", pick: "Idee wählen", reject: "Idee verwerfen", script: "Skript", spinoffs: "Ableger", storyboard: "Storyboard", media_plan: "Medienplan", media: "Medien bei Higgsfield", thumbs_plan: "Thumbnail-Plan", thumbs_make: "Thumbnail", render: "Schnitt", review: "Prüfung", publish: "Einplanen", done: "Woche eingeplant", stop: "Angehalten" }[n.step] || n.step || "—";
     $("g-prod").textContent = label;
     $("g-prod").style.color = n.step === "stop" ? "var(--bad)" : n.step === "done" ? "var(--ok)" : "";
-    $("g-prod-sub").textContent = (n.idea_title ? `#${n.idea_id} ${n.idea_title}. ` : "") + `Woche ab ${fmtDay(d.week.monday)}: ${d.week.planned ? "eingeplant" : "noch offen"}.`;
+    $("g-prod-sub").textContent = (n.idea_title ? `#${n.idea_id} ${n.idea_title}. ` : "") + `Woche ab ${fmtDay(d.week.monday)}: ${d.week.planned ? "eingeplant" : "noch offen"}.`
+      + (d.ready_until ? ` Bei YouTube fertig bis ${fmtDay(d.ready_until)}.` : "");
     const fl = $("flow"); fl.replaceChildren(); fl.classList.remove("full", "board");
     const stopped = n.step === "stop" || n.step === "reject", done = n.step === "done";
     if (d.flow && (d.flow.nodes || []).length) renderFlow(d.flow);
