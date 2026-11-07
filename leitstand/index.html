@@ -1236,6 +1236,7 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   }
   // Felix 07.11.: the open alert as an error report to fix from: kind, where in the code, the command to run
   // it again, the end of the output, the repair's cause/fix/next step, and the whole of it as Markdown
+  const REPO = "https://github.com/felixcashmoney-spec/Youtube-Automation";
   const KINDS = { code: "Code-Fehler", voruebergehend: "Vorübergehend", extern: "Braucht dich", unklar: "Unklar" };
   function repairRows(a) {
     const r = a.repair || {};
@@ -1244,26 +1245,30 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   function reportMarkdown(a) {
     const r = a.report, rep = a.repair || {};
     const rows = [["Schritt", r.step || a.step], ["Zeit", [a.day, r.at].filter(Boolean).join(" ")], ["Exit", r.exit],
-      ["Art", KINDS[r.kind] || r.kind], ["Ursache", r.cause || a.detail], ["Fehler", r.error], ["Stelle", r.where && "`" + r.where + "`"],
+      ["Art", r.aborted ? "Abgebrochen (Sitzung beendet oder Befehl hängte)" : KINDS[r.kind] || r.kind],
+      [r.aborted ? "Zuletzt ausgegeben" : "Ursache", r.cause || a.detail], ["Fehler", r.error], ["Stelle", r.where && "`" + r.where + "`"],
       ["Befehl", r.command && "`" + r.command + "`"], ["Auswirkung", a.impact], ["Reparatur", repairText(a)], ["Ursache laut Reparatur", rep.cause],
-      ["Lösung", rep.fix], ["Nächster Schritt", rep.next], ["Log", r.log && `logs/${r.log}, Abschnitt „${a.step}:“`]];
+      ["Lösung", rep.fix], ["Nächster Schritt", rep.next], ["Code-Stand", r.version && `${r.version} (${REPO}/commit/${r.version})`],
+      ["Log", r.log && `logs/${r.log}, Abschnitt „${a.step}:“`]];
     return [`## Fehler: ${a.text}`, "", ...rows.filter(x => x[1] != null && x[1] !== "").map(([k, v]) => `- ${k}: ${v}`),
       ...(r.excerpt ? ["", "```text", r.excerpt, "```"] : [])].join("\n");
   }
   function codeDd(v) { const c = el("code"); c.textContent = v; return c; }
   function reportBox(a) {
     const r = a.report, box = el("div", "why frep"), head = el("div", "fhead");
-    head.append(el("span", "kindtag " + (r.kind || ""), KINDS[r.kind] || "Fehler"),
-      el("span", "meta", [r.step || a.step, r.at && r.at.slice(-8), r.exit != null && `Exit ${r.exit}`].filter(Boolean).join(" · ")));
+    // a step the session was cut off in (nightly.aborted / dashboard.cut_off): no exit code, only what it printed
+    head.append(el("span", "kindtag " + (r.aborted ? "code" : r.kind || ""), r.aborted ? "Abgebrochen" : KINDS[r.kind] || "Fehler"),
+      el("span", "meta", [r.step || a.step, r.at && (r.aborted ? "lief seit " : "") + r.at.slice(-8), r.exit != null && `Exit ${r.exit}`, r.partial && "Teilfehler"].filter(Boolean).join(" · ")));
     const btn = el("button", null, "Bericht für Claude kopieren"), note = el("span", "copied"); btn.type = "button";
     btn.addEventListener("click", async (e) => {
       e.preventDefault(); const md = reportMarkdown(a);
       try { await navigator.clipboard.writeText(md); note.textContent = "kopiert"; }
       catch { const pre = box.querySelector("pre.tb") || box; const rg = document.createRange(); rg.selectNodeContents(pre); getSelection().removeAllRanges(); getSelection().addRange(rg); note.textContent = "Kopieren ging nicht, Auszug ist markiert"; }
     });
+    if (r.version) { const v = el("a", "meta", "Code " + r.version); v.href = `${REPO}/commit/${encodeURIComponent(r.version)}`; v.target = "_blank"; v.rel = "noopener"; head.append(v); }
     head.append(btn, note); box.append(head);
     const dl = el("dl");
-    const rows = [["Ursache", r.cause || a.detail], ["Fehler", r.error !== (r.cause || a.detail) && r.error], ["Stelle im Code", r.where && codeDd(r.where)],
+    const rows = [[r.aborted ? "Zuletzt ausgegeben" : "Ursache", r.cause || a.detail], ["Fehler", r.error !== (r.cause || a.detail) && r.error], ["Stelle im Code", r.where && codeDd(r.where)],
       ["Nachstellen", r.command && codeDd(r.command)], ["Wie schlimm", a.impact], ...repairRows(a)];
     for (const [k, v] of rows) if (v) { const dd = el("dd"); dd.append(v); dl.append(el("dt", null, k), dd); }
     box.append(dl);
