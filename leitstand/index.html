@@ -152,6 +152,17 @@ section.area > .title h2 { font-size: 1.5rem; }
 pre.log, .why pre { max-height: 300px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; font-family: var(--font-data); font-size: .75rem; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
 pre.log { max-height: 420px; }
 .why .links { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Felix 07.11.: an error report to fix from (journal.report in the night, shown on the open alert) */
+.frep .fhead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.frep .fhead .meta { color: var(--muted); font-size: .78rem; font-family: var(--font-data); }
+.frep .fhead button { margin-left: auto; font-size: .78rem; }
+.kindtag { font-size: .75rem; font-weight: 500; padding: 1px 8px; border-radius: 5px; background: var(--none, var(--line)); color: var(--ink); }
+.kindtag.code { background: var(--bad-soft); color: var(--bad); } .kindtag.voruebergehend, .kindtag.extern { background: var(--warn-soft); color: var(--warn); }
+.frep dd code { font-family: var(--font-data); font-size: .78rem; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+.frep pre.tb .hit { color: var(--bad); font-weight: 600; } .frep pre.tb .own { color: var(--accent-ink); }
+.frep details > summary { cursor: pointer; color: var(--accent-ink); font-size: .8rem; }
+.frep details > pre { margin-top: 8px; }
+.frep .copied { color: var(--muted); font-size: .75rem; }
 
 /* KPI cards (Tremor) with a Plausible-style switch for the big chart */
 .kpi { display: grid; gap: 4px; align-content: start; }
@@ -1223,9 +1234,59 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     const what = { "behoben": "Code repariert, Schritt lief danach durch", "erneut-ok": "Erneut ausgeführt, lief durch", "schon-behoben": "War schon repariert", "gemeldet": "Kein Code-Fehler, das musst du tun", "eskaliert": "Kommt trotz zwei Reparaturen wieder, das entscheidest du", "fehlgeschlagen": "Reparatur versucht, der Schritt scheitert weiter", "uebersprungen": "Übersprungen" }[r.result] || r.result;
     return `${what}: ${r.text}` + (r.pr ? ` (PR #${r.pr})` : "");
   }
+  // Felix 07.11.: the open alert as an error report to fix from: kind, where in the code, the command to run
+  // it again, the end of the output, the repair's cause/fix/next step, and the whole of it as Markdown
+  const KINDS = { code: "Code-Fehler", voruebergehend: "Vorübergehend", extern: "Braucht dich", unklar: "Unklar" };
+  function repairRows(a) {
+    const r = a.repair || {};
+    return [["Reparatur", repairText(a)], ["Ursache laut Reparatur", r.cause], ["Lösung", r.fix], ["Nächster Schritt", r.next]];
+  }
+  function reportMarkdown(a) {
+    const r = a.report, rep = a.repair || {};
+    const rows = [["Schritt", r.step || a.step], ["Zeit", [a.day, r.at].filter(Boolean).join(" ")], ["Exit", r.exit],
+      ["Art", KINDS[r.kind] || r.kind], ["Ursache", r.cause || a.detail], ["Fehler", r.error], ["Stelle", r.where && "`" + r.where + "`"],
+      ["Befehl", r.command && "`" + r.command + "`"], ["Auswirkung", a.impact], ["Reparatur", repairText(a)], ["Ursache laut Reparatur", rep.cause],
+      ["Lösung", rep.fix], ["Nächster Schritt", rep.next], ["Log", r.log && `logs/${r.log}, Abschnitt „${a.step}:“`]];
+    return [`## Fehler: ${a.text}`, "", ...rows.filter(x => x[1] != null && x[1] !== "").map(([k, v]) => `- ${k}: ${v}`),
+      ...(r.excerpt ? ["", "```text", r.excerpt, "```"] : [])].join("\n");
+  }
+  function codeDd(v) { const c = el("code"); c.textContent = v; return c; }
+  function reportBox(a) {
+    const r = a.report, box = el("div", "why frep"), head = el("div", "fhead");
+    head.append(el("span", "kindtag " + (r.kind || ""), KINDS[r.kind] || "Fehler"),
+      el("span", "meta", [r.step || a.step, r.at && r.at.slice(-8), r.exit != null && `Exit ${r.exit}`].filter(Boolean).join(" · ")));
+    const btn = el("button", null, "Bericht für Claude kopieren"), note = el("span", "copied"); btn.type = "button";
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault(); const md = reportMarkdown(a);
+      try { await navigator.clipboard.writeText(md); note.textContent = "kopiert"; }
+      catch { const pre = box.querySelector("pre.tb") || box; const rg = document.createRange(); rg.selectNodeContents(pre); getSelection().removeAllRanges(); getSelection().addRange(rg); note.textContent = "Kopieren ging nicht, Auszug ist markiert"; }
+    });
+    head.append(btn, note); box.append(head);
+    const dl = el("dl");
+    const rows = [["Ursache", r.cause || a.detail], ["Fehler", r.error !== (r.cause || a.detail) && r.error], ["Stelle im Code", r.where && codeDd(r.where)],
+      ["Nachstellen", r.command && codeDd(r.command)], ["Wie schlimm", a.impact], ...repairRows(a)];
+    for (const [k, v] of rows) if (v) { const dd = el("dd"); dd.append(v); dl.append(el("dt", null, k), dd); }
+    box.append(dl);
+    if (r.excerpt) {
+      const pre = el("pre", "tb");
+      for (const line of r.excerpt.split("\n")) {
+        const cls = /^\s*[\w.]+(Error|Exception)\b|Fehler|Traceback/.test(line) ? "hit" : /ytauto\//.test(line) ? "own" : null;
+        pre.append(cls ? el("span", cls, line) : document.createTextNode(line), "\n");
+      }
+      box.append(pre);
+    }
+    if (a.day && a.step) {
+      const d = el("details"), pre = el("pre", null, "Log wird geladen …");
+      d.append(el("summary", null, "Ganzer Log-Abschnitt"), pre);
+      d.addEventListener("toggle", () => { if (d.open && pre.dataset.done !== "1") { pre.dataset.done = "1"; logOf(a.day).then(t => { const x = excerpt(t, a.step); pre.textContent = x || (t == null ? "Kein Log für diese Nacht lesbar (Logs liegen für 7 Nächte vor)." : "Im Log nichts zu diesem Schritt gefunden."); }); } }, { once: false });
+      box.append(d);
+    }
+    if (a.step === "Produktion") box.append(whyBox([], a.day, null, true).querySelector(".links"));
+    return box;
+  }
   function alertItem(a) {
     const li = el("li", a.level);
-    if (!a.impact && !a.detail && !a.repair) { const b = el("div", "body"); b.append(el("span", "area", a.area), el("span", "txt", a.text)); li.append(b); return li; }
+    if (!a.impact && !a.detail && !a.repair && !a.report) { const b = el("div", "body"); b.append(el("span", "area", a.area), el("span", "txt", a.text)); li.append(b); return li; }
     const key = a.area + "|" + a.text, d = el("details"), sm = el("summary");
     sm.append(el("span", "area", a.area), el("span", "txt", a.text));
     const rt = repairTag(a);
@@ -1235,7 +1296,7 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     d.append(sm);
     d.open = state.openAlerts.has(key);
     let filled = false;
-    const fill = () => { if (filled || !d.open) return; filled = true; d.append(whyBox([["Was genau", a.detail], ["Wie schlimm", a.impact], ["Reparatur", repairText(a)]], a.day, a.step, a.step === "Produktion")); };
+    const fill = () => { if (filled || !d.open) return; filled = true; d.append(a.report ? reportBox(a) : whyBox([["Was genau", a.detail], ["Wie schlimm", a.impact], ...repairRows(a)], a.day, a.step, a.step === "Produktion")); };
     d.addEventListener("toggle", () => { if (d.open) state.openAlerts.add(key); else state.openAlerts.delete(key); fill(); });
     fill();
     li.dataset.key = key; li.append(d);
