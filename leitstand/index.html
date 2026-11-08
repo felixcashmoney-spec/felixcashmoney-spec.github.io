@@ -3135,7 +3135,11 @@ a.bell { display: none; }
     const id = a.getAttribute("href").slice(1);
     // Felix 08.11.: the bell again while Neuigkeiten is open closes it, back to the tab from before
     if (id === "s-incidents" && $(id).classList.contains("on")) showTab(state.beforeNews && state.beforeNews !== id ? state.beforeNews : "s-overview");
-    else showTab(id);
+    // Felix 08.11.: the open tab's icon again scrolls it back to the very top (page and inner lists)
+    else if ($(id).classList.contains("on")) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      $(id).querySelectorAll(".scroll, .body").forEach(n => { if (n.scrollTop) n.scrollTo({ top: 0, behavior: "smooth" }); });
+    } else showTab(id);
   }));
   let swipeStart = null;
   document.addEventListener("touchstart", e => {
