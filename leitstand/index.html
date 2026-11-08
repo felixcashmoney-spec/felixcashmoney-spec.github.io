@@ -894,7 +894,7 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
 .chain .cn { display: grid; justify-items: center; gap: 6px; text-align: center; min-width: 0; position: relative; }
 .chain .cn .o { position: relative; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
   background: var(--raised); border: 1px solid var(--line); color: var(--faint); font-size: .8rem; font-weight: 650; transition: background .35s, color .35s, border-color .35s; }
-.chain .cn .o svg.rg { position: absolute; inset: -5px; width: 50px; height: 50px; transform: rotate(-90deg); }
+.chain .cn .o svg.rg { position: absolute; top: 50%; left: 50%; translate: -50% -50%; width: 50px; height: 50px; transform: rotate(-90deg); }
 .chain .cn .o svg.rg circle { fill: none; stroke-width: 2.5; }
 .chain .cn .o svg.rg .t { stroke: var(--line); } .chain .cn .o svg.rg .a { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .9s var(--ease-travel); }
 .chain .cn .o svg.ck { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
@@ -1924,8 +1924,15 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
     }
     // S6 the last 28 days like YouTube Studio's channel analytics (YouTube Analytics, from the night)
     const l28 = d && d.last_28;
+    // Felix 08.11.: Analytics lags 2-3 days and only counts subscriptions made on a video, so a new
+    // subscriber showed as „+0 Abos“. The subscriber gain comes from the live count against the
+    // history 28 days ago (or its first point, then „seit …“); Analytics only without any history.
+    const sPts = [...((state.hist && state.hist.daily) || []), ...((state.hist && state.hist.hourly) || []), ...(nowP ? [nowP] : [])].filter(p => p.s != null).sort((a, b) => a.t < b.t ? -1 : 1);
+    const sNow = sPts[sPts.length - 1], sBase = sPts.length > 1 ? pointAt(sPts, at(nowMs - 28 * 86400000)) || sPts[0] : null;
+    const subs28 = sBase ? sNow.s - sBase.s : l28 ? l28.subs : null;
+    const subsTxt = subs28 == null ? "" : `${subs28 >= 0 ? "+" : ""}${int(subs28)} Abos` + (sBase && new Date(sBase.t).getTime() > nowMs - 27 * 86400000 ? ` seit ${fmtDay(berlinParts(new Date(sBase.t)).day).slice(3)}` : "") + " · ";
     card(null, "Letzte 28 Tage", l28 ? int(l28.views) : "—", l28 ? "Aufrufe" : "",
-      null, l28 ? `${dec(l28.hours)} Std. Wiedergabe · ${l28.subs >= 0 ? "+" : ""}${int(l28.subs)} Abos · ${l28.latest ? "Daten bis " + fmtDay(l28.latest).slice(3) : "noch keine Analytics-Daten"}` : "kommt mit dem nächsten Nachtlauf",
+      null, l28 ? `${dec(l28.hours)} Std. Wiedergabe · ${subsTxt}${l28.latest ? "Daten bis " + fmtDay(l28.latest).slice(3) : "noch keine Analytics-Daten"}` : "kommt mit dem nächsten Nachtlauf",
       l28 ? l28.days : null, "var(--accent)", l28 ? l28.views : null, int, { fresh: "run" });
     // Kachelcheck 07.11. (replaces „Alle Plattformen“): how far ahead the posts are safe. ready_until =
     // the last day up to which every YouTube post is already at YouTube; one square per day of the next
