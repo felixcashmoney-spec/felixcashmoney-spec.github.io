@@ -440,21 +440,13 @@ footer details > div { margin-top: 4px; }
 .today .state i { width: 10px; height: 10px; border-radius: 50%; background: var(--faint); flex: none; }
 .today .state.ok i { background: var(--ok-mark); } .today .state.warn i { background: var(--warn-mark); } .today .state.bad i { background: var(--bad-mark); }
 .today .state.ok { color: var(--ok); } .today .state.warn { color: var(--warn); } .today .state.bad { color: var(--bad); }
-.today button.big-btn { all: unset; cursor: pointer; font-size: .78rem; color: var(--accent-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.today button.big-btn:not(.val) { all: unset; cursor: pointer; font-size: .78rem; color: var(--accent-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.today button.val { appearance: none; background: none; border: 0; padding: 0; text-align: left; font-family: inherit; cursor: pointer; }
+.today button.val:disabled { cursor: default; }
 .today button.big-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 .livedot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); margin-right: 8px; vertical-align: 1px; }
 .livedot.on { background: var(--ok-mark); }
 @media (max-width: 760px) { .today { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .today > div:nth-child(3) { border-left: 0; } .today > div:nth-child(n+3) { border-top: 1px solid var(--line); } }
-
-/* U6: yellow notes behind one line */
-details.morealerts { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
-details.morealerts > summary { list-style: none; cursor: pointer; padding: 8px 16px; display: flex; gap: 12px; align-items: baseline; font-size: .86rem; min-width: 0; }
-details.morealerts > summary::-webkit-details-marker { display: none; }
-details.morealerts > summary b { color: var(--warn); font-weight: 500; white-space: nowrap; }
-details.morealerts > summary span { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-details.morealerts > summary::after { content: "▾"; margin-left: auto; color: var(--accent-ink); font-size: .78rem; }
-details.morealerts[open] > summary::after { content: "▴"; }
-details.morealerts .alerts { padding: 0 8px 8px; }
 
 .ovgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 900px) { .ovgrid { grid-template-columns: minmax(0, 1fr); } }
@@ -621,7 +613,7 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
    lists scroll inside their own card. Smaller screens keep the normal page scroll. */
 .pane { display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
 @media (min-width: 1000px) and (min-height: 620px) {
-  .wrap { display: grid; grid-template-columns: 224px minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto;
+  .wrap { display: grid; grid-template-columns: 64px minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto;
     grid-template-areas: "side head" "side notice" "side content" "side foot";
     height: 100vh; height: 100dvh; max-width: 1680px; padding: 0 24px 0 0; gap: 0 24px; }
   .sidebar { grid-area: side; border: 0; border-right: 1px solid var(--line); border-radius: 0; padding: 32px 16px; display: flex; flex-direction: column; gap: 32px; overflow-y: auto; }
@@ -636,7 +628,6 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   footer { grid-area: foot; padding: 8px 0; }
   .pane > .scroll { flex: 0 1 auto; min-height: 0; overflow: auto; }
   .pane > .grow { flex: 1 1 0; min-height: 0; }
-  #alerts { max-height: 24vh; overflow: auto; }
   #s-overview > .title { display: none; }
   /* Übersicht fills the window: the production row keeps its height, the bottom row takes what is
      left and scrolls inside a card only on small windows */
@@ -649,7 +640,6 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   .ring .dial { width: 56px; height: 56px; }
   #s-overview .kpi { padding: 10px 16px; gap: 2px; } #s-overview .kpi svg.spark { height: 24px; }
   .today > div { padding-block: 4px; }
-  details.morealerts > summary { padding-block: 8px; }
   #s-overview .ovgrid { gap: 6px 12px; } #s-overview .ovgrid > .card { gap: 8px; padding: 10px 16px; }
   .ring .mid b { font-size: .88rem; } .ring .mid small { font-size: .64rem; }
   .ring { gap: 2px; } .flow { padding-top: 0; }
@@ -702,7 +692,9 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   #views-chart svg { height: 100%; }
   #s-costs.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
   #s-costs .two { min-height: 0; }
-  #s-incidents.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
+  #s-incidents.on { display: flex; flex-direction: column; overflow: auto; }
+  #s-incidents > * { flex: none; }
+  #s-incidents #inc-history { flex: 1 0 220px; min-height: 220px; overflow: hidden; }
   #s-costs .two > .card { overflow: auto; }
 }
 /* Phone (Felix 01.11.): a smaller head, bigger tab targets, one day of the Sendeplan per screen width */
@@ -803,7 +795,7 @@ h3 { font: 620 .95rem/1.3 var(--font-title); letter-spacing: -.015em; }
 b, strong { font-weight: 600; }
 
 /* tiles */
-.card, .alerts li, details.morealerts, .notice, .daycol { border-radius: var(--r-tile); border-color: var(--line);
+.card, .alerts li, .notice, .daycol { border-radius: var(--r-tile); border-color: var(--line);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 4%, transparent); }
 .card { padding: 18px 20px; }
 .pcard, .errcard, .flow.board .dsignal { border-radius: 12px; }
@@ -943,7 +935,7 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
 }
 #s-runs .pane > .head { min-height: 36px; align-items: center; }
 .today > div { padding: 12px 18px; }
-.alerts li, details.morealerts { border-radius: 12px; }
+.alerts li { border-radius: 12px; }
 #o-flow { display: flex; flex-direction: column; }
 #o-flow > .head { order: 0; } #o-flow > #flow { order: 1; } #o-flow > * { order: 2; }
 
@@ -964,19 +956,10 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
   #o-rings .head .fresh, #o-latest .head .fresh { font-size: 0; gap: 0; }
   #s-overview .npost { grid-template-columns: 96px minmax(0, 1fr); }
   .alerts .body, .alerts summary { padding-block: 6px; }
-  #alerts { max-height: 20vh; }
 }
 @media (min-width: 1000px) and (max-width: 1299px) and (min-height: 620px) {
   #s-overview .ovgrid { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); }
   #s-overview .npost { grid-template-columns: 72px minmax(0, 1fr); }
-}
-/* a narrow laptop window: the sidebar becomes an icon rail (names stay for screen readers and tooltips) */
-@media (min-width: 1000px) and (max-width: 1199px) and (min-height: 620px) {
-  .wrap { grid-template-columns: 76px minmax(0, 1fr); }
-  .sidebar { padding: 24px 12px; align-items: center; }
-  .brand > div { display: none; }
-  nav.jump a { font-size: 0; gap: 0; justify-content: center; padding: 10px; }
-  nav.jump svg { width: 20px; height: 20px; }
 }
 @media (min-width: 1000px) and (min-height: 620px) {
   footer summary { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -992,19 +975,65 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
 @media (min-width: 1000px) and (min-height: 620px) and (max-height: 900px) {
   .today > div { padding-block: 6px; gap: 0; } .today .val { font-size: 1rem; }
   .alerts { gap: 6px; } .alerts .body, .alerts summary { padding-block: 4px; font-size: .84rem; }
-  details.morealerts > summary { padding-block: 5px; font-size: .84rem; }
   #s-overview .kpi { padding: 8px 14px; } #s-overview .kpi .value { font-size: 1.5rem; margin-top: 0; }
   #s-overview .kpi svg.spark, #s-overview .kpi svg.bars { height: 20px; } #s-overview .kpi .chartwrap { margin-top: 2px; }
   #s-overview .kpi .days7 { margin-top: 4px; }
+}
+/* ===================== Leiste und Neuigkeiten (Felix 08.11., Mockup 6QQ21hUTMnxneciZXwzepX) =====================
+   Desktop: a 64px icon rail; the pointer resting on it (or keyboard focus in it) opens it to 224px over the
+   page, with the names and two groups centered in the height. Neuigkeiten (bell) sits under the brand.
+   Phone: the bottom bar keeps its six tabs, the bell with the count sits top right next to the brand. */
+.ng { display: none; }
+.nav-count { margin-left: auto; min-width: 20px; height: 18px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; background: var(--bad-mark); color: #fff;
+  font: 600 11px/18px var(--font); text-align: center; font-variant-numeric: tabular-nums; }
+.nav-count[data-level="gelb"], .bell-count[data-level="gelb"] { background: var(--warn-mark); color: #1d1206; }
+a.bell { display: none; }
+@media (min-width: 1000px) and (min-height: 620px) {
+  .sidebar { position: relative; z-index: 15; width: 64px; box-sizing: border-box; padding: 40px 10px 16px; gap: 8px; overflow: hidden; align-items: stretch;
+    transition: width 300ms 110ms cubic-bezier(.25, .8, .25, 1), box-shadow 300ms 110ms ease-out; }
+  .sidebar.wide { width: 224px; box-shadow: 24px 0 48px -16px rgb(0 0 0 / .6); transition: width 320ms cubic-bezier(.25, .8, .25, 1), box-shadow 320ms ease-out; }
+  .brand { height: 44px; padding-left: 5px; gap: 10px; flex: none; }
+  .brand > div, nav.jump .nl, .ng, .nav-count { white-space: nowrap; opacity: 0; transition: opacity 100ms ease-out; }
+  .sidebar.wide :is(.brand > div, nav.jump .nl, .ng, .nav-count) { opacity: 1; transition: opacity 200ms 300ms ease-out; }
+  .brand > div { min-width: 0; }
+  nav.jump { flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+  nav.jump a { position: relative; flex: none; min-height: 40px; height: 40px; padding: 0 13px; gap: 12px; font-size: 13px; }
+  nav.jump .nl { flex: 1 1 auto; overflow: hidden; }
+  nav.jump a.news { margin-bottom: 8px; }
+  nav.jump a.news:has(.nav-count:not([hidden]))::after { content: ""; position: absolute; left: 27px; top: 9px; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--bad-mark); box-shadow: 0 0 0 2px var(--side); transition: opacity 160ms; }
+  nav.jump a.news:has(.nav-count[data-level="gelb"])::after { background: var(--warn-mark); }
+  .sidebar.wide nav.jump a.news::after { opacity: 0; }
+  .ng { display: block; flex: none; height: 14px; margin: 14px 0 2px; padding-left: 13px; font: 600 10.5px/14px var(--font); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+  .ng.g1 { margin-top: auto; }
+  nav.jump a[href="#s-costs"] { margin-bottom: auto; }
+}
+@media (min-width: 1000px) and (min-height: 620px) and (prefers-reduced-motion: reduce) {
+  .sidebar, .sidebar.wide, .brand > div, nav.jump .nl, .ng, .nav-count { transition: none !important; }
+}
+@media not all and (min-width: 1000px) and (min-height: 620px) {
+  nav.jump .nav-count { margin-left: 4px; }
+}
+@media (max-width: 700px) {
+  nav.jump a.news { display: none; }
+  .brand { position: relative; }
+  a.bell { display: grid; place-items: center; position: relative; margin-left: auto; width: 44px; height: 44px; border-radius: 12px; color: var(--ink);
+    background: var(--panel); box-shadow: 0 0 0 1px var(--line); text-decoration: none; }
+  a.bell svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  a.bell[aria-current="page"] { color: var(--accent); }
+  .bell-count { position: absolute; top: 4px; right: 4px; min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 999px;
+    background: var(--bad-mark); color: #fff; font: 600 10px/16px var(--font); font-style: normal; text-align: center; box-shadow: 0 0 0 2px var(--panel); }
 }
 </style>
 </head>
 <body>
 <div class="wrap">
   <aside class="sidebar" aria-label="Kanal und Navigation">
-    <div class="brand"><span class="seal" aria-hidden="true">SK</span><div><div class="brand-name">Strange Knowns</div><div class="sub">Dashboard</div></div></div>
+    <div class="brand"><span class="seal" aria-hidden="true">SK</span><div><div class="brand-name">Strange Knowns</div><div class="sub">Dashboard</div></div><a href="#s-incidents" class="bell" id="news-bell" aria-label="Neuigkeiten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9"/><path d="M10.3 20a1.9 1.9 0 0 0 3.4 0"/></svg><i class="bell-count" id="news-count-m" hidden></i></a></div>
   <nav class="jump" aria-label="Bereiche">
-    <a href="#s-overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>Übersicht</a><a href="#s-runs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><path d="M8 4v4M16 10v4M10 16v4"/></svg>Läufe</a><a href="#s-plan"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M8 14h3M8 17h7"/></svg>Sendeplan</a><a href="#s-channel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5v15h16M8 15l4-5 4 2 4-6"/></svg>Kanal</a><a href="#s-compare"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="6" height="14" rx="1"/><rect x="14" y="5" width="6" height="14" rx="1"/></svg>Videovergleich</a><a href="#s-costs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg>Kosten</a><a href="#s-incidents"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 20H3L12 3zM12 9v5M12 17h.01"/></svg>Störungen</a>
+    <a href="#s-incidents" class="news"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9"/><path d="M10.3 20a1.9 1.9 0 0 0 3.4 0"/></svg><span class="nl">Neuigkeiten</span><span class="nav-count" id="news-count" hidden></span></a>
+    <span class="ng g1" aria-hidden="true">Betrieb</span><a href="#s-overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg><span class="nl">Übersicht</span></a><a href="#s-runs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><path d="M8 4v4M16 10v4M10 16v4"/></svg><span class="nl">Läufe</span></a><a href="#s-plan"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M8 14h3M8 17h7"/></svg><span class="nl">Sendeplan</span></a>
+    <span class="ng" aria-hidden="true">Auswertung</span><a href="#s-channel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5v15h16M8 15l4-5 4 2 4-6"/></svg><span class="nl">Kanal</span></a><a href="#s-compare"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="6" height="14" rx="1"/><rect x="14" y="5" width="6" height="14" rx="1"/></svg><span class="nl">Videovergleich</span></a><a href="#s-costs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg><span class="nl">Kosten</span></a>
   </nav>
   </aside>
   <header class="top">
@@ -1021,19 +1050,16 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
 
   <!-- ===================== Übersicht ===================== -->
   <section class="area on" id="s-overview" aria-labelledby="h-overview">
-    <div class="title"><h2 id="h-overview">Übersicht</h2><span class="muted small" id="alert-count"></span></div>
+    <div class="title"><h2 id="h-overview">Übersicht</h2></div>
 
     <div class="card today" id="today" aria-label="Heute">
-      <div><span class="label" id="t-day">Heute</span><span class="val state" id="t-state"><i></i><span>Lädt …</span></span><span class="sub" id="t-state-sub"></span></div>
+      <div><span class="label" id="t-day">Heute</span><button type="button" class="val state big-btn" id="t-state" aria-label="Neuigkeiten ansehen" disabled><i></i><span>Lädt …</span></button><span class="sub" id="t-state-sub"></span></div>
       <div><span class="label">Für dich zu tun</span><span class="val state" id="t-todo"><i></i><span>—</span></span><span class="sub" id="t-todo-sub"></span></div>
       <div><span class="label">Nächster Post</span><span class="val" id="cd-post">—</span><span class="sub" id="cd-post-what"></span><span class="sub ready-tag" id="cd-post-ready"></span></div>
       <div><span class="label">Nächster Nachtlauf</span><span class="val" id="cd-night">—</span>
         <button type="button" class="big-btn" id="g-night-btn" aria-label="Fehler der Nacht ansehen"><span id="g-night">—</span><span id="g-night-hint" hidden></span></button>
         <span class="sub" id="g-night-sub"></span></div>
     </div>
-
-    <ul class="alerts" id="alerts"></ul>
-    <details class="morealerts" id="morealerts" hidden><summary><b id="more-n"></b><span id="more-first"></span></summary><ul class="alerts" id="alerts-more"></ul></details>
 
     <div class="grid4" id="kpis" aria-label="Kennzahlen wie in YouTube Studio"></div>
 
@@ -1187,14 +1213,15 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
     </div>
   </section>
 
-  <!-- ===================== Störungen ===================== -->
+  <!-- ===================== Neuigkeiten ===================== -->
   <section class="area" id="s-incidents" aria-labelledby="h-incidents">
-    <div class="title"><h2 id="h-incidents">Störungen</h2><span class="muted small" id="inc-note"></span></div>
+    <div class="title"><h2 id="h-incidents">Neuigkeiten</h2><span class="muted small" id="inc-note"></span></div>
     <div class="cmpbar">
       <div class="seg" id="inc-show" role="group" aria-label="Zeigen"><button type="button" data-s="open" aria-pressed="false">Aktiv</button><button type="button" data-s="done" aria-pressed="false">Behoben</button><button type="button" data-s="all" aria-pressed="true">Alle</button></div>
     </div>
-    <div class="card block pane">
-      <div class="head"><h3>Verlauf</h3><span class="muted small">aktive oben · behoben = vom Reparaturlauf repariert, anders erledigt oder beim nächsten Lauf nicht mehr da · 60 Tage</span></div>
+    <ul class="alerts" id="alerts"></ul>
+    <div class="card block pane" id="inc-history">
+      <div class="head"><h3>Behoben</h3><span class="muted small">behoben = vom Reparaturlauf repariert, anders erledigt oder beim nächsten Lauf nicht mehr da · 60 Tage</span></div>
       <div class="tbl scroll"><table class="inc"><thead><tr><th></th><th>Störung</th><th>Seit</th><th>Behoben</th><th>Womit</th></tr></thead><tbody id="inc"></tbody></table></div>
     </div>
   </section>
@@ -1400,7 +1427,7 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
 
   // ---------- Störungen (Felix 02.11.): open and fixed faults, from the data plus the page's own ----------
   function renderIncidents() {
-    const d = state.data, now = new Date().toISOString();
+    const d = state.data;
     // before the first run with a history: built from the file's alerts, the fixed ones as fixed,
     // the night's problems since the night started
     const stored = (d && d.incidents) || ((d && d.alerts) || []).map(capped).map(a => {
@@ -1410,14 +1437,18 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
                fixed_at: fixed ? d.generated_at : undefined, pr: r.pr,
                how: fixed ? (FIXED.includes(r.result) ? "Reparaturlauf: " + (r.text || "") : a.impact || "erledigt") : "" };
     });
-    const rows = [...pageAlerts().filter(a => a.level !== "info").map(a => ({ ...a, worst: a.level, first: now, live: true })), ...stored];
-    const open = rows.filter(r => !r.fixed_at), done = rows.filter(r => r.fixed_at).sort((a, b) => b.fixed_at.localeCompare(a.fixed_at));
-    $("inc-note").textContent = `${open.length} aktiv · ${done.length} behoben`;
-    const show = state.incShow || "all", list = show === "open" ? open : show === "done" ? done : [...open, ...done];
+    const alerts = allAlerts(), active = alerts.filter(a => a.level === "rot" || a.level === "gelb").length;
+    const done = stored.filter(r => r.fixed_at).sort((a, b) => b.fixed_at.localeCompare(a.fixed_at));
+    $("inc-note").textContent = `${active} aktiv · ${done.length} behoben`;
+    const show = state.incShow || "all", ul = $("alerts");
+    ul.replaceChildren(...alerts.map(alertItem));
+    if (!alerts.length) ul.append(el("li", "muted", "Keine aktive Meldung."));
+    ul.hidden = show === "done";
+    $("inc-history").hidden = show === "open";
     const tb = $("inc"); tb.replaceChildren(); requestAnimationFrame(fades);
-    if (!list.length) { const tr = el("tr"), td = el("td", "muted", show === "done" ? "Noch keine behobene Störung gespeichert." : "Keine aktive Störung."); td.colSpan = 5; tr.append(td); tb.append(tr); return; }
-    for (const r of list) {
-      const tr = el("tr", r.fixed_at ? "done" : "open"), lv = el("td", "lv"), dot = el("i", r.worst === "rot" ? "rot" : "");
+    if (!done.length) { const tr = el("tr"), td = el("td", "muted", "Noch keine behobene Störung gespeichert."); td.colSpan = 5; tr.append(td); tb.append(tr); return; }
+    for (const r of done) {
+      const tr = el("tr", "done"), lv = el("td", "lv"), dot = el("i", r.worst === "rot" ? "rot" : "");
       dot.title = r.worst === "rot" ? "rot: kaputt" : "gelb: im Blick behalten"; lv.append(dot);
       const what = el("td", "what"); what.append(el("b", null, `${r.area}: ${r.text}`));
       const sub = [r.detail, r.times > 1 ? `${r.times}× aufgetreten` : "", r.live ? "live von der Seite berechnet" : ""].filter(Boolean).join(" · ");
@@ -1582,11 +1613,13 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
     return li;
   }
   function openNightAlert() {
+    showTab("s-incidents");
     const a = allAlerts().find(x => x.area === "Nachtlauf" && x.step);
     if (!a) return;
+    state.incShow = "all";
+    $("inc-show").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.s === "all")));
     state.openAlerts.add(a.area + "|" + a.text); render();
-    if (a.level !== "rot") $("morealerts").open = true;
-    const li = [...$("alerts").children, ...$("alerts-more").children].find(x => x.dataset.key === a.area + "|" + a.text);
+    const li = [...$("alerts").children].find(x => x.dataset.key === a.area + "|" + a.text);
     if (li) li.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
@@ -1601,7 +1634,7 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
     const fresh = !$(id).classList.contains("on");
     document.querySelectorAll("section.area").forEach(s => s.classList.toggle("on", s.id === id));
     if (fresh) animateIn($(id), dir, vertical);
-    document.querySelectorAll("nav.jump a").forEach(a => { if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    document.querySelectorAll("nav.jump a, #news-bell").forEach(a => { if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     try { localStorage.setItem(TAB_STORE, id); } catch (_) { /* private mode: starts on Übersicht */ }
     if (id === "s-plan" && !state.planAt) planToToday(false);
     if (id === "s-plan") requestAnimationFrame(fitPlan);
@@ -1818,17 +1851,12 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
     else { ov.className = "pill ok"; ov.textContent = "Alles läuft"; }
     $("stamp").textContent = [state.live && state.live.at ? `YouTube live ${fmtTime(state.live.at)}` : "", d ? `Letzter Lauf ${fmtTime(d.generated_at)}` : ""].filter(Boolean).join(" · ");
 
-    // U6: red ones stay open, the rest sits behind one line
-    const ul = $("alerts"), more = alerts.filter(a => a.level !== "rot"); ul.replaceChildren();
-    for (const a of alerts.filter(a => a.level === "rot")) ul.append(alertItem(a));
-    ul.hidden = !ul.children.length;
-    const mu = $("alerts-more"); mu.replaceChildren(); for (const a of more) mu.append(alertItem(a));
-    $("morealerts").hidden = !more.length;
-    $("more-n").textContent = more.length === 1 ? "1 Hinweis" : `${more.length} Hinweise`;
-    $("more-first").textContent = more.length ? more[0].text : "";
-    $("alert-count").textContent = alerts.length ? `${red} rot · ${yellow} gelb` : "";
+    for (const id of ["news-count", "news-count-m"]) {
+      const e = $(id);
+      if (e) { e.textContent = red + yellow; e.hidden = !(red + yellow); e.dataset.level = red ? "rot" : "gelb"; }
+    }
     const ts = $("t-state"), tsCls = !d && !state.status ? "" : red ? "bad" : yellow ? "warn" : "ok";
-    ts.className = "val state " + tsCls; ts.lastChild.textContent = ov.textContent;
+    ts.className = "val state big-btn " + tsCls; ts.disabled = !(red + yellow); ts.lastChild.textContent = ov.textContent;
     $("t-day").textContent = "Heute, " + fmtDay(berlinParts(new Date()).day);
     $("t-state-sub").textContent = d ? `Letzter Lauf ${fmtTime(d.generated_at)}` : "";
 
@@ -2689,7 +2717,7 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
   }
   window.addEventListener("resize", () => requestAnimationFrame(() => { fitPlan(); fades(); }));
   function fades() { document.querySelectorAll("section.area.on .scroll").forEach(moreBelow); }
-  document.querySelectorAll("nav.jump a").forEach(a => { a.title = a.textContent.trim(); });     // the icon rail and phone bar show names as tooltips
+  document.querySelectorAll("nav.jump a").forEach(a => { a.title = (a.querySelector(".nl") || a).textContent.trim(); });     // the icon rail and phone bar show names as tooltips
   function planCard(x, day, now, missed, vids) {
     const v = (x.upload_id && vids.get("u" + x.upload_id)) || (x.video_id && vids.get(x.platform + x.video_id));
     const url = x.status === "uploaded" ? (v && /^https:\/\//.test(v.link || "") ? v.link : null) || videoUrl(x.platform, x.video_id) : null;
@@ -3035,6 +3063,7 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
 
   // ---------- wiring ----------
   $("reload").addEventListener("click", () => location.reload());   // Felix 02.11.: also a new page version (home-screen app on iOS)
+  $("t-state").addEventListener("click", () => { if (allAlerts().some(a => a.level === "rot" || a.level === "gelb")) showTab("s-incidents"); });
   $("g-night-btn").addEventListener("click", () => { if (allAlerts().some(a => a.area === "Nachtlauf" && a.step)) openNightAlert(); else showTab("s-incidents"); });
   $("to-plan").addEventListener("click", (e) => { e.preventDefault(); showTab("s-plan"); });
   $("to-compare").addEventListener("click", (e) => { e.preventDefault(); showTab("s-compare"); });
@@ -3065,7 +3094,7 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
   });
   // Tabs (Felix 30.10.): one area at a time, remembered in the browser. They must not drop the key
   // from the address (bookmarks keep #k=), so the choice does not go into the hash.
-  document.querySelectorAll("nav.jump a").forEach(a => a.addEventListener("click", (e) => { e.preventDefault(); showTab(a.getAttribute("href").slice(1)); }));
+  document.querySelectorAll("nav.jump a, #news-bell").forEach(a => a.addEventListener("click", (e) => { e.preventDefault(); showTab(a.getAttribute("href").slice(1)); }));
   let swipeStart = null;
   document.addEventListener("touchstart", e => {
     swipeStart = null;
@@ -3129,7 +3158,7 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
 
   // Smoke test (tests/test_leitstand.py, Phase 5): with window.LEITSTAND_TEST set, the page hands out
   // its state and render functions and starts no timers and no network.
-  if (window.LEITSTAND_TEST) { Object.assign(window.LEITSTAND_TEST, { state, render, renderProduction, renderProdSteps, swipeDirection, channelGroups, channelContext, renderChannel }); return; }
+  if (window.LEITSTAND_TEST) { Object.assign(window.LEITSTAND_TEST, { state, render, renderIncidents, openNightAlert, renderProduction, renderProdSteps, swipeDirection, channelGroups, channelContext, renderChannel }); return; }
   render();
   loadFiles();
   setInterval(render, 60000);   // time-based alerts move on while the page stays open
@@ -3184,6 +3213,15 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
     if (!desk.matches) side.style.setProperty("--brand-h", Math.round(nav.getBoundingClientRect().top - side.getBoundingClientRect().top) + "px");
     check();
   }
+  // Felix 08.11.: on desktop the rail opens over the page while the pointer rests on it or keyboard focus is in
+  // it; the short delays keep a pointer that only passes by from flapping it open and shut
+  let wait;
+  const wide = (on, ms) => { clearTimeout(wait); wait = setTimeout(() => side.classList.toggle("wide", on && desk.matches), ms); };
+  side.addEventListener("mouseenter", () => wide(true, 150));
+  side.addEventListener("mouseleave", () => { if (!side.querySelector(":focus-visible")) wide(false, 200); });
+  side.addEventListener("focusin", (e) => { if (e.target.matches(":focus-visible")) wide(true, 0); });
+  side.addEventListener("focusout", (e) => { if (!side.contains(e.relatedTarget) && !side.matches(":hover")) wide(false, 200); });
+  desk.addEventListener("change", () => { if (!desk.matches) side.classList.remove("wide"); });
   addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(check); } }, { passive: true });
   addEventListener("resize", measure); desk.addEventListener("change", measure); addEventListener("load", measure);
   measure();
