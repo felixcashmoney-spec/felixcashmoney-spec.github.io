@@ -723,6 +723,9 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   .flow.board .dghead { min-height: 44px; align-items: center; }
   .seg button, .tabs button, .tlnav button, #reload, #keyform button { min-height: 44px; }
   .daycol { flex-basis: calc(100vw - 64px); }
+  /* Felix 08.11.: one swipe = one day, never stuck between two */
+  .tl { scroll-snap-type: x mandatory; scroll-padding-inline: 2px; }
+  .daycol { scroll-snap-stop: always; }
 }
 /* Phone (Felix 06.11.): an app tab bar at the bottom like Instagram/TikTok: edge to edge, solid,
    a hairline on top, icons only (the names stay for screen readers, font-size 0), the active icon
