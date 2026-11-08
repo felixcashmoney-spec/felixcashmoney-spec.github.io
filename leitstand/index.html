@@ -127,6 +127,7 @@ section.area > .title h2 { font-size: 1.5rem; }
 .empty { color: var(--muted); font-size: .85rem; }
 
 /* alerts */
+.pcard img.sheet { display: block; width: 100%; height: auto; margin-top: 6px; border-radius: 6px; }
 .alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .alerts li { display: grid; grid-template-columns: 4px minmax(0, 1fr); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .alerts li::before { content: ""; background: var(--faint); }
@@ -2344,6 +2345,8 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
       : x.status === "failed" || isMissed ? "keine Zahlen" : !out ? "Zahlen ab Veröffentlichung"
       : x.platform === "tiktok" ? "Zahlen ab morgen früh" : "Zahlen folgen gleich";
     card.append(el("div", "stats", stats));
+    const sheet = x.upload_id && state.thumbs["sheet-" + x.upload_id];     // 08.11.: 3 x 3 frames of the video
+    if (sheet) { const img = el("img", "sheet"); img.alt = "Neun Einzelbilder aus dem Video"; img.loading = "lazy"; img.src = sheet; card.append(img); }
     card.title = [x.title, x.note].filter(Boolean).join(" · ");
     return card;
   }
