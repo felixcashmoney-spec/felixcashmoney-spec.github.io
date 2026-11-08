@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<meta name="theme-color" content="#191b18">
+<meta name="theme-color" content="#160409">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <!-- no start_url in the manifest: the home-screen app opens the URL it was added from, #k= included (iOS keeps its own storage) -->
@@ -14,7 +14,7 @@
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
 <title>Dashboard</title>
-<script id="palette-boot">try { var p = localStorage.getItem("leitstand-palette"); if (p) document.documentElement.dataset.palette = p; } catch (_) { /* private mode: default colors */ }</script>
+<script id="palette-boot">/* Felix 08.11.: Weinrot is the default; a stored choice wins, "" = Bühne */ var p = "weinrot"; try { var s = localStorage.getItem("leitstand-palette"); if (s !== null) p = s; } catch (_) { /* private mode: the default */ } if (p) document.documentElement.dataset.palette = p;</script>
 <style>
 /* Burgarchiv (Felix' Wahl C, 06.11.): slate, warm ink, brass and restrained serif headings.
    The seven existing tabs and their data stay intact; the space band and video are retired. */
@@ -49,6 +49,7 @@ html[data-palette="orca"] { color-scheme: dark; --bg: #272a36; --panel: #2b2c36;
 .pal-dot:hover { border: 0; }
 .pal-dot i { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, var(--panel) 50%, var(--accent) 50%); box-shadow: 0 0 0 1.5px var(--accent); }
 .pal-list { display: flex; gap: 6px; max-width: 0; padding: 4px 0; overflow: hidden; opacity: 0; }
+html[data-palette="flieder"], html[data-palette="sandrose"] { --chart: #23893f; }
 .pal.open .pal-list { max-width: 360px; padding: 4px 6px 4px 2px; opacity: 1; }
 .pal-list button { width: 30px; height: 30px; flex: none; border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent);
   background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); transform: scale(.2) rotate(-90deg); opacity: 0; }
@@ -682,11 +683,11 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   #s-plan.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto minmax(0, 1fr); }
   #s-plan .tl { min-height: 0; }
   /* everything of a day on screen (Felix 31.10.): pictures shrink when the column is short, text and numbers stay */
-  #s-plan .daycol .body { overflow: hidden; }
+  #s-plan .daycol .body { overflow-y: auto; scrollbar-width: none; }
   #s-plan .daycol .body > * { flex: none; }
-  #s-plan .daycol .body > .pcard { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  #s-plan .daycol .body > .pcard { flex: none; display: flex; flex-direction: column; overflow: hidden; }
   #s-plan .pcard > * { flex: none; }
-  #s-plan .pcard > .thumb:not(.noimg) { flex: 0 1 auto; min-height: 36px; }
+  #s-plan .pcard > .thumb:not(.noimg) { flex: none; }
   #s-plan .pcard .ttl { -webkit-line-clamp: 2; }
   #s-compare.on { overflow: hidden; align-content: stretch; grid-template-rows: auto auto auto minmax(0, 1fr); }
   #s-compare .cmptop > .card { max-height: 34vh; overflow: auto; }
@@ -754,6 +755,248 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   nav.jump a:active svg { transform: scale(.86); }
   nav.jump a[aria-current="page"] svg { animation: tab-pop 420ms cubic-bezier(.3, 1.6, .5, 1); }
   @keyframes tab-pop { 40% { transform: scale(1.18); } }
+}
+
+/* ===================== Bühne (Felix 08.11., Stageshow-Entwurf) =====================
+   One quiet ground, tiles one step lighter, brass as the single lit color, green for done.
+   Sans throughout with tabular figures; numbers are the big type. The other palettes still win
+   by specificity (html[data-palette=…]), so the dot top left keeps working. */
+:root {
+  --bg: #0b0c0b; --panel: #141513; --side: #0f100f; --raised: #1c1d1b;
+  --ink: #f1efe8; --muted: #a9a69c; --faint: #8b887f; --line: #262724; --track: #262724; --none: #1f201e;
+  --accent: #d6b67c; --accent-ink: #e2c590; --accent-soft: #2a2418;
+  --ok: #6fd3a0; --ok-mark: #4fbf88; --ok-soft: #14271d;
+  --warn: #f0b46e; --warn-mark: #d9954a; --warn-soft: #2d2216;
+  --bad: #ff8f7d; --bad-mark: #f0644f; --bad-soft: #301a17;
+  --yt: #ff8f7d; --tt: #7cc4a8; --tip-bg: #f1efe8; --tip-ink: #0b0c0b;
+  --chart: #5fd16a;   /* Felix 08.11.: chart lines always green, like his reference */
+  --font: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  --font-title: var(--font); --font-data: var(--font);
+  --font-code: ui-monospace, "SF Mono", Menlo, monospace;
+  --r-tile: 18px; --r-ctl: 10px;
+  --ease-travel: cubic-bezier(.45, 0, .1, 1); --ease-arrive: cubic-bezier(.25, .8, .25, 1);
+}
+:root:not([data-palette]) { color-scheme: dark; }
+/* Felix 08.11.: three palettes from his references (uiuxaadi): slate blue-grey, violet, wine. The old
+   default stays selectable as Burgarchiv. Grounds are the darkest swatch, tiles one step up. */
+html[data-palette="schiefer"] { color-scheme: dark; --bg: #06141b; --panel: #0d1b24; --side: #081720; --raised: #11212d; --line: #1f3140; --track: #1f3140; --none: #142430;
+  --ink: #e3e7e6; --muted: #9ba8ab; --faint: #7f8d92; --accent: #9ba8ab; --accent-ink: #ccd0cf; --accent-soft: #253745;
+  --ok: #8fd1b4; --ok-mark: #6cbf9c; --ok-soft: #143029; --tip-bg: #ccd0cf; --tip-ink: #06141b; }
+html[data-palette="violett"] { color-scheme: dark; --bg: #0b0720; --panel: #130c2c; --side: #0e0925; --raised: #1c1240; --line: #2a1a55; --track: #2a1a55; --none: #1d1340;
+  --ink: #f2e9ff; --muted: #b9a6dc; --faint: #9a87c2; --accent: #9d71e8; --accent-ink: #d1b8ff; --accent-soft: #25134d;
+  --ok: #8fe0b8; --ok-mark: #5cc996; --ok-soft: #13302a; --tip-bg: #f2e9ff; --tip-ink: #0b0720; }
+html[data-palette="weinrot"] { color-scheme: dark; --bg: #160409; --panel: #220811; --side: #1a050c; --raised: #300c19; --line: #451226; --track: #451226; --none: #2e0b17;
+  --ink: #ffe4d8; --muted: #d9a6b0; --faint: #b8828e; --accent: #c24366; --accent-ink: #ff8fc4; --accent-soft: #3d0f22;
+  --ok: #9fdcb6; --ok-mark: #6cc590; --ok-soft: #142a1f; --warn: #ffc27a; --warn-soft: #36200f; --tip-bg: #ffe4d8; --tip-ink: #160409; }
+html[data-palette="burgarchiv"] { color-scheme: dark; --bg: #191b18; --panel: #22251f; --side: #161814; --raised: #2a2d27; --ink: #eeeade; --muted: #b6b5a7; --faint: #aaa997; --line: #3c4035;
+  --accent: #cfb482; --accent-ink: #cfb482; --accent-soft: #353327; --track: #3c4035; --ok: #b1c69c; --ok-mark: #8da778; --ok-soft: #2e3928;
+  --warn: #dec18a; --warn-mark: #bf9c5b; --warn-soft: #383125; --bad: #edaa9e; --bad-mark: #c77b6b; --bad-soft: #3b2a27; --none: #30342c; --yt: #edaa9e; --tt: #a0bda7; }
+.pal.open .pal-list { max-width: min(480px, calc(100vw - 56px)); flex-wrap: wrap; }
+.pal.open { border-radius: 22px; align-items: flex-start; }
+html[data-palette]:not([data-palette="schiefer"]):not([data-palette="violett"]):not([data-palette="weinrot"]):not([data-palette="burgarchiv"]) { --raised: color-mix(in srgb, var(--panel) 88%, var(--ink)); }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.num, .mono, td.n, .delta, .pct, .kpi .value, .dnum, .ring .mid b { font-variant-numeric: tabular-nums; }
+pre.log, .why pre, code, .frep dd code, .frep .fhead .meta { font-family: var(--font-code); }
+h1 { font: 650 1.75rem/1.15 var(--font-title); letter-spacing: -.035em; }
+h2 { font: 650 1.3rem/1.2 var(--font-title); letter-spacing: -.025em; }
+h3 { font: 620 .95rem/1.3 var(--font-title); letter-spacing: -.015em; }
+b, strong { font-weight: 600; }
+
+/* tiles */
+.card, .alerts li, details.morealerts, .notice, .daycol { border-radius: var(--r-tile); border-color: var(--line);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 4%, transparent); }
+.card { padding: 18px 20px; }
+.pcard, .errcard, .flow.board .dsignal { border-radius: 12px; }
+.thumb { border-radius: 10px; }
+.card.pick:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.card.pick[aria-pressed="true"] { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: color-mix(in srgb, var(--accent) 7%, var(--panel)); }
+.head h3 { white-space: nowrap; }
+
+/* controls */
+button { border-radius: var(--r-ctl); background: var(--raised); border-color: var(--line); font-weight: 500; }
+button:hover { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
+.pill, .delta, .st, .tag, .done-tag, .ask-tag, .kindtag, .pct, .daycol .dh .badge { border-radius: 999px; }
+.pill { padding: 4px 12px; font-weight: 600; }
+.seg, .tabs { border-radius: 12px; padding: 3px; gap: 2px; background: var(--side); border-color: var(--line); }
+.seg button, .tabs button { border-radius: 9px; background: none; }
+.seg button + button, .tabs button + button { border-left: 0; }
+.seg button[aria-pressed="true"], .tabs button[aria-pressed="true"] { background: var(--raised); color: var(--ink);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent); font-weight: 600; }
+.channel-choices button[aria-pressed="true"], .days button[aria-pressed="true"] { background: var(--raised); color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.notice input { border-radius: var(--r-ctl); }
+
+/* sidebar and head */
+.sidebar { background: var(--side); }
+.seal { border-radius: 9px; width: 34px; height: 34px; font: 600 13px var(--font); letter-spacing: .02em;
+  background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.brand-name { font-weight: 620; letter-spacing: -.015em; }
+nav.jump a { border-radius: 10px; font-weight: 500; }
+nav.jump a[aria-current="page"] { color: var(--ink); background: var(--raised); box-shadow: 0 0 0 1px var(--line); }
+nav.jump a[aria-current="page"] svg { color: var(--accent); }
+header.top { border-bottom-color: transparent; }
+header.top .eyebrow { letter-spacing: .01em; }
+
+/* today bar: one tile, four quiet columns */
+.today .label, .stat .label { font-weight: 500; color: var(--muted); }
+.today .val { font-size: 1.12rem; font-weight: 620; letter-spacing: -.02em; }
+.today > div + div { border-left-color: var(--line); }
+.alerts li { grid-template-columns: 3px minmax(0, 1fr); }
+
+/* KPI tiles: the number is the big type */
+.kpi .label { color: var(--muted); font-weight: 500; }
+.kpi .value { font: 650 2.1rem/1.05 var(--font); letter-spacing: -.045em; margin-top: 4px; }
+.kpi .value small { font-size: .8rem; font-weight: 500; letter-spacing: 0; }
+.kpi .from { margin-top: 2px; }
+.kpi svg.spark, .kpi svg.bars { overflow: visible; }
+
+/* rolling digits (Stageshow Count): each digit a strip of figures in a one-line window */
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cnt { display: inline-flex; align-items: baseline; white-space: pre; }
+.cnt .dg { display: inline-block; height: 1.15em; line-height: 1.15; overflow: hidden; vertical-align: bottom;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent); }
+.cnt .dg > span { display: flex; flex-direction: column; transition: transform 700ms cubic-bezier(.3, .75, .1, 1); }
+.cnt .dg > span > span { display: block; height: 1.15em; }
+
+/* charts: soft area under a clean line, the newest point lit */
+svg .area { opacity: .16; }
+.chartwrap { position: relative; display: block; min-width: 0; }
+.chartwrap > svg { display: block; margin: 0 !important; }
+.kpi .chartwrap { margin-top: 6px; } .latest .chartwrap { grid-column: 1 / -1; }
+svg rect.now { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 80%, transparent)); }
+.tipdot { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--c, var(--accent));
+  box-shadow: 0 0 0 2px var(--panel), 0 0 10px 1px color-mix(in srgb, var(--c, var(--accent)) 70%, transparent); pointer-events: none; }
+svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center; }
+#views-chart, .kpi .chartwrap, .latest .chartwrap { background-image: radial-gradient(circle, color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.4px); background-size: 18px 18px; background-position: 0 4px; }
+#views circle.lit { filter: drop-shadow(0 0 6px var(--chart)); }
+.tipdot { box-shadow: 0 0 0 7px color-mix(in srgb, var(--c, var(--accent)) 13%, transparent), 0 0 12px 2px color-mix(in srgb, var(--c, var(--accent)) 55%, transparent); }
+@media (prefers-reduced-motion: no-preference) { #views circle.halo { animation: tip-glow 2.4s var(--ease-arrive) infinite; } }
+.tipdot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--c, var(--accent)); opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  #kpis .tipdot::after, #kpis-chan .tipdot::after, #o-latest .tipdot::after, #views-chart .tipdot::after { animation: tip-glow 2.4s var(--ease-arrive) infinite; }
+  @keyframes tip-glow { 0% { opacity: .6; transform: scale(1); } 80%, 100% { opacity: 0; transform: scale(3.6); } }
+  svg .drawline { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw-line 1.4s var(--ease-travel) .2s forwards; }
+  @keyframes draw-line { to { stroke-dashoffset: 0; } }
+}
+
+/* rings */
+.ring circle { stroke-width: 7; }
+.ring .mid b { font-weight: 650; letter-spacing: -.03em; }
+@media (prefers-reduced-motion: no-preference) { .ring circle.arc { transition: stroke-dashoffset 1.2s var(--ease-travel); } }
+
+/* production: the groups as a chain of nodes, a light travelling to the step at work */
+.chain { position: relative; display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); margin: 6px 0 2px; }
+.chain .track { position: absolute; left: calc(50% / var(--n, 4)); right: calc(50% / var(--n, 4)); top: 19px; height: 2px; border-radius: 2px; background: var(--line); }
+.chain .track > i { position: absolute; inset: 0 auto 0 0; width: var(--fill, 0%); border-radius: 2px;
+  background: linear-gradient(90deg, var(--ok-mark), var(--ok-mark) calc(100% - 48px), var(--accent)); transition: width 1.1s var(--ease-travel); }
+.chain .track > b { position: absolute; top: -3px; left: 0; width: 64px; height: 8px; border-radius: 8px; opacity: 0;
+  background: radial-gradient(closest-side, var(--accent-ink), transparent); }
+.chain .cn { display: grid; justify-items: center; gap: 6px; text-align: center; min-width: 0; position: relative; }
+.chain .cn .o { position: relative; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--raised); border: 1px solid var(--line); color: var(--faint); font-size: .8rem; font-weight: 650; transition: background .35s, color .35s, border-color .35s; }
+.chain .cn .o svg.rg { position: absolute; inset: -5px; width: 50px; height: 50px; transform: rotate(-90deg); }
+.chain .cn .o svg.rg circle { fill: none; stroke-width: 2.5; }
+.chain .cn .o svg.rg .t { stroke: var(--line); } .chain .cn .o svg.rg .a { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .9s var(--ease-travel); }
+.chain .cn .o svg.ck { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.chain .cn .l { font-size: .8rem; font-weight: 550; color: var(--ink); max-width: 100%; line-height: 1.2; -webkit-hyphens: auto; hyphens: auto; overflow-wrap: anywhere; }
+.npost .thumb .tag, .latest .thumb .tag { white-space: nowrap; font-size: .68rem; padding: 0 7px; }
+.chain .cn .s { font-size: .74rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chain .cn.done .o { background: var(--ok-soft); border-color: transparent; color: var(--ok); }
+.chain .cn.now .o, .chain .cn.last .o { background: var(--accent-soft); border-color: transparent; color: var(--accent-ink); }
+.chain .cn.fail .o { background: var(--bad-soft); border-color: color-mix(in srgb, var(--bad) 40%, transparent); color: var(--bad); }
+.chain .cn.fail .l { color: var(--bad); }
+.chain .cn.wait .o { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+.chain .cn.idle .l { color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .chain.go .track > b { animation: comet 2.2s var(--ease-travel) infinite; }
+  @keyframes comet { 0% { left: -64px; opacity: 0; } 15%, 85% { opacity: .9; } 100% { left: calc(var(--fill, 0%) - 32px); opacity: 0; } }
+  .chain .cn.done .o svg.ck path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: ck-draw .5s var(--ease-arrive) .15s forwards; }
+  @keyframes ck-draw { to { stroke-dashoffset: 0; } }
+  .chain .cn.now .o::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 1.5px solid var(--accent); opacity: 0; animation: node-ping 2.4s var(--ease-arrive) infinite; }
+  @keyframes node-ping { 0% { opacity: .6; transform: scale(.8); } 80%, 100% { opacity: 0; transform: scale(1.3); } }
+}
+.flow.board .dnum { font: 650 2.6rem/1 var(--font); letter-spacing: -.05em; }
+.flow.board .dnum small { font-size: 1rem; font-weight: 500; }
+.flow.board .dgroups { border-top: 1px solid var(--line); }
+.flow.board .dghead { border-bottom-width: 1px; }
+
+@media (prefers-reduced-motion: reduce) { .cnt .dg > span, .chain .track > i, .chain .cn .o, .chain .cn .o svg.rg .a, .ring circle.arc { transition: none !important; } }
+.card.today { padding: 0; }
+.ctbl td, .ctbl th { white-space: nowrap; } .ctbl td.vid { white-space: normal; }
+.scroll.more, #s-plan .daycol .body.more { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 48px), transparent); }
+.pcard .thumb.slim { font-size: 0; }
+@media (max-width: 700px) { nav.jump a[aria-current="page"] { background: none; box-shadow: none; color: var(--accent); } }
+@media (max-width: 700px) {
+  #kpis-chan, #kpis-cost { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  #kpis-chan .kpi, #kpis-cost .kpi { padding: 14px; }
+  #kpis-chan .kpi .value, #kpis-cost .kpi .value { font-size: 1.7rem; }
+  #kpis-chan .kpi .from, #kpis-cost .kpi .from { font-size: .72rem; }
+  #kpis-chan .kpi .label, #kpis-cost .kpi .label { flex-wrap: wrap; row-gap: 4px; font-size: .8rem; }
+}
+@media (min-width: 560px) and (max-width: 999px), (min-width: 1000px) and (max-height: 619px) { #kpis, #kpis-chan { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* svg charts scale their text with the width; on a phone the axis would shrink to ~5 px */
+@media (max-width: 520px) { #views text { font-size: 20px; } #month text { font-size: 17px; } #spend text { font-size: 13.5px; }
+  #views-chart, #month-chart, #spend-chart { padding-left: 14px; } #views, #month, #spend { overflow: visible; } }
+@media (max-width: 520px) {
+  .chain .cn .l { font-size: .74rem; }
+  .chain .cn .o { width: 36px; height: 36px; } .chain .cn .o svg.rg { width: 46px; height: 46px; } .chain .track { top: 17px; }
+}
+#s-runs .pane > .head { min-height: 36px; align-items: center; }
+.today > div { padding: 12px 18px; }
+.alerts li, details.morealerts { border-radius: 12px; }
+#o-flow { display: flex; flex-direction: column; }
+#o-flow > .head { order: 0; } #o-flow > #flow { order: 1; } #o-flow > * { order: 2; }
+
+/* MacBook, one screen (Felix 30.10./08.11.): a bento under the numbers. Production is the hero over
+   two rows; next posts run the full height beside it; the newest video and the budget share the last
+   column. Every tile keeps a share of the height and scrolls inside itself, so the tab never scrolls. */
+@media (min-width: 1000px) and (min-height: 620px) {
+  header.top { padding-top: 14px; padding-bottom: 6px; margin-bottom: 8px; }
+  header.top h1 { font-size: 1.4rem; }
+  .today > div { padding-block: 8px; }
+  #s-overview.on { gap: 8px; }
+  #s-overview .ovgrid { grid-template-columns: minmax(0, 1.55fr) minmax(0, .82fr) minmax(0, .82fr);
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "flow posts latest" "flow posts rings"; gap: 8px; }
+  #s-overview .ovgrid > .card { padding: 12px 16px; }
+  #s-overview .kpi { padding: 10px 16px; }
+  #s-overview .kpi .value { font-size: 1.75rem; }
+  #o-rings .rings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #o-rings .ring .dial { width: 70px; height: 70px; } #o-rings .ring .mid b { font-size: .95rem; } #o-rings .ring .mid small { font-size: .62rem; }
+  #o-rings .head .fresh, #o-latest .head .fresh { font-size: 0; gap: 0; }
+  #s-overview .npost { grid-template-columns: 96px minmax(0, 1fr); }
+  .alerts .body, .alerts summary { padding-block: 6px; }
+  #alerts { max-height: 20vh; }
+}
+@media (min-width: 1000px) and (max-width: 1299px) and (min-height: 620px) {
+  #s-overview .ovgrid { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); }
+  #s-overview .npost { grid-template-columns: 72px minmax(0, 1fr); }
+}
+/* a narrow laptop window: the sidebar becomes an icon rail (names stay for screen readers and tooltips) */
+@media (min-width: 1000px) and (max-width: 1199px) and (min-height: 620px) {
+  .wrap { grid-template-columns: 76px minmax(0, 1fr); }
+  .sidebar { padding: 24px 12px; align-items: center; }
+  .brand > div { display: none; }
+  nav.jump a { font-size: 0; gap: 0; justify-content: center; padding: 10px; }
+  nav.jump svg { width: 20px; height: 20px; }
+}
+@media (min-width: 1000px) and (min-height: 620px) {
+  footer summary { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  footer details[open] summary { white-space: normal; }
+}
+@media (min-width: 1000px) and (min-height: 620px) and (max-height: 780px) {
+  #g-month { display: none; }
+  #o-rings .ring .dial { width: 56px; height: 56px; } #o-rings .ring .mid b { font-size: .8rem; } #o-rings .ring .mid small { display: none; }
+  #o-rings .ring .note { display: none; } #o-rings .head, #o-latest .head { margin-bottom: 0; }
+  #s-overview .ovgrid > .card { gap: 6px; padding-block: 10px; }
+}
+/* a shorter laptop window: the strips above the bento move closer so production keeps its height */
+@media (min-width: 1000px) and (min-height: 620px) and (max-height: 900px) {
+  .today > div { padding-block: 6px; gap: 0; } .today .val { font-size: 1rem; }
+  .alerts { gap: 6px; } .alerts .body, .alerts summary { padding-block: 4px; font-size: .84rem; }
+  details.morealerts > summary { padding-block: 5px; font-size: .84rem; }
+  #s-overview .kpi { padding: 8px 14px; } #s-overview .kpi .value { font-size: 1.5rem; margin-top: 0; }
+  #s-overview .kpi svg.spark, #s-overview .kpi svg.bars { height: 20px; } #s-overview .kpi .chartwrap { margin-top: 2px; }
+  #s-overview .kpi .days7 { margin-top: 4px; }
 }
 </style>
 </head>
@@ -1022,12 +1265,42 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   }
   // A changed number settles quietly; reduced motion updates it immediately.
   const shown = {}, calm = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Bühne (08.11., Stageshow Count): a changed number rolls digit by digit like a counter, the last
+  // digit first; unchanged digits and punctuation hold still. A changed length just swaps the text.
+  const FIG = "0123456789".repeat(3), rolling = {};
+  // Each node remembers its own roll; a newer value (rolled or plain) invalidates the older one, so an
+  // old timer can never write back a stale figure (Codex-Review 08.11.). Screen readers get the final
+  // value as hidden text; the moving figures are decoration and hidden from them.
+  function plain(node, text) { node._roll = (node._roll || 0) + 1; node.classList.remove("cnt"); node.textContent = text; }
+  function rollText(node, from, to, up) {
+    if (from.length !== to.length) { plain(node, to); return; }
+    const token = node._roll = (node._roll || 0) + 1;
+    node.classList.add("cnt"); node.replaceChildren();
+    const strips = [], deco = el("span"); deco.setAttribute("aria-hidden", "true"); deco.style.display = "contents";
+    for (let i = 0; i < from.length; i++) {
+      const a = from[i], b = to[i];
+      if (!/\d/.test(a) || !/\d/.test(b)) { deco.append(b); continue; }
+      const dg = el("span", "dg"), st = el("span");
+      for (const c of FIG) st.append(el("span", null, c));
+      dg.append(st); deco.append(dg);
+      st.style.transform = `translateY(-${(10 + +a) * 1.15}em)`;
+      if (a !== b) strips.push([st, 10 + +a + (up ? (+b - +a + 10) % 10 : -((+a - +b + 10) % 10))]);
+    }
+    node.append(deco, el("span", "sr", to));
+    requestAnimationFrame(() => requestAnimationFrame(() => { if (node._roll !== token) return; strips.reverse().forEach(([st, idx], k) => {
+      st.style.transitionDelay = k * 45 + "ms"; st.style.transform = `translateY(-${idx * 1.15}em)`;
+    }); }));
+    setTimeout(() => { if (node._roll === token) plain(node, to); }, 1400 + strips.length * 45);
+  }
   function setNum(node, key, v, fmt) {
     const old = shown[key]; shown[key] = v;
-    if (v == null || old == null || old === v || calm()) { node.textContent = fmt(v); return; }
-    const t0 = performance.now(), D = 400;
-    const step = (t) => { const k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3); node.textContent = fmt(k < 1 ? old + (v - old) * e : v); if (k < 1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
+    // a render right after (live file, then sealed data) rebuilds the card: the roll carries on in the new node
+    const r = rolling[key];
+    if (old === v && r && r.to === fmt(v) && performance.now() - r.t < 1100 && !calm()) { rollText(node, r.from, r.to, r.up); return; }
+    if (v == null || old === v || calm()) { plain(node, fmt(v)); return; }
+    const to = fmt(v), from = old == null ? to.replace(/\d/g, "0") : fmt(old), up = old == null || v >= old;   // first sight: up from zero
+    rolling[key] = { from, to, up, t: performance.now() };
+    rollText(node, from, to, up);
   }
 
   // ---------- sealed data next to the page (gzip + AES-256-GCM, key after # in the link) ----------
@@ -1142,7 +1415,7 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     const open = rows.filter(r => !r.fixed_at), done = rows.filter(r => r.fixed_at).sort((a, b) => b.fixed_at.localeCompare(a.fixed_at));
     $("inc-note").textContent = `${open.length} aktiv · ${done.length} behoben`;
     const show = state.incShow || "all", list = show === "open" ? open : show === "done" ? done : [...open, ...done];
-    const tb = $("inc"); tb.replaceChildren();
+    const tb = $("inc"); tb.replaceChildren(); requestAnimationFrame(fades);
     if (!list.length) { const tr = el("tr"), td = el("td", "muted", show === "done" ? "Noch keine behobene Störung gespeichert." : "Keine aktive Störung."); td.colSpan = 5; tr.append(td); tb.append(tr); return; }
     for (const r of list) {
       const tr = el("tr", r.fixed_at ? "done" : "open"), lv = el("td", "lv"), dot = el("i", r.worst === "rot" ? "rot" : "");
@@ -1156,6 +1429,7 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
       tr.append(lv, what, el("td", "when", r.live ? "jetzt" : fmtTime(r.first)), fix, how);
       tb.append(tr);
     }
+    requestAnimationFrame(fades);
   }
 
   // ---------- alerts ----------
@@ -1331,6 +1605,8 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     document.querySelectorAll("nav.jump a").forEach(a => { if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     try { localStorage.setItem(TAB_STORE, id); } catch (_) { /* private mode: starts on Übersicht */ }
     if (id === "s-plan" && !state.planAt) planToToday(false);
+    if (id === "s-plan") requestAnimationFrame(fitPlan);
+    requestAnimationFrame(() => document.querySelectorAll(`#${id} .scroll`).forEach(moreBelow));
   }
 
   // dir: +1 swipe to the next tab (comes in from the right), -1 from the left, none = tap.
@@ -1453,18 +1729,22 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     const max = Math.max(1, ...values), min = Math.min(0, ...values), w = 200 / values.length, scale = 38 / (max - min), base = 40 + min * scale;
     values.forEach((v, i) => {
       const h = Math.max(Math.abs(v) * scale, v ? 1.5 : .5);
-      svg.append(sv("rect", { x: i * w + w * .15, y: v < 0 ? base : base - h, width: w * .7, height: h, fill: v < 0 ? "var(--bad-mark)" : color, opacity: v ? 1 : .25 }));
+      const last = i === values.length - 1 && v > 0;      // Bühne: the newest hour is the lit one, the rest recede
+      svg.append(sv("rect", { class: last ? "now" : "", x: i * w + w * .15, y: v < 0 ? base : base - h, width: w * .7, height: h, rx: Math.min(w * .25, 1.5), fill: v < 0 ? "var(--bad-mark)" : color, opacity: last ? 1 : v ? .55 : .2 }));
     });
     return svg;
   }
   function twoLines(today, yesterday, color) {     // S3: today against yesterday, x = share of the day
+    color = "var(--chart)";
     const svg = sv("svg", { class: "spark", viewBox: "0 0 200 40", preserveAspectRatio: "none", "aria-hidden": "true" });
     const max = Math.max(1, ...today.map(p => p[1]), ...yesterday.map(p => p[1]));
     const line = (pts) => pts.map(([x, y]) => `${(x * 200).toFixed(1)},${(36 - y / max * 32).toFixed(1)}`).join(" ");
     if (yesterday.length > 1) svg.append(sv("polyline", { points: line(yesterday), fill: "none", stroke: "var(--faint)", "stroke-width": 1.4, "stroke-dasharray": "3 3", "vector-effect": "non-scaling-stroke" }));
     if (today.length > 1) {
-      svg.append(sv("polyline", { points: line(today), fill: "none", stroke: color, "stroke-width": 1.6, "vector-effect": "non-scaling-stroke", pathLength: 1 }));
-      const [x, y] = today[today.length - 1]; svg.append(sv("circle", { cx: x * 200, cy: 36 - y / max * 32, r: 2.5, fill: color }));
+      const tp = today.map(([x, y]) => [x * 200, 36 - y / max * 32]), d = smooth(tp);
+      svg.append(sv("path", { class: "fadearea", d: d + `L${tp[tp.length - 1][0]},40L${tp[0][0]},40Z`, fill: fade(svg, color), stroke: "none" }));
+      svg.append(sv("path", { d, fill: "none", stroke: color, "stroke-width": 2.2, "stroke-linecap": "round", "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke" }));
+      const [x, y] = today[today.length - 1]; return withTip(svg, x * 200, 36 - y / max * 32, color);
     }
     return svg;
   }
@@ -1486,14 +1766,44 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     const cls = Math.abs(p) < 0.5 ? "delta" : p > 0 ? "delta up" : "delta down";
     return el("span", cls + (cost ? " cost" : ""), (p > 0 ? "+" : "") + dec(p, 0) + " %");
   }
+  // Bühne: the newest point of a line is lit and breathes a soft halo. The svg is stretched
+  // (preserveAspectRatio none), so the dot is an HTML mark in a wrapper, placed in percent.
+  // Felix 08.11. (chart reference): a smooth line that never overshoots its points (monotone cubic),
+  // a faint area that fades out downwards, and the newest point lit with a wide soft halo.
+  function smooth(pts) {
+    const n = pts.length; if (n < 3) return "M" + pts.map(p => p.join(",")).join("L");
+    const dx = [], m = [], t = [];
+    for (let i = 0; i < n - 1; i++) { dx[i] = pts[i + 1][0] - pts[i][0]; m[i] = dx[i] ? (pts[i + 1][1] - pts[i][1]) / dx[i] : 0; }
+    t[0] = m[0]; t[n - 1] = m[n - 2];
+    for (let i = 1; i < n - 1; i++) t[i] = m[i - 1] * m[i] <= 0 ? 0 : 3 * (dx[i - 1] + dx[i]) / ((2 * dx[i] + dx[i - 1]) / m[i - 1] + (dx[i] + 2 * dx[i - 1]) / m[i]);
+    let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+    for (let i = 0; i < n - 1; i++) {
+      const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], h = dx[i] / 3;
+      d += `C${(x0 + h).toFixed(1)},${(y0 + t[i] * h).toFixed(1)} ${(x1 - h).toFixed(1)},${(y1 - t[i + 1] * h).toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}`;
+    }
+    return d;
+  }
+  let gradN = 0;
+  function fade(svg, color) {
+    const id = "fade" + (++gradN), g = sv("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 });
+    g.append(sv("stop", { offset: 0, "stop-color": color, "stop-opacity": .22 }), sv("stop", { offset: 1, "stop-color": color, "stop-opacity": 0 }));
+    const defs = sv("defs", {}); defs.append(g); svg.append(defs); return `url(#${id})`;
+  }
+  function withTip(svg, x, y, color) {
+    const vb = svg.getAttribute("viewBox").split(" ").map(Number), w = el("span", "chartwrap");
+    const d = el("span", "tipdot"); d.style.left = (x / vb[2] * 100) + "%"; d.style.top = (y / vb[3] * 100) + "%"; d.style.setProperty("--c", color);
+    w.append(svg, d); return w;
+  }
   function spark(values, color) {
+    color = "var(--chart)";
     const svg = sv("svg", { class: "spark", viewBox: "0 0 200 40", preserveAspectRatio: "none", "aria-hidden": "true" });
     if (!values || values.length < 2) return svg;
     const max = Math.max(...values), min = Math.min(...values), span = max - min || 1;
     const pts = values.map((v, i) => [i / (values.length - 1) * 200, 36 - (v - min) / span * 32]);
-    svg.append(sv("path", { d: "M" + pts.map(p => p.join(",")).join("L") + `L200,40L0,40Z`, fill: color, opacity: .12, stroke: "none" }));
-    svg.append(sv("polyline", { points: pts.map(p => p.join(",")).join(" "), fill: "none", stroke: color, "stroke-width": 1.6, "vector-effect": "non-scaling-stroke", pathLength: 1 }));
-    const [lx, ly] = pts[pts.length - 1]; svg.append(sv("circle", { cx: lx, cy: ly, r: 2.5, fill: color }));
+    const line = smooth(pts);
+    svg.append(sv("path", { class: "fadearea", d: line + `L200,40L0,40Z`, fill: fade(svg, color), stroke: "none" }));
+    svg.append(sv("path", { d: line, fill: "none", stroke: color, "stroke-width": 2.2, "stroke-linecap": "round", "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke" }));
+    const [lx, ly] = pts[pts.length - 1]; return withTip(svg, lx, ly, color);
     return svg;
   }
 
@@ -1528,8 +1838,9 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     $("foot-gen").textContent = (d ? `Produktion, Budget und Credits vom letzten Lauf ${fmtTime(d.generated_at)} (für den ${fmtDay(d.day)}).` : "")
       + (state.live ? ` YouTube-Zahlen live ${fmtTime(state.live.at)}: öffentliche Zahlen je Video, YouTube Studio zählt oft etwas früher.` : "");
     tick();
+    requestAnimationFrame(() => document.querySelectorAll("section.area.on .scroll").forEach(moreBelow));
     if (d && !state.introDone) {          // The overview enters once when data first arrives
-      state.introDone = true; const ov = $("s-overview"); ov.classList.add("intro"); setTimeout(() => ov.classList.remove("intro"), 400);
+      state.introDone = true; const on = document.querySelector("section.area.on"); if (on && !calm()) requestAnimationFrame(() => animateIn(on, 0));   // Bühne: first sight is the same wave as a tab change
     }
   }
 
@@ -1653,8 +1964,9 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     const same = vids.filter(x => x.kind === v.kind), kindName = v.kind === "long" ? "Langvideos" : "Shorts";
     const rank = [...same].sort((a, b) => (b.views || 0) - (a.views || 0)).indexOf(v) + 1;
     const th = el("a", "thumb"), pic = state.thumbs[v.id]; th.href = v.link || `https://youtu.be/${v.video_id}`; th.target = "_blank"; th.rel = "noopener";
-    if (pic) for (const cls of ["fill", "fit"]) { const img = el("img", cls); img.alt = ""; img.src = pic; th.append(img); }
-    else th.classList.add("blank");
+    // Bühne: without our own small picture the public YouTube one (the Sendeplan does the same)
+    const src = pic || `https://i.ytimg.com/vi/${encodeURIComponent(v.video_id)}/mqdefault.jpg`;
+    for (const cls of ["fill", "fit"]) { const img = el("img", cls); img.alt = ""; img.src = src; img.onerror = () => { img.remove(); th.classList.add("blank"); }; th.append(img); }
     th.append(el("span", "tag youtube", v.kind === "long" ? "YT Lang" : "YT Short"));
     const n = el("div", "n"), b = el("b"); setNum(b, "latest", v.views, int); n.append(b, "Aufrufe", el("span", null, `· Rang ${rank} von ${same.length} ${kindName}`));
     const f = v.normal && v.normal.factor;
@@ -1794,7 +2106,28 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     prog.append(num, cap);
     const seg = el("div", "dseg"); seg.setAttribute("aria-label", `${count} von ${all.length} Schritten bereit`);
     shown.forEach((g, gi) => g[2].forEach((nd, j) => seg.append(el("i", cls(nd) + (gi < shown.length - 1 && j === g[2].length - 1 ? " gend" : "")))));
-    hero.append(prog, seg);
+    // Bühne: the groups as a chain; done groups draw their tick, the group at work carries a ring
+    // with its share of ready steps, and a light travels the finished line only while the night runs
+    const chain = el("div", "chain" + (live ? " go" : "")), track = el("div", "track");
+    track.append(el("i"), el("b")); chain.append(track); chain.style.setProperty("--n", shown.length);
+    let at = shown.findIndex(([, , nodes]) => !nodes.every(ready)); if (at < 0) at = shown.length - 1;
+    shown.forEach(([, glabel, nodes], gi) => {
+      const cs = nodes.map(cls), n = nodes.filter(ready).length, all = nodes.length;
+      const st = n === all ? "done" : cs.includes("fail") ? "fail" : cs.includes("now") ? "now" : cs.some(c => c === "last" || c === "unknown") ? "last" : cs.includes("wait") ? "wait" : n ? "last" : "idle";
+      const cn = el("div", "cn " + st), o = el("span", "o");
+      if (st === "done") { o.innerHTML = '<svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>'; }
+      else {
+        o.append(st === "fail" ? "!" : String(gi + 1));
+        if (st !== "idle") o.insertAdjacentHTML("afterbegin", `<svg class="rg" viewBox="0 0 50 50" aria-hidden="true"><circle class="t" cx="25" cy="25" r="23"/><circle class="a" cx="25" cy="25" r="23" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 - n / all * 100}"/></svg>`);
+      }
+      cn.append(o, el("span", "l", glabel), el("span", "s", `${n} / ${all}`));
+      cn.title = `${glabel}: ${n} von ${all} Schritten bereit`;
+      chain.append(cn);
+    });
+    const frac = shown.length > 1 ? at / (shown.length - 1) : 1;
+    track.style.setProperty("--fill", frac * 100 + "%");
+    chain.setAttribute("role", "group"); chain.setAttribute("aria-label", seg.getAttribute("aria-label"));
+    hero.append(prog, chain);
     const fault = all.find(n => n.state === "failed");
     if (fault) {
       const held = all.filter(n => n.state === "blocked").length;
@@ -2322,7 +2655,35 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
       col.append(dh, body); tl.append(col);
     }
     if (state.planAt) tl.scrollLeft = keep; else planToToday(false);
+    requestAnimationFrame(fitPlan);
   }
+  // Bühne (08.11.): on the one-screen layout every day fits its column. The pictures give way first,
+  // evenly, down to a 36 px strip; titles are never sliced. Only if that is not enough the day scrolls.
+  const ONE_SCREEN = window.matchMedia ? window.matchMedia("(min-width: 1000px) and (min-height: 620px)") : { matches: false };
+  function fitPlan() {
+    for (const body of document.querySelectorAll("#s-plan .daycol .body")) {
+      const pics = [...body.querySelectorAll(".pcard > .thumb:not(.noimg)")];
+      pics.forEach(t => { t.style.height = ""; t.style.aspectRatio = ""; t.classList.remove("slim"); });
+      if (!ONE_SCREEN.matches || !body.clientHeight) { body.classList.remove("more"); continue; }
+      let over = body.scrollHeight - body.clientHeight;
+      for (let round = 0; over > 0 && round < 3; round++) {
+        const free = pics.filter(t => t.offsetHeight > 36); if (!free.length) break;
+        const each = Math.ceil(over / free.length);
+        free.forEach(t => { t.style.aspectRatio = "auto"; t.style.height = Math.max(36, t.offsetHeight - each) + "px"; });
+        over = body.scrollHeight - body.clientHeight;
+      }
+      pics.forEach(t => t.classList.toggle("slim", t.offsetHeight < 64));
+      moreBelow(body);
+    }
+  }
+  // a day that still scrolls fades out at its foot until it is scrolled to the end
+  function moreBelow(body) {
+    body.classList.toggle("more", body.scrollHeight - body.clientHeight - body.scrollTop > 2);
+    if (!body.dataset.watch) { body.dataset.watch = "1"; body.addEventListener("scroll", () => moreBelow(body), { passive: true }); }
+  }
+  window.addEventListener("resize", () => requestAnimationFrame(() => { fitPlan(); fades(); }));
+  function fades() { document.querySelectorAll("section.area.on .scroll").forEach(moreBelow); }
+  document.querySelectorAll("nav.jump a").forEach(a => { a.title = a.textContent.trim(); });     // the icon rail and phone bar show names as tooltips
   function planCard(x, day, now, missed, vids) {
     const v = (x.upload_id && vids.get("u" + x.upload_id)) || (x.video_id && vids.get(x.platform + x.video_id));
     const url = x.status === "uploaded" ? (v && /^https:\/\//.test(v.link || "") ? v.link : null) || videoUrl(x.platform, x.video_id) : null;
@@ -2515,10 +2876,11 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
       // corrections (negative) hang below the zero line, on the same scale
       const neg = -Math.min(0, ...bars.map(b => b.v)), scale = (H - B - T) / (top + neg), B0 = B + neg * scale;
       axis(svg, W, H, L, B0, T, top, step);
-      const bw = (W - L) / bars.length, marks = {}, marked = new Set();        // system changes: in the Protokoll (Läufe), not on the growth chart
+      const bw = (W - L) / bars.length, marks = {}, marked = new Set(), line = [];        // system changes: in the Protokoll (Läufe), not on the growth chart
       bars.forEach((b, i) => {
-        const hh = Math.abs(b.v) * scale, x = L + i * bw + bw * 0.15, y = b.v < 0 ? H - B0 : H - B0 - hh;
-        const r = sv("rect", { x, y, width: Math.max(1, bw * 0.7), height: Math.max(hh, b.v ? 1 : 0), rx: 2, fill: b.v < 0 ? "var(--bad-mark)" : "var(--accent)", opacity: i === bars.length - 1 ? 1 : .75 });
+        // the point sits mid-bar; an invisible column keeps the hover tip of each hour or day
+        const r = sv("rect", { x: L + i * bw, y: T, width: bw, height: H - B - T, fill: "transparent" });
+        line.push([L + i * bw + bw / 2, H - B0 - b.v * scale]);
         svg.append(r); hoverTip(box, tip, r, b.tip + `${int(b.v)} ${unit}`);
         const every = Math.ceil(bars.length / 8);
         if (i % every === 0) svg.append(sv("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, b.label));
@@ -2529,6 +2891,13 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
           hoverTip(box, tip, g, `${fmtDay(b.key)}: ${list.length} Änderung${list.length > 1 ? "en" : ""}`);
         }
       });
+      const d = smooth(line), [lx, ly] = line[line.length - 1];
+      const corrections = bars.flatMap((b, i) => b.v < 0 ? [sv("circle", { cx: line[i][0], cy: line[i][1], r: 3.5, fill: "var(--bad-mark)", stroke: "var(--panel)", "stroke-width": 1.5, "pointer-events": "none" })] : []);
+      svg.append(sv("path", { class: "fadearea", d: d + `L${lx},${H - B0}L${line[0][0]},${H - B0}Z`, fill: fade(svg, "var(--chart)"), stroke: "none", "pointer-events": "none" }),
+        sv("path", { class: state.introDone ? "" : "drawline", d, fill: "none", stroke: "var(--chart)", "stroke-width": 2.6, "stroke-linecap": "round", "stroke-linejoin": "round", pathLength: 1, "pointer-events": "none" }),
+        sv("circle", { cx: lx, cy: ly, r: 15, fill: "var(--chart)", opacity: .12, "pointer-events": "none" }),
+        sv("circle", { class: "halo", cx: lx, cy: ly, r: 5.5, fill: "var(--chart)", "pointer-events": "none" }),
+        sv("circle", { class: "lit", cx: lx, cy: ly, r: 5.5, fill: "var(--chart)", "pointer-events": "none" }), ...corrections);
       const sum = bars.reduce((a, b) => a + b.v, 0);
       const corr = bars.filter(b => b.v < 0).reduce((a, b) => a + b.v, 0);
       $("views-note").textContent = `${int(sum)} ${unit} ${state.range === "48h" ? `in ${bars.length} Stunden (je Stunde)` : `in ${bars.length} Tagen (je Tag)`}` + (corr ? `, davon ${int(corr)} durch Korrekturen von YouTube (rot)` : "") + `. ${ctx.scope === "tracked_posts" ? "Veränderung erfasster Postwerte seit der vorherigen Messung, kein vollständiger TikTok-Kanalbericht." : ctx.live ? "Öffentliche Videos, Zahlen von YouTube mit kurzer Verzögerung." : "Aus dem gespeicherten Kanalexport."}`;
@@ -2614,11 +2983,11 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     svg.append(sv("text", { x: W - 4, y: Y(b.limit_eur) - 4, "text-anchor": "end", style: "fill: var(--bad)" }, `Grenze ${int(b.limit_eur)} €`));
     if (pts.length) {
       const line = pts.map(p => `${X(p.day)},${Y(p.v)}`).join(" ");
-      svg.append(sv("path", { d: `M${X(pts[0].day)},${Y(0)}L` + line.replace(/ /g, "L") + `L${X(pts[pts.length - 1].day)},${Y(0)}Z`, fill: "var(--accent)", opacity: .1 }));
-      svg.append(sv("polyline", { points: line, fill: "none", stroke: "var(--accent)", "stroke-width": 2 }));
+      svg.append(sv("path", { d: `M${X(pts[0].day)},${Y(0)}L` + line.replace(/ /g, "L") + `L${X(pts[pts.length - 1].day)},${Y(0)}Z`, fill: "var(--chart)", opacity: .1 }));
+      svg.append(sv("polyline", { points: line, fill: "none", stroke: "var(--chart)", "stroke-width": 2 }));
       const last = pts[pts.length - 1];
-      if (b.forecast_eur != null) svg.append(sv("line", { x1: X(last.day), y1: Y(last.v), x2: X(dim), y2: Y(b.forecast_eur), stroke: "var(--accent)", "stroke-width": 2, "stroke-dasharray": "5 4", opacity: .8 }));
-      svg.append(sv("circle", { cx: X(last.day), cy: Y(last.v), r: 3.5, fill: "var(--accent)" }));
+      if (b.forecast_eur != null) svg.append(sv("line", { x1: X(last.day), y1: Y(last.v), x2: X(dim), y2: Y(b.forecast_eur), stroke: "var(--chart)", "stroke-width": 2, "stroke-dasharray": "5 4", opacity: .8 }));
+      svg.append(sv("circle", { class: "halo", cx: X(last.day), cy: Y(last.v), r: 3.5, fill: "var(--chart)" }), sv("circle", { cx: X(last.day), cy: Y(last.v), r: 3.5, fill: "var(--chart)", stroke: "var(--panel)", "stroke-width": 2 }));
       const box = $("month-chart"), tip = $("month-tip");
       for (const p of pts) { const c = sv("circle", { cx: X(p.day), cy: Y(p.v), r: 7, fill: "transparent" }); svg.append(c); hoverTip(box, tip, c, `${fmtDay(p.iso)}: ${eur(p.v)} € bisher (Claude ${p.usd.toFixed(2)} $)`); }
     }
@@ -2794,7 +3163,7 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   window.addEventListener("pageshow", (e) => { if (e.persisted) pageCheck(true); });
 })();
 </script>
-<div class="pal" id="pal"><button type="button" class="pal-dot" aria-expanded="false" aria-controls="pal-list" aria-label="Farben wählen"><i></i></button><div class="pal-list" id="pal-list" role="radiogroup" aria-label="Farbpalette" inert><button type="button" role="radio" data-palette="" aria-label="Burgarchiv" title="Burgarchiv" style="--a:#22251f;--b:#cfb482;--i:0"></button><button type="button" role="radio" data-palette="lavendel" aria-label="Lavendelgrau" title="Lavendelgrau" style="--a:#25222d;--b:#c3b1dc;--i:1"></button><button type="button" role="radio" data-palette="flieder" aria-label="Fliedernebel" title="Fliedernebel" style="--a:#fbf9fd;--b:#6e597f;--i:2"></button><button type="button" role="radio" data-palette="abendrot" aria-label="Abendrot" title="Abendrot" style="--a:#30292f;--b:#d5ae96;--i:3"></button><button type="button" role="radio" data-palette="sandrose" aria-label="Sandrose" title="Sandrose" style="--a:#fcfaf7;--b:#8a5459;--i:4"></button><button type="button" role="radio" data-palette="pflaume" aria-label="Pflaume &amp; Lila" title="Pflaume &amp; Lila" style="--a:#292335;--b:#c4b2ea;--i:5"></button><button type="button" role="radio" data-palette="orca" aria-label="Orca" title="Orca" style="--a:#2b2c36;--b:#d98bff;--i:6"></button></div></div>
+<div class="pal" id="pal"><button type="button" class="pal-dot" aria-expanded="false" aria-controls="pal-list" aria-label="Farben wählen"><i></i></button><div class="pal-list" id="pal-list" role="radiogroup" aria-label="Farbpalette" inert><button type="button" role="radio" data-palette="" aria-label="Bühne" title="Bühne" style="--a:#141513;--b:#d6b67c;--i:0"></button><button type="button" role="radio" data-palette="schiefer" aria-label="Schiefer" title="Schiefer" style="--a:#11212d;--b:#9ba8ab;--i:1"></button><button type="button" role="radio" data-palette="violett" aria-label="Violett" title="Violett" style="--a:#25134d;--b:#9d71e8;--i:2"></button><button type="button" role="radio" data-palette="weinrot" aria-label="Weinrot" title="Weinrot" style="--a:#3d0f22;--b:#c24366;--i:3"></button><button type="button" role="radio" data-palette="burgarchiv" aria-label="Burgarchiv" title="Burgarchiv" style="--a:#22251f;--b:#cfb482;--i:4"></button><button type="button" role="radio" data-palette="lavendel" aria-label="Lavendelgrau" title="Lavendelgrau" style="--a:#25222d;--b:#c3b1dc;--i:5"></button><button type="button" role="radio" data-palette="flieder" aria-label="Fliedernebel" title="Fliedernebel" style="--a:#fbf9fd;--b:#6e597f;--i:6"></button><button type="button" role="radio" data-palette="abendrot" aria-label="Abendrot" title="Abendrot" style="--a:#30292f;--b:#d5ae96;--i:7"></button><button type="button" role="radio" data-palette="sandrose" aria-label="Sandrose" title="Sandrose" style="--a:#fcfaf7;--b:#8a5459;--i:8"></button><button type="button" role="radio" data-palette="pflaume" aria-label="Pflaume &amp; Lila" title="Pflaume &amp; Lila" style="--a:#292335;--b:#c4b2ea;--i:9"></button><button type="button" role="radio" data-palette="orca" aria-label="Orca" title="Orca" style="--a:#2b2c36;--b:#d98bff;--i:10"></button></div></div>
 <script id="sticky-tabs">
 (() => {
   const side = document.querySelector(".sidebar"), nav = side.querySelector("nav.jump");
