@@ -986,6 +986,7 @@ svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center;
 .ng { display: none; }
 .nav-count { margin-left: auto; min-width: 20px; height: 18px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; background: var(--bad-mark); color: #fff;
   font: 600 11px/18px var(--font); text-align: center; font-variant-numeric: tabular-nums; }
+#inc-read { margin-left: auto; }
 .nav-count[data-level="gelb"], .bell-count[data-level="gelb"] { background: var(--warn-mark); color: #1d1206; }
 a.bell { display: none; }
 @media (min-width: 1000px) and (min-height: 620px) {
@@ -1218,6 +1219,7 @@ a.bell { display: none; }
     <div class="title"><h2 id="h-incidents">Neuigkeiten</h2><span class="muted small" id="inc-note"></span></div>
     <div class="cmpbar">
       <div class="seg" id="inc-show" role="group" aria-label="Zeigen"><button type="button" data-s="open" aria-pressed="false">Aktiv</button><button type="button" data-s="done" aria-pressed="false">Behoben</button><button type="button" data-s="all" aria-pressed="true">Alle</button></div>
+      <button type="button" id="inc-read" disabled>Als gelesen markieren</button>
     </div>
     <ul class="alerts" id="alerts"></ul>
     <div class="card block pane" id="inc-history">
@@ -1624,6 +1626,13 @@ a.bell { display: none; }
   }
 
   const TAB_STORE = "leitstand-tab";
+  const SEEN_STORE = "leitstand-gelesen";
+  // read marks: message key -> when it was last seen active (ms). A mark is forgotten only after the message
+  // has been gone for 6 hours, so data that is still loading or a live source that is late never clears it,
+  // but a fault that was fixed and comes back later counts again
+  const SEEN_KEEP = 6 * 3600e3;
+  try { state.seen = new Map(Object.entries(JSON.parse(localStorage.getItem(SEEN_STORE) || "{}"))); } catch (_) { state.seen = new Map(); }
+  const saveSeen = () => { try { localStorage.setItem(SEEN_STORE, JSON.stringify(Object.fromEntries(state.seen))); } catch (_) { /* private mode: only this visit */ } };
   function swipeDirection(start, end) {
     const dx = end.x - start.x, dy = end.y - start.y;
     if (end.at - start.at > 650 || Math.abs(dx) < 56 || Math.abs(dy) > 60 || Math.abs(dx) < Math.abs(dy) * 1.6) return 0;
@@ -1632,6 +1641,7 @@ a.bell { display: none; }
   function showTab(id, dir, vertical) {
     if (!id || !/^s-/.test(id) || !$(id)) id = "s-overview";
     const fresh = !$(id).classList.contains("on");
+    if (fresh && id === "s-incidents") state.beforeNews = document.querySelector("section.area.on")?.id;
     document.querySelectorAll("section.area").forEach(s => s.classList.toggle("on", s.id === id));
     if (fresh) animateIn($(id), dir, vertical);
     document.querySelectorAll("nav.jump a, #news-bell").forEach(a => { if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
@@ -1851,10 +1861,26 @@ a.bell { display: none; }
     else { ov.className = "pill ok"; ov.textContent = "Alles läuft"; }
     $("stamp").textContent = [state.live && state.live.at ? `YouTube live ${fmtTime(state.live.at)}` : "", d ? `Letzter Lauf ${fmtTime(d.generated_at)}` : ""].filter(Boolean).join(" · ");
 
+    // Felix 08.11.: the bell counts only what was not marked read yet (Gelesen, kept per device); a new
+    // or changed message counts again
+    // pruned only with every source in (night file, night status, live numbers): a missing one is not "gone"
+    if (state.seen.size && d && state.status && state.live) {
+      const t = Date.now(), active = new Set(alerts.map(a => a.area + "|" + a.text));
+      let changed = false;
+      for (const [k, at] of state.seen) {
+        if (active.has(k)) { if (t - at > 600e3) { state.seen.set(k, t); changed = true; } }
+        else if (t - at > SEEN_KEEP) { state.seen.delete(k); changed = true; }
+      }
+      if (changed) saveSeen();
+    }
+    const unread = alerts.filter(a => (a.level === "rot" || a.level === "gelb") && !state.seen.has(a.area + "|" + a.text));
+    const unreadRed = unread.some(a => a.level === "rot");
     for (const id of ["news-count", "news-count-m"]) {
       const e = $(id);
-      if (e) { e.textContent = red + yellow; e.hidden = !(red + yellow); e.dataset.level = red ? "rot" : "gelb"; }
+      if (e) { e.textContent = unread.length; e.hidden = !unread.length; e.dataset.level = unreadRed ? "rot" : "gelb"; }
     }
+    $("inc-read").disabled = !unread.length;
+    $("inc-read").textContent = unread.length ? "Als gelesen markieren" : "Alles gelesen";
     const ts = $("t-state"), tsCls = !d && !state.status ? "" : red ? "bad" : yellow ? "warn" : "ok";
     ts.className = "val state big-btn " + tsCls; ts.disabled = !(red + yellow); ts.lastChild.textContent = ov.textContent;
     $("t-day").textContent = "Heute, " + fmtDay(berlinParts(new Date()).day);
@@ -3063,6 +3089,13 @@ a.bell { display: none; }
 
   // ---------- wiring ----------
   $("reload").addEventListener("click", () => location.reload());   // Felix 02.11.: also a new page version (home-screen app on iOS)
+  $("inc-read").addEventListener("click", () => {
+    // only the messages active right now are kept, so the stored list never grows
+    const t = Date.now();
+    for (const a of allAlerts()) if (a.level === "rot" || a.level === "gelb") state.seen.set(a.area + "|" + a.text, t);
+    saveSeen();
+    render();
+  });
   $("t-state").addEventListener("click", () => { if (allAlerts().some(a => a.level === "rot" || a.level === "gelb")) showTab("s-incidents"); });
   $("g-night-btn").addEventListener("click", () => { if (allAlerts().some(a => a.area === "Nachtlauf" && a.step)) openNightAlert(); else showTab("s-incidents"); });
   $("to-plan").addEventListener("click", (e) => { e.preventDefault(); showTab("s-plan"); });
@@ -3094,7 +3127,13 @@ a.bell { display: none; }
   });
   // Tabs (Felix 30.10.): one area at a time, remembered in the browser. They must not drop the key
   // from the address (bookmarks keep #k=), so the choice does not go into the hash.
-  document.querySelectorAll("nav.jump a, #news-bell").forEach(a => a.addEventListener("click", (e) => { e.preventDefault(); showTab(a.getAttribute("href").slice(1)); }));
+  document.querySelectorAll("nav.jump a, #news-bell").forEach(a => a.addEventListener("click", (e) => {
+    e.preventDefault();
+    const id = a.getAttribute("href").slice(1);
+    // Felix 08.11.: the bell again while Neuigkeiten is open closes it, back to the tab from before
+    if (id === "s-incidents" && $(id).classList.contains("on")) showTab(state.beforeNews && state.beforeNews !== id ? state.beforeNews : "s-overview");
+    else showTab(id);
+  }));
   let swipeStart = null;
   document.addEventListener("touchstart", e => {
     swipeStart = null;
