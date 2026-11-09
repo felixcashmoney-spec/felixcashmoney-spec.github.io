@@ -1527,7 +1527,8 @@ a.bell { display: none; }
       out.push({ level: "rot", area: "Veröffentlichung", text: `${x.platform === "tiktok" ? "TikTok" : "YouTube"}-${x.kind === "long" ? "Video" : "Short"} vom ${fmtDay(x.day)} ${x.time} ${x.why}: ${x.title}`, impact: x.why === "nicht hochgeladen" ? "Der nächste Nachtlauf holt verpasste Termine der letzten 7 Tage nach (neuer Termin)." : "Steht in YouTube Studio noch auf privat oder wurde entfernt: dort prüfen." });
     return out;
   }
-  const isFixed = (a) => a.resolved || (a.repair && FIXED.includes(a.repair.result));
+  // C5: done only when the check of its step passed (resolved); a repair note alone closes nothing
+  const isFixed = (a) => !!a.resolved;
   // the day's Claude cap is the budget guard at work, not a fault (same rule as dashboard.alerts; data
   // built before 02.11. still has it red)
   const capped = (a) => a.level === "rot" && /Tagesdeckel/.test(a.text) ? { ...a, level: "gelb" } : a;
@@ -1574,9 +1575,13 @@ a.bell { display: none; }
   }
   // What the morning repair run did with an alert (docs/REPARATUR.md, Felix 30.10.).
   const FIXED = ["behoben", "erneut-ok", "schon-behoben"];
+  // C5: the three states of a fault (dashboard.alerts[].repair_state)
+  const LAGE = { code_repariert: ["done-tag", "Code repariert"], betrieb_ok: ["done-tag", "Betrieb in Ordnung"], schaden_bleibt: ["ask-tag", "Schaden bleibt"] };
   function repairTag(a) {
-    const r = a.repair; if (!r) return null;
-    if (FIXED.includes(r.result)) return el("span", "done-tag", "automatisch repariert" + (r.pr ? ` · PR #${r.pr}` : ""));
+    const r = a.repair, l = LAGE[a.repair_state];
+    if (l) return el("span", l[0], l[1] + (r && r.pr ? ` · PR #${r.pr}` : ""));
+    if (!r) return null;
+    if (FIXED.includes(r.result)) return el("span", a.resolved ? "done-tag" : "ask-tag", (a.resolved ? "automatisch repariert" : "Nachprüfung offen") + (r.pr ? ` · PR #${r.pr}` : ""));
     if (r.result === "gemeldet" || r.result === "eskaliert") return el("span", "ask-tag", "braucht dich");
     return el("span", "ask-tag", "Reparatur " + r.result);
   }
@@ -1591,7 +1596,7 @@ a.bell { display: none; }
   const KINDS = { code: "Code-Fehler", voruebergehend: "Vorübergehend", extern: "Braucht dich", unklar: "Unklar" };
   function repairRows(a) {
     const r = a.repair || {};
-    return [["Reparatur", repairText(a)], ["Ursache laut Reparatur", r.cause], ["Lösung", r.fix], ["Nächster Schritt", r.next]];
+    return [["Reparatur", repairText(a)], ["Nachprüfung", a.invariant], ["Ursache laut Reparatur", r.cause], ["Lösung", r.fix], ["Nächster Schritt", r.next]];
   }
   function reportMarkdown(a) {
     const r = a.report, rep = a.repair || {};
@@ -2100,7 +2105,8 @@ a.bell { display: none; }
   function renderTodo() {
     // Kachelcheck 07.11.: everything the repair run handed to Felix, plus every red fault it has not
     // fixed (a missed upload the page found itself has no repair note and still needs him)
-    const todo = allAlerts().filter(a => !a.resolved && (a.repair ? ["gemeldet", "eskaliert"].includes(a.repair.result) : a.level === "rot"));
+    // fixed (C5) when its check failed: the damage stays and goes to Felix
+    const todo = allAlerts().filter(a => !a.resolved && (a.repair_state === "schaden_bleibt" || (a.repair ? ["gemeldet", "eskaliert"].includes(a.repair.result) : a.level === "rot")));
     const t = $("t-todo"), sub = $("t-todo-sub");
     t.className = "val state " + (!state.data ? "" : todo.length ? (todo.some(a => a.level === "rot") ? "bad" : "warn") : "ok");
     t.lastChild.textContent = !state.data ? "—" : todo.length ? (todo.length === 1 ? "1 Punkt" : `${todo.length} Punkte`) : "Nichts zu tun";
