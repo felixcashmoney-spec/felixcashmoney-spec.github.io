@@ -2398,9 +2398,11 @@ a.bell { display: none; }
     // Phase 5 (05.11.): say where the number is from and from when (budget.credits_at: "jetzt" or the stamp)
     const when = !b ? "" : b.credits_at === "jetzt" ? "gemessen beim Lauf" : b.credits_measured && b.credits_at ? `gemessen ${fmtTime(b.credits_at)}` : "geschätzt aus Aufträgen";
     if (b) $("g-credit-sub").textContent = `von ${int(total_)} · Stufe ${b.level} · ${when}`
+      + (b.own_credits ? ` · Eigenverbrauch ${int(b.own_credits)}` : "")          // Felix 09.11.: by hand, between the runs
       + (b.side_credits != null ? ` · daneben ${int(b.side_credits)}` : "");      // Nr. 12: not from the pipeline
     if (b) $("r-credits").title = `Abo ${int(total_)} je Monat · je Langvideo bis ${int(b.week_credits_share)}` + (b.longs ? ` · ${b.longs} Langvideo${b.longs > 1 ? "s" : ""}/Woche` : "") + ` · Stand der Nacht (${b.credits_at === "jetzt" ? "beim Schreiben gemessen" : b.credits_measured ? "gemessen" : "geschätzt"})`
-      + (b.side_credits != null ? ` · Nebenverbrauch seit ${b.credit_since ? fmtDay(b.credit_since) : "Zyklusbeginn"}: ${int(b.side_credits)} Credits (gemessen minus Aufträge der Pipeline ${int(b.pipeline_credits)}), gelb ab 50` : "");
+      + (b.side_credits != null ? ` · Nebenverbrauch seit ${b.credit_since ? fmtDay(b.credit_since) : "Zyklusbeginn"}: ${int(b.side_credits)} Credits (gemessen minus Aufträge der Pipeline ${int(b.pipeline_credits)} minus Eigenverbrauch ${int(b.own_credits || 0)}), gelb ab 50` : "")
+      + (b.own_credits ? ` · Eigenverbrauch (zwischen den Läufen, von Hand): ${int(b.own_credits)} Credits` : "");
   }
 
   // ---------- F8: the way to the Partner Program (numbers of the weekly report) ----------
