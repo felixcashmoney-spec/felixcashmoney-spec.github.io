@@ -1,14 +1,14 @@
 {
- "at": "2026-11-09T21:51:02Z",
+ "at": "2026-11-09T22:51:02Z",
  "channel": {
   "subscribers": 3,
-  "views": 4025,
+  "views": 4028,
   "videos": 16
  },
  "videos": {
   "_snZ7X8ahVM": {
-   "views": 0,
-   "likes": 0,
+   "views": 2,
+   "likes": 1,
    "comments": 0,
    "published": "2026-11-09T21:00:07Z"
   },
@@ -67,7 +67,7 @@
    "published": "2026-11-03T16:00:20Z"
   },
   "oZffcnszukw": {
-   "views": 258,
+   "views": 259,
    "likes": 2,
    "comments": 1,
    "published": "2026-11-02T16:00:29Z"
