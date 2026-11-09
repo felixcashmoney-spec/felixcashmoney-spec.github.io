@@ -651,7 +651,6 @@ button.ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   #kpis .label .delta { white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; flex-shrink: 10; }
   #s-overview .ovgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "flow flow posts" "rings latest posts"; }
   #o-flow { grid-area: flow; } #o-posts { grid-area: posts; } #o-latest { grid-area: latest; } #o-rings { grid-area: rings; }
-  #s-overview .nextposts > :nth-child(n+4) { display: none; }
   #kpis-chan .kpi, #kpis-cost .kpi { padding: 12px 16px; gap: 2px; } #kpis-chan .kpi svg.spark, #kpis-cost .kpi svg.spark { height: 24px; }
   #s-overview .nextposts { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   #s-overview .npost { grid-template-columns: 112px minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 12px; align-items: start; }
@@ -862,7 +861,9 @@ svg rect.now { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 80%,
 .tipdot { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--c, var(--accent));
   box-shadow: 0 0 0 2px var(--panel), 0 0 10px 1px color-mix(in srgb, var(--c, var(--accent)) 70%, transparent); pointer-events: none; }
 svg circle.halo { opacity: 0; transform-box: fill-box; transform-origin: center; }
-#views-chart, .kpi .chartwrap, .latest .chartwrap { background-image: radial-gradient(circle, color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.4px); background-size: 18px 18px; background-position: 0 4px; }
+#views-chart, .kpi .chartwrap, .latest .chartwrap { isolation: isolate; }
+#views-chart::before, .kpi .chartwrap::before, .latest .chartwrap::before { content: ""; position: absolute; inset: -18px 0 0; z-index: -1; pointer-events: none;      /* Felix 09.11.: one row of dots more above the line */
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.4px); background-size: 18px 18px; background-position: 0 4px; }
 #views circle.lit { filter: drop-shadow(0 0 6px var(--chart)); }
 .tipdot { box-shadow: 0 0 0 7px color-mix(in srgb, var(--c, var(--accent)) 13%, transparent), 0 0 12px 2px color-mix(in srgb, var(--c, var(--accent)) 55%, transparent); }
 @media (prefers-reduced-motion: no-preference) { #views circle.halo { animation: tip-glow 2.4s var(--ease-arrive) infinite; } }
@@ -1028,6 +1029,38 @@ a.bell { display: none; }
   .bell-count { position: absolute; top: 4px; right: 4px; min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 999px;
     background: var(--bad-mark); color: #fff; font: 600 10px/16px var(--font); font-style: normal; text-align: center; box-shadow: 0 0 0 2px var(--panel); }
 }
+
+/* Felix 09.11.: Übersicht tiles filled. Next posts take the whole tile (bigger pictures, as many as fit),
+   the newest video gives picture, numbers and chart more room, the rings grow with their tile and show
+   their detail line inside when tapped. */
+.ring .mid .note { display: block; max-height: 0; opacity: 0; overflow: hidden; white-space: normal; max-width: 70%; margin: 0 auto;
+  font-size: .68rem; line-height: 1.25; transition: max-height .35s var(--ease-travel, ease), opacity .25s ease, margin .35s ease; }
+.ring[aria-expanded="true"] .mid .note { max-height: 8em; opacity: 1; margin-top: 4px; }
+.ring .dial { transition: width .35s var(--ease-travel, ease), height .35s var(--ease-travel, ease); }
+#o-rings .ring .mid .note { display: block; }
+#o-rings .ring[aria-expanded="true"] .dial { width: 150px; height: 150px; }      /* phone: room for the line */
+@media (prefers-reduced-motion: reduce) { .ring .dial, .ring .mid .note { transition: none; } }
+@media (min-width: 1000px) and (min-height: 620px) {
+  #o-posts, #o-latest, #o-rings { display: flex; flex-direction: column; }
+  #o-posts > .nextposts, #o-latest > .latest, #o-rings > .rings { flex: 1 1 0; min-height: 0; }
+  #s-overview .nextposts { grid-auto-rows: minmax(min-content, 1fr); gap: 10px; overflow: hidden; }
+  #s-overview .npost { grid-template-columns: minmax(96px, 46%) minmax(0, 1fr); grid-template-rows: auto auto 1fr; align-items: start; }
+  #s-overview .npost .thumb { grid-row: 1 / 4; width: 100%; max-height: 100%; }
+  #s-overview .npost .thumb.blank > span:not(.tag) { font-size: 0; }
+  #s-overview .npost .t { font-size: .9rem; -webkit-line-clamp: 3; }
+  #s-overview .npost .w { white-space: normal; }
+  #o-latest .latest { grid-template-columns: minmax(120px, 48%) minmax(0, 1fr); grid-template-rows: auto auto auto minmax(40px, 1fr); }
+  #o-latest .latest .thumb { grid-row: 1 / 4; }
+  #o-latest .latest .t { font-size: .95rem; -webkit-line-clamp: 3; }
+  #o-latest .latest .n b { font-size: 1.5rem; }
+  #o-latest .latest .chartwrap { align-self: stretch; margin-top: 18px; } #o-latest .latest .chartwrap > svg.spark { height: 100%; }
+  #o-rings .rings { container-type: size; align-items: center; }
+  #o-rings .ring .dial { width: min(40cqw, 100cqh - 2.4em); height: min(40cqw, 100cqh - 2.4em); }
+  #o-rings.ringopen .ring[aria-expanded="true"] .dial { width: min(48cqw, 100cqh - 2.4em); height: min(48cqw, 100cqh - 2.4em); }
+  #o-rings.ringopen .ring[aria-expanded="false"] .dial { width: min(32cqw, 100cqh - 2.4em); height: min(32cqw, 100cqh - 2.4em); }
+  #o-rings .ring .mid b { font-size: clamp(.9rem, 5cqw, 1.6rem); } #o-rings .ring .mid small { display: block; font-size: clamp(.62rem, 2.4cqw, .8rem); }
+  #o-rings .ring .name { font-size: .85rem; }
+}
 </style>
 </head>
 <body>
@@ -1088,8 +1121,8 @@ a.bell { display: none; }
       <div class="card" id="o-rings">
         <div class="head"><h3>Budget und Credits</h3><span class="muted small" id="g-month"></span><span class="fresh" data-fresh="run"></span></div>
         <div class="rings">
-          <div class="ring" id="r-budget"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-spent">—</b><small>von <span id="g-limit">100</span> €</small></div></div><span class="name">Budget</span><span class="note" id="g-budget-sub"></span></div>
-          <div class="ring cred" id="r-credits"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-credits">—</b><small>frei</small></div></div><span class="name">Higgsfield-Credits</span><span class="note" id="g-credit-sub"></span></div>
+          <button type="button" class="ring" id="r-budget" aria-expanded="false"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-spent">—</b><small>von <span id="g-limit">100</span> €</small><span class="note" id="g-budget-sub"></span></div></div><span class="name">Budget</span></button>
+          <button type="button" class="ring cred" id="r-credits" aria-expanded="false"><div class="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><div class="mid"><b id="g-credits">—</b><small>frei</small><span class="note" id="g-credit-sub"></span></div></div><span class="name">Higgsfield-Credits</span></button>
         </div>
       </div>
     </div>
@@ -1651,6 +1684,7 @@ a.bell { display: none; }
     try { localStorage.setItem(TAB_STORE, id); } catch (_) { /* private mode: starts on Übersicht */ }
     if (id === "s-plan" && !state.planAt) planToToday(false);
     if (id === "s-plan") requestAnimationFrame(fitPlan);
+    if (id === "s-overview") requestAnimationFrame(fitPosts);      // rendered while hidden: measure now that it shows
     requestAnimationFrame(() => document.querySelectorAll(`#${id} .scroll`).forEach(moreBelow));
   }
 
@@ -2400,7 +2434,7 @@ a.bell { display: none; }
     list.sort((a, b) => a.at - b.at);
     box.replaceChildren();
     if (!list.length) { box.append(el("span", "empty", "Nichts geplant in den nächsten zwei Wochen.")); $("cd-post").textContent = "—"; $("cd-post-what").textContent = "Sendeplan leer"; return; }
-    for (const x of list.slice(0, 3)) {
+    for (const x of list.slice(0, 6)) {
       const c = el("div", "npost"), th = el("div", "thumb"), pic = thumbFor(x);
       if (pic) for (const cls of ["fill", "fit"]) { const img = el("img", cls); img.alt = ""; img.src = pic; th.append(img); }
       else { th.classList.add("blank"); th.append(el("span", null, x.status === "planned" ? "noch nicht hochgeladen" : "kein Vorschaubild")); }
@@ -2410,6 +2444,7 @@ a.bell { display: none; }
       c.append(th, el("div", "t", x.title || x.key), w); c.title = `${x.title || ""} · ${x.status}${x.note ? " · " + x.note : ""}`;
       box.append(c);
     }
+    requestAnimationFrame(fitPosts);
     const first = list[0];
     $("cd-post").dataset.until = first.at.toISOString();
     $("cd-post-what").textContent = `${first.platform === "youtube" ? (first.kind === "long" ? "YouTube-Video" : "YouTube-Short") : "TikTok"} · ${first.title || first.key}`;
@@ -2746,7 +2781,21 @@ a.bell { display: none; }
     body.classList.toggle("more", body.scrollHeight - body.clientHeight - body.scrollTop > 2);
     if (!body.dataset.watch) { body.dataset.watch = "1"; body.addEventListener("scroll", () => moreBelow(body), { passive: true }); }
   }
-  window.addEventListener("resize", () => requestAnimationFrame(() => { fitPlan(); fades(); }));
+  window.addEventListener("resize", () => requestAnimationFrame(() => { fitPlan(); fitPosts(); fades(); }));
+  // Felix 09.11.: the next posts fill their tile; as many as fit on the one-screen layout, else three
+  function fitPosts() {
+    const box = $("nextposts"); if (!box) return;
+    const posts = [...box.querySelectorAll(".npost")];
+    posts.forEach((p, i) => { p.hidden = !ONE_SCREEN.matches && i > 2; });
+    if (!ONE_SCREEN.matches || !box.clientHeight) return;
+    for (let i = posts.length - 1; i > 0 && box.scrollHeight > box.clientHeight + 1; i--) posts[i].hidden = true;
+  }
+  // tap a ring: it grows and shows its detail line inside, tap again (or the other one) to close
+  document.querySelectorAll("#o-rings .ring").forEach(r => r.addEventListener("click", () => {
+    const open = r.getAttribute("aria-expanded") !== "true";
+    document.querySelectorAll("#o-rings .ring").forEach(o => o.setAttribute("aria-expanded", String(o === r && open)));
+    $("o-rings").classList.toggle("ringopen", open);
+  }));
   function fades() { document.querySelectorAll("section.area.on .scroll").forEach(moreBelow); }
   document.querySelectorAll("nav.jump a").forEach(a => { a.title = (a.querySelector(".nl") || a).textContent.trim(); });     // the icon rail and phone bar show names as tooltips
   function planCard(x, day, now, missed, vids) {
