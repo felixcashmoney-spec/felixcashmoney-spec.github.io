@@ -128,7 +128,7 @@ section.area > .title h2 { font-size: 1.5rem; }
 .empty { color: var(--muted); font-size: .85rem; }
 
 /* alerts */
-.pcard img.sheet { display: block; width: 100%; height: auto; margin-top: 6px; border-radius: 6px; }
+.pcard img.sheet { display: block; width: 100%; height: 140px; object-fit: contain; background: var(--line); border-radius: 6px; }     /* 09.11.: the 3 x 3 sheet is a peek, it never outgrows the card */
 .alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .alerts li { display: grid; grid-template-columns: 4px minmax(0, 1fr); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .alerts li::before { content: ""; background: var(--faint); }
@@ -2720,15 +2720,17 @@ a.bell { display: none; }
     if (state.planAt) tl.scrollLeft = keep; else planToToday(false);
     requestAnimationFrame(fitPlan);
   }
-  // Bühne (08.11.): on the one-screen layout every day fits its column. The pictures give way first,
+  // Bühne (08.11.): on the one-screen layout every day fits its column. Frame sheets, then the pictures give way first,
   // evenly, down to a 36 px strip; titles are never sliced. Only if that is not enough the day scrolls.
   const ONE_SCREEN = window.matchMedia ? window.matchMedia("(min-width: 1000px) and (min-height: 620px)") : { matches: false };
   function fitPlan() {
     for (const body of document.querySelectorAll("#s-plan .daycol .body")) {
-      const pics = [...body.querySelectorAll(".pcard > .thumb:not(.noimg)")];
+      const pics = [...body.querySelectorAll(".pcard > .thumb:not(.noimg)")], sheets = [...body.querySelectorAll(".pcard > img.sheet")];
       pics.forEach(t => { t.style.height = ""; t.style.aspectRatio = ""; t.classList.remove("slim"); });
+      sheets.forEach(s => { s.hidden = false; });
       if (!ONE_SCREEN.matches || !body.clientHeight) { body.classList.remove("more"); continue; }
       let over = body.scrollHeight - body.clientHeight;
+      for (const s of sheets.reverse()) { if (over <= 0) break; s.hidden = true; over = body.scrollHeight - body.clientHeight; }     // 09.11.: the 3 x 3 frame sheets go first, from the bottom
       for (let round = 0; over > 0 && round < 3; round++) {
         const free = pics.filter(t => t.offsetHeight > 36); if (!free.length) break;
         const each = Math.ceil(over / free.length);
