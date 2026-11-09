@@ -1061,6 +1061,14 @@ a.bell { display: none; }
   #o-rings .ring .mid b { font-size: clamp(.9rem, 5cqw, 1.6rem); } #o-rings .ring .mid small { display: block; font-size: clamp(.62rem, 2.4cqw, .8rem); }
   #o-rings .ring .name { font-size: .85rem; }
 }
+
+/* Felix 09.11.: one head line instead of two on the one-screen layout: the tab's name and note move up */
+#head-note { display: none; }
+@media (min-width: 1000px) and (min-height: 620px) {
+  header.top .eyebrow { display: none; }
+  #head-note { display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60vw; }
+  section.area > .title { display: none !important; }
+}
 </style>
 </head>
 <body>
@@ -1074,7 +1082,7 @@ a.bell { display: none; }
   </nav>
   </aside>
   <header class="top">
-    <div><div class="eyebrow">YouTube und TikTok</div><h1>Dashboard</h1></div>
+    <div><div class="eyebrow">YouTube und TikTok</div><h1 id="head-title">Dashboard</h1><div class="muted small" id="head-note"></div></div>
     <div class="meta">
       <span id="overall" class="pill idle" hidden>Lädt …</span><!-- Felix 08.11.: Störungen zeigt die Glocke unten; der Text bleibt für den Tab-Titel -->
       <span class="small livehead" id="t-livewrap"><span class="livedot" id="t-livedot"></span><span id="t-live">YouTube</span></span>
@@ -1674,6 +1682,19 @@ a.bell { display: none; }
     if (end.at - start.at > 650 || Math.abs(dx) < 56 || Math.abs(dy) > 60 || Math.abs(dx) < Math.abs(dy) * 1.6) return 0;
     return dx < 0 ? 1 : -1;
   }
+  // Felix 09.11.: on the one-screen layout the open tab's name and note sit in the head, so no second
+  // title row takes room above the tiles. The Übersicht keeps "Dashboard".
+  function syncHead() {
+    const sec = document.querySelector("section.area.on"); if (!sec) return;
+    const ov = sec.id === "s-overview", h2 = sec.querySelector(":scope > .title h2"), note = sec.querySelector(":scope > .title > span");
+    const title = ov || !h2 ? "Dashboard" : h2.textContent, text = ov ? "YouTube und TikTok" : note ? note.textContent : "";
+    if ($("head-title").textContent !== title) $("head-title").textContent = title;
+    if ($("head-note").textContent !== text) $("head-note").textContent = text;
+  }
+  if (window.MutationObserver) {      // notes are filled by the renders
+    const headWatch = new MutationObserver(syncHead);
+    document.querySelectorAll("section.area > .title").forEach(t => headWatch.observe(t, { subtree: true, childList: true, characterData: true }));
+  }
   function showTab(id, dir, vertical) {
     if (!id || !/^s-/.test(id) || !$(id)) id = "s-overview";
     const fresh = !$(id).classList.contains("on");
@@ -1684,6 +1705,7 @@ a.bell { display: none; }
     try { localStorage.setItem(TAB_STORE, id); } catch (_) { /* private mode: starts on Übersicht */ }
     if (id === "s-plan" && !state.planAt) planToToday(false);
     if (id === "s-plan") requestAnimationFrame(fitPlan);
+    syncHead();
     if (id === "s-overview") requestAnimationFrame(fitPosts);      // rendered while hidden: measure now that it shows
     requestAnimationFrame(() => document.querySelectorAll(`#${id} .scroll`).forEach(moreBelow));
   }
