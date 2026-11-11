@@ -1,14 +1,14 @@
 {
- "at": "2026-11-11T18:56:03Z",
+ "at": "2026-11-11T19:56:02Z",
  "channel": {
   "subscribers": 3,
-  "views": 4425,
+  "views": 4532,
   "videos": 19
  },
  "videos": {
   "Z--gYPP488U": {
-   "views": 56,
-   "likes": 1,
+   "views": 162,
+   "likes": 3,
    "comments": 1,
    "published": "2026-11-11T16:00:14Z"
   },
@@ -37,7 +37,7 @@
    "published": "2026-11-09T19:00:19Z"
   },
   "AkmmI8k33kw": {
-   "views": 70,
+   "views": 71,
    "likes": 0,
    "comments": 1,
    "published": "2026-11-09T16:00:04Z"
