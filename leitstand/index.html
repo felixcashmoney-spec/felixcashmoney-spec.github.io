@@ -3142,8 +3142,10 @@ a.bell { display: none; }
       svg.append(g);
     }
     const parts = [["Abos", b.fixed_eur, "var(--accent)"], ["Claude", b.api_eur, "var(--warn-mark)"], ["frei", Math.max(0, b.limit_eur - b.spent_eur), "var(--track)"]];
+    // S4 (Felix 12.11.): subscriptions outside the limit show their own amounts, never „Abos 0 €“; old data as before.
+    const subsOut = Array.isArray(b.subscriptions) && b.subscriptions_in_limit === false ? "Abos außerhalb der Grenze: " + b.subscriptions.map(x => `${x.name} ` + (x.eur != null ? `${eur(x.eur)} €` : x.usd != null ? `${eur(x.usd)} $ Listenpreis` : "fehlt")).join(", ") : null;
     const stack = $("cost-stack"), leg = $("cost-legend"); stack.replaceChildren(); leg.replaceChildren();
-    for (const [n, v, c] of parts) { const i = el("i"); i.style.width = (v / Math.max(b.limit_eur, b.spent_eur) * 100) + "%"; i.style.background = c; stack.append(i); const s = el("span", null, `${n} ${eur(v)} €` + (n === "Claude" ? ` (${eur(b.api_usd)} $ von ${int(b.api_limit_usd)} $)` : "")); s.style.setProperty("--c", c); leg.append(s); }
+    for (const [n, v, c] of parts) { const i = el("i"); i.style.width = (v / Math.max(b.limit_eur, b.spent_eur) * 100) + "%"; i.style.background = c; stack.append(i); const s = el("span", null, n === "Abos" && subsOut ? subsOut : `${n} ${eur(v)} €` + (n === "Claude" ? ` (${eur(b.api_usd)} $ von ${int(b.api_limit_usd)} $)` : "")); s.style.setProperty("--c", c); leg.append(s); }
     $("cost-note").textContent = `${b.month ? b.month.slice(5) + "/" + b.month.slice(0, 4) : ""} · bisher ${eur(b.spent_eur)} € · Prognose ${eur(b.forecast_eur)} € von ${int(b.limit_eur)} €`;
   }
 
