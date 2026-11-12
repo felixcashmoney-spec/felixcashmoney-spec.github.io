@@ -1,21 +1,21 @@
 {
- "at": "2026-11-12T02:36:02Z",
+ "at": "2026-11-12T03:31:02Z",
  "channel": {
   "subscribers": 3,
-  "views": 4774,
+  "views": 4772,
   "videos": 20
  },
  "videos": {
   "1-Vh4_oZCkA": {
-   "views": 31,
-   "likes": 0,
+   "views": 30,
+   "likes": 1,
    "comments": 1,
    "published": "2026-11-11T21:00:29Z"
   },
   "Z--gYPP488U": {
-   "views": 347,
+   "views": 345,
    "likes": 3,
-   "comments": 2,
+   "comments": 1,
    "published": "2026-11-11T16:00:14Z"
   },
   "7LS1d_EjWqw": {
@@ -31,7 +31,7 @@
    "published": "2026-11-10T16:00:15Z"
   },
   "_snZ7X8ahVM": {
-   "views": 219,
+   "views": 220,
    "likes": 5,
    "comments": 2,
    "published": "2026-11-09T21:00:07Z"
