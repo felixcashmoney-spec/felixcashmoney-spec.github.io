@@ -1,8 +1,8 @@
 {
- "at": "2026-11-17T21:16:02Z",
+ "at": "2026-11-17T22:11:02Z",
  "channel": {
   "subscribers": 3,
-  "views": 6379,
+  "views": 6389,
   "videos": 33
  },
  "videos": {
@@ -13,13 +13,13 @@
    "published": "2026-11-17T21:00:28Z"
   },
   "XAFHbmNTKLk": {
-   "views": 36,
+   "views": 35,
    "likes": 1,
    "comments": 0,
    "published": "2026-11-17T16:00:15Z"
   },
   "RTisQqswslU": {
-   "views": 228,
+   "views": 239,
    "likes": 0,
    "comments": 1,
    "published": "2026-11-16T21:00:23Z"
