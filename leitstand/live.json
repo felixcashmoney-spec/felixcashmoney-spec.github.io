@@ -1,13 +1,19 @@
 {
- "at": "2026-11-20T20:11:02Z",
+ "at": "2026-11-20T21:11:03Z",
  "channel": {
   "subscribers": 3,
-  "views": 7598,
-  "videos": 39
+  "views": 7600,
+  "videos": 40
  },
  "videos": {
+  "DPrr38Lq9aA": {
+   "views": 0,
+   "likes": 0,
+   "comments": 0,
+   "published": "2026-11-20T21:00:37Z"
+  },
   "YT1ZgElpOIg": {
-   "views": 3,
+   "views": 5,
    "likes": 0,
    "comments": 0,
    "published": "2026-11-20T16:00:02Z"
